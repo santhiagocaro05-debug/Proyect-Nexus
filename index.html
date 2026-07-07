@@ -1957,17 +1957,64 @@ body.light .alert-ticker-wrap::after{background:linear-gradient(270deg,var(--bg)
 </div>
 
 <!-- ============ FIREBASE (solo autenticación) ============ -->
+<!-- ============ FIREBASE (solo autenticación) ============ -->
 <script type="module">
   try {
     const {
-      auth, registerUser, loginUser, logoutUser, onAuthChange,
-      loginWithGoogle, loginWithGithub, resetPassword
+      auth,
+      registerUser,
+      loginUser,
+      logoutUser,
+      onAuthChange,
+      loginWithGoogle,
+      loginWithGithub,
+      resetPassword,
+      // ✅ NUEVAS FUNCIONES DE FIRESTORE
+      getUserProfile,
+      saveUserProfile,
+      getAllUsers,
+      getComments,
+      addComment,
+      deleteComment,
+      getPosts,
+      addPost,
+      deletePost,
+      uploadAvatar,
+      listenUsers,
+      listenComments,
+      listenPosts
     } = await import('./firebase-config.js');
-    window.fb = { auth, registerUser, loginUser, logoutUser, onAuthChange, loginWithGoogle, loginWithGithub, resetPassword };
+    
+    // ✅ EXPONER TODO EN window.fb
+    window.fb = {
+      auth,
+      registerUser,
+      loginUser,
+      logoutUser,
+      onAuthChange,
+      loginWithGoogle,
+      loginWithGithub,
+      resetPassword,
+      getUserProfile,
+      saveUserProfile,
+      getAllUsers,
+      getComments,
+      addComment,
+      deleteComment,
+      getPosts,
+      addPost,
+      deletePost,
+      uploadAvatar,
+      listenUsers,
+      listenComments,
+      listenPosts
+    };
+    
     window.fbReady = true;
+    console.log('✅ Firebase cargado correctamente');
     window.dispatchEvent(new Event('fb-ready'));
   } catch (err) {
-    console.error('No se pudo cargar firebase-config.js:', err);
+    console.error('❌ No se pudo cargar firebase-config.js:', err);
     window.fbError = true;
     window.dispatchEvent(new Event('fb-error'));
   }
