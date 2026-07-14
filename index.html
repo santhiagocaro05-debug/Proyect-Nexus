@@ -46,6 +46,7 @@
     <link rel="stylesheet" href="css/style.css">
     <script type="module" src="js/firebase-init.js"></script>
     <script src="js/script.js"></script>
+    <script src="js/i18n.js"></script>
 </head>
 <body>
 
@@ -222,54 +223,60 @@
         <div class="wrap nav">
             <a href="#" class="logo">
                 <div style="display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0;">
-                    <div style="width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--cyan),var(--amber));display:grid;place-items:center;color:#04121a;font-size:.9rem;box-shadow:0 0 20px var(--cyan-dim);transition:transform .3s,box-shadow .3s;">
-                        <i class="fas fa-bolt"></i>
-                    </div>
+                    <img src="assets/vvv.png" alt="Proyect Nexus" style="width:36px;height:36px;border-radius:11px;object-fit:cover;box-shadow:0 0 20px var(--cyan-dim);transition:transform .3s,box-shadow .3s;">
                     <span class="logo-name">Proyect <span>Nexus</span></span>
                 </div>
             </a>
             <nav class="nav-links">
+                <a href="#" data-i18n="nav_home">Inicio</a>
+                <a href="#products" data-i18n="nav_products">Productos</a>
+                <a href="#comments" data-i18n="nav_comments">Comentarios</a>
+                <a href="#foro" data-i18n="nav_forum">Foro</a>
+                <a href="#features" data-i18n="nav_features">Características</a>
+                <a href="#team" data-i18n="nav_team">Equipo</a>
+            </nav>
+            <div class="nav-end">
+                <button class="icon-btn" id="themeBtn" title="Tema"><i class="fas fa-moon" id="themeIcon"></i></button>
+                <a href="contributors.html" class="icon-btn" title="Contribuidores" style="text-decoration:none;"><i class="fas fa-users"></i></a>
+                <button class="icon-btn" id="langBtn" title="Idioma"><i class="fas fa-globe"></i> <span id="langLabel">EN</span></button>
+                <button class="icon-btn" id="adminBtn" title="Panel Admin" style="display:none;"><i class="fas fa-shield-halved"></i></button>
+                <button class="avatar-btn" id="profileNavBtn" title="Mi Perfil" style="display:none;background:var(--panel);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:50%;overflow:hidden;padding:0;position:relative;">
+                    <div id="profileNavAvatar" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;background:var(--cyan-dim);color:var(--cyan);">?</div>
+                </button>
+                <button class="btn" id="authBtn" style="background: linear-gradient(135deg, var(--cyan), var(--amber)); color: #04121a; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 700; box-shadow: 0 4px 15px var(--cyan-dim); transition: transform 0.2s, box-shadow 0.2s;">
+                    <i class="fas fa-user-astronaut"></i> <span id="authText">Iniciar Sesión</span>
+                </button>
+                <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+        <nav class="mobile-nav" id="mobileNav">
+            <div style="display:flex; flex-direction:column; gap:12px; padding: 5px 0;">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <select id="currencySelector" style="flex:1; background:var(--panel-strong); border:1px solid var(--border); color:var(--text); padding:8px 12px; border-radius:12px; font-size:.9rem; font-weight:600; cursor:pointer; outline:none; appearance:none;">
+                        <option value="USD">💵 Dólar (USD)</option>
+                        <option value="COP">🇨🇴 Peso (COP)</option>
+                        <option value="EUR">🇪🇺 Euro (EUR)</option>
+                        <option value="BRL">🇧🇷 Real (BRL)</option>
+                    </select>
+                    <button id="cartBtn" class="btn btn-solid" style="padding:8px 16px; position:relative; background:var(--cyan); color:#04121a;">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cartCount" style="position:absolute; top:-6px; right:-6px; background:var(--danger); color:#fff; font-size:.65rem; font-weight:700; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; opacity:0; transition:all .3s;">0</span>
+                    </button>
+                </div>
+                <button class="btn btn-ghost" onclick="document.getElementById('donateOverlay').classList.add('open');document.body.style.overflow='hidden';return false;" style="color:var(--danger); justify-content:center; border:1px solid var(--danger-dim);">
+                    <i class="fas fa-heart"></i> Donar al Proyecto
+                </button>
+            </div>
+            
+            <div style="border-top:1px solid var(--border); margin:5px 0;" class="mobile-only"></div>
+            <div class="mobile-only" style="gap:2px;">
                 <a href="#">Inicio</a>
                 <a href="#products">Productos</a>
                 <a href="#comments">Comentarios</a>
                 <a href="#foro">Foro</a>
                 <a href="#features">Características</a>
                 <a href="#team">Equipo</a>
-            </nav>
-            <div class="nav-end">
-                <button class="icon-btn" id="themeBtn"><i class="fas fa-moon" id="themeIcon"></i></button>
-                <button class="icon-btn" id="langBtn"><i class="fas fa-globe"></i> <span id="langLabel">EN</span></button>
-                <select id="currencySelector" class="icon-btn" style="background:var(--panel);border:1px solid var(--border);color:var(--text-dim);padding:0 12px;height:36px;border-radius:10px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;outline:none;appearance:none;">
-                    <option value="USD">💵 USD</option>
-                    <option value="COP">🇨🇴 COP</option>
-                    <option value="EUR">🇪🇺 EUR</option>
-                    <option value="BRL">🇧🇷 BRL</option>
-                </select>
-                <button class="icon-btn" id="cartBtn" style="position:relative;">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span id="cartCount" style="position:absolute;top:-6px;right:-6px;background:var(--amber);color:#241300;font-size:.6rem;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);opacity:0;transition:all .3s;">0</span>
-                </button>
-                <button class="icon-btn" onclick="document.getElementById('donateOverlay').classList.add('open');document.body.style.overflow='hidden'" title="Donar 💜" style="color:var(--danger);"><i class="fas fa-heart"></i></button>
-                <a href="contributors.html" class="icon-btn" title="Contribuidores" style="text-decoration:none;"><i class="fas fa-users"></i></a>
-                <button class="icon-btn" id="adminBtn" title="Panel Admin" style="display:none;"><i class="fas fa-shield-halved"></i></button>
-                <button class="avatar-btn" id="profileNavBtn" title="Mi Perfil" style="display:none;background:var(--panel);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:50%;overflow:hidden;padding:0;position:relative;">
-                    <div id="profileNavAvatar" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;background:var(--cyan-dim);color:var(--cyan);">?</div>
-                </button>
-                <button class="btn btn-solid btn-sm" id="authBtn" style="padding:0 14px;gap:7px;font-size:.8rem;font-weight:600;">
-                    <i class="fas fa-user"></i> <span id="authText">Login</span>
-                </button>
-                <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
             </div>
-        </div>
-        <nav class="mobile-nav" id="mobileNav">
-            <a href="#">Inicio</a>
-            <a href="#products">Productos</a>
-            <a href="#comments">Comentarios</a>
-            <a href="#foro">Foro</a>
-            <a href="#features">Características</a>
-            <a href="#team">Equipo</a>
-            <a href="contributors.html"><i class="fas fa-users"></i> Contribuidores</a>
-            <a href="#" onclick="document.getElementById('donateOverlay').classList.add('open');document.body.style.overflow='hidden';return false;"><i class="fas fa-heart" style="color:var(--danger);"></i> Donar</a>
         </nav>
     </header>
 
@@ -801,9 +808,12 @@
 
     
     <div class="overlay profile-modal" id="profileOverlay">
-        <div class="modal" style="max-width:480px;">
+        <div class="modal" style="max-width:480px;overflow:hidden;">
             <button class="modal-x" onclick="closeOverlay('profileOverlay')"><i class="fas fa-times"></i></button>
-            <div class="profile-avatar-lg" id="profileAvatar" onclick="document.getElementById('avatarInput').click()">
+            <!-- Banner Header -->
+            <div id="profileBannerDisplay" style="width:100%;height:100px;background:linear-gradient(135deg, var(--bg-2), var(--panel-strong));margin:-24px -24px 0 -24px;width:calc(100% + 48px);overflow:hidden;position:relative;">
+            </div>
+            <div class="profile-avatar-lg" id="profileAvatar" onclick="document.getElementById('avatarInput').click()" style="margin-top:-40px;position:relative;z-index:2;">
                 <div id="profileAvatarContent">👤</div>
                 <div class="cam"><i class="fas fa-camera"></i> Cambiar foto</div>
                 <input type="file" id="avatarInput" accept="image/*" style="display:none;">
@@ -812,12 +822,43 @@
             <div style="text-align:center;"><span class="role-pill" id="profileRoleBadge">MEMBER</span></div>
             <div class="p-bio" id="profileBio">Sin descripción aún</div>
             <div class="badge-row" id="profileBadges"></div>
+            <div id="profileSocials" style="display:flex;gap:12px;justify-content:center;margin-top:8px;"></div>
             <div id="profileEditSection">
-                <textarea id="profileBioInput" rows="3" placeholder="Escribe una descripción sobre ti..." style="width:100%;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:12px;color:var(--text);font-family:inherit;resize:vertical;font-size:.88rem;margin-top:8px;outline:none;"></textarea>
+                <!-- Banner -->
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:.72rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px;">🖼️ Portada</label>
+                    <div id="profileBannerPreview" style="width:100%;height:90px;border-radius:12px;background:var(--bg-2);border:1px dashed var(--border);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:.8rem;transition:all .2s;" onclick="document.getElementById('bannerInput').click()">
+                        <i class="fas fa-image" style="margin-right:6px;"></i> Subir portada
+                    </div>
+                    <input type="file" id="bannerInput" accept="image/*" style="display:none;">
+                </div>
+                <!-- Bio -->
+                <textarea id="profileBioInput" rows="3" placeholder="Escribe una descripción sobre ti..." style="width:100%;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:12px;color:var(--text);font-family:inherit;resize:vertical;font-size:.88rem;margin-top:4px;outline:none;"></textarea>
+                <!-- Insignias -->
                 <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
                     <input type="text" id="profileBadgeInput" placeholder="Agregar insignia (ej: 🚀 Early Adopter)" style="flex:1;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;">
                     <button onclick="addCustomBadge()" class="btn btn-solid btn-sm" style="padding:10px 16px;font-size:.78rem;"><i class="fas fa-plus"></i></button>
                 </div>
+                <!-- Color de acento -->
+                <div style="display:flex;align-items:center;gap:10px;margin-top:12px;">
+                    <label style="font-size:.75rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;">🎨 Color</label>
+                    <input type="color" id="profileAccentColor" value="#F2B544" style="width:36px;height:30px;border:1px solid var(--border);border-radius:8px;background:var(--bg-2);cursor:pointer;padding:2px;">
+                </div>
+                <!-- Redes Sociales -->
+                <div style="margin-top:12px;">
+                    <label style="font-size:.72rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px;">🔗 Redes Sociales</label>
+                    <div style="display:flex;gap:8px;">
+                        <div style="flex:1;display:flex;align-items:center;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;">
+                            <i class="fab fa-discord" style="color:#5865F2;font-size:.9rem;"></i>
+                            <input type="text" id="profileDiscord" placeholder="Tu usuario Discord" style="flex:1;background:none;border:none;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;">
+                        </div>
+                        <div style="flex:1;display:flex;align-items:center;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;">
+                            <i class="fab fa-twitter" style="color:#1DA1F2;font-size:.9rem;"></i>
+                            <input type="text" id="profileTwitter" placeholder="@usuario" style="flex:1;background:none;border:none;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;">
+                        </div>
+                    </div>
+                </div>
+                <!-- Botones -->
                 <div style="margin-top:12px;display:flex;gap:8px;">
                     <button onclick="saveProfile()" class="btn btn-solid" style="flex:1;justify-content:center;"><i class="fas fa-save"></i> Guardar perfil</button>
                     <button onclick="openLogoutModal()" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--danger-dim);border:1px solid rgba(255,93,106,.25);color:var(--danger);padding:12px;border-radius:100px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit;transition:all .2s;"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
@@ -869,7 +910,25 @@
         </div>
     </div>
 
-  
+    <!-- Modal Checkout WhatsApp/Discord -->
+    <div class="overlay" id="checkoutOverlay">
+        <div class="modal" style="max-width:400px; text-align:center;">
+            <button class="modal-x" onclick="document.getElementById('checkoutOverlay').classList.remove('open')"><i class="fas fa-times"></i></button>
+            <div style="font-size:3rem; margin-bottom:15px; color:var(--success);">
+                <i class="fab fa-whatsapp"></i>
+            </div>
+            <h3 style="font-family:var(--font-display); font-size:1.4rem; margin-bottom:10px;">Completar Compra</h3>
+            <p style="color:var(--text-dim); font-size:0.95rem; margin-bottom:25px;">Para finalizar tu compra de forma segura, contáctanos por WhatsApp o Discord para recibir tus productos instantáneamente.</p>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <a href="https://wa.me/573018951690?text=Hola,%20quiero%20comprar%20los%20productos%20de%20mi%20carrito%20en%20Proyect%20Nexus." target="_blank" class="btn btn-solid" style="background:#25D366; color:#fff; font-weight:bold; border:none; text-decoration:none; justify-content:center;">
+                    <i class="fab fa-whatsapp"></i> WhatsApp (+57 301 895 1690)
+                </a>
+                <button class="btn btn-ghost" onclick="document.getElementById('discordOverlay').classList.add('open'); document.getElementById('checkoutOverlay').classList.remove('open');" style="color:#5865F2; justify-content:center;">
+                    <i class="fab fa-discord"></i> Contactar por Discord
+                </button>
+            </div>
+        </div>
+    </div>
     <div class="overlay" id="authModal">
     <div class="modal auth-modal">
         <button class="modal-x" id="authModalClose"><i class="fas fa-times"></i></button>
@@ -1111,5 +1170,48 @@
         </div>
     </div>
 </div>
+
+<!-- Chat FAB -->
+<button id="chatFab" class="chat-fab" style="display:none;" onclick="toggleChatPanel()">
+    <i class="fas fa-comments"></i>
+    <span id="chatUnread" class="chat-unread" style="display:none;">0</span>
+</button>
+
+<!-- Chat Panel -->
+<div id="chatPanel" class="chat-panel">
+    <div class="chat-panel-header">
+        <div id="chatHeaderTitle" style="display:flex;align-items:center;gap:8px;">
+            <i class="fas fa-comments" style="color:var(--cyan);"></i>
+            <span style="font-weight:700;font-family:var(--font-display);">Mensajes</span>
+        </div>
+        <div style="display:flex;gap:6px;">
+            <button id="chatBackBtn" class="icon-btn" style="display:none;" onclick="showChatList()"><i class="fas fa-arrow-left"></i></button>
+            <button class="icon-btn" onclick="toggleChatPanel()"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+    <!-- Search -->
+    <div class="chat-search">
+        <i class="fas fa-search" style="color:var(--text-faint);font-size:.8rem;"></i>
+        <input type="text" id="chatSearchInput" placeholder="Buscar usuario por nombre o email..." oninput="searchChatUsers(this.value)">
+    </div>
+    <div id="chatSearchResults" class="chat-search-results" style="display:none;"></div>
+    <!-- Chat List -->
+    <div id="chatListView" class="chat-list">
+        <div id="chatListEmpty" style="text-align:center;padding:40px 20px;color:var(--text-faint);">
+            <i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:10px;"></i>
+            <p style="font-size:.85rem;">No tienes conversaciones aún</p>
+            <p style="font-size:.75rem;margin-top:4px;">Busca a alguien arriba para empezar</p>
+        </div>
+    </div>
+    <!-- Active Chat -->
+    <div id="chatActiveView" class="chat-active" style="display:none;">
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-input-area">
+            <input type="text" id="chatMsgInput" placeholder="Escribe un mensaje..." onkeydown="if(event.key==='Enter')sendChatMsg()">
+            <button onclick="sendChatMsg()" class="chat-send-btn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
