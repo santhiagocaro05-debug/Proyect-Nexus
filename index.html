@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -246,9 +246,14 @@
                 <button class="btn" id="authBtn" style="background: linear-gradient(135deg, var(--cyan), var(--amber)); color: #04121a; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 700; box-shadow: 0 4px 15px var(--cyan-dim); transition: transform 0.2s, box-shadow 0.2s;">
                     <i class="fas fa-user-astronaut"></i> <span id="authText">Iniciar Sesión</span>
                 </button>
-                <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+                <button class="hamburger" id="hamburger" aria-label="Menú">
+                    <span class="hbar"></span>
+                    <span class="hbar"></span>
+                    <span class="hbar"></span> 
+                </button>
             </div>
         </div>
+        <div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
         <nav class="mobile-nav" id="mobileNav">
             <div style="display:flex; flex-direction:column; gap:12px; padding: 5px 0;">
                 <div style="display:flex; gap:10px; align-items:center;">
@@ -1173,7 +1178,7 @@
 
 <!-- Chat FAB -->
 <button id="chatFab" class="chat-fab" style="display:none;" onclick="toggleChatPanel()">
-    <i class="fas fa-comments"></i>
+    <i class="fas fa-comment-dots"></i> <!-- o fa-comments -->
     <span id="chatUnread" class="chat-unread" style="display:none;">0</span>
 </button>
 
