@@ -3426,3 +3426,138 @@
     height: 1px !important;
     margin: 10px 0 !important;
 }
+
+/* =========================================
+   NUEVAS MEJORAS (ADMIN PANEL, CHAT, PRODUCTOS)
+   ========================================= */
+.admin-section {
+    display: none;
+}
+.admin-section.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Categorías múltiples */
+.cat-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.cat-chip {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    user-select: none;
+}
+.cat-chip:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+}
+.cat-chip.selected {
+    background: var(--cyan-dim);
+    border-color: var(--cyan);
+    color: #fff;
+    font-weight: bold;
+    box-shadow: 0 0 10px rgba(79, 216, 255, 0.2);
+}
+
+/* Rediseño Admin Products */
+.admin-product-form {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.admin-product-form h4 {
+    margin-bottom: 20px;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--cyan);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+@media(max-width: 768px) {
+    .form-grid { grid-template-columns: 1fr; }
+}
+
+/* Mejoras Chat */
+.chat-msg {
+    position: relative;
+}
+.chat-msg-img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-top: 8px;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.chat-msg-edit-btn {
+    position: absolute;
+    right: -10px;
+    top: -10px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.2s;
+    z-index: 10;
+}
+.chat-msg-edit-btn:hover {
+    color: var(--cyan);
+    border-color: var(--cyan);
+    transform: scale(1.1);
+}
+.chat-msg:hover .chat-msg-edit-btn {
+    display: flex;
+}
+.chat-image-preview-wrap {
+    position: relative;
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+.chat-image-preview-wrap img {
+    height: 60px;
+    border-radius: 6px;
+    border: 1px solid var(--cyan);
+}
+.chat-image-preview-wrap .del-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
