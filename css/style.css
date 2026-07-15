@@ -2860,8 +2860,8 @@
 /* --- BOTÓN FLOTANTE (IZQUIERDA) --- */
 .chat-fab {
     position: fixed;
-    bottom: 32px;
-    left: 32px;
+    bottom: 84px;
+    left: 24px;
     width: 68px;
     height: 68px;
     border-radius: 50%;
@@ -3319,8 +3319,8 @@
         width: 46px;
         height: 46px;
         font-size: 1.2rem;
-        bottom: 12px;
-        left: 12px;
+        bottom: 80px;
+        left: 16px;
     }
 }
 /* ===== HAMBURGUESA ANIMADA ===== */
