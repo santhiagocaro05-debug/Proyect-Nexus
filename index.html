@@ -49,6 +49,7 @@
     <script src="js/i18n.js"></script>
 </head>
 <body>
+    <div id="google_translate_element" style="display:none;"></div>
 
     
     <div id="loader">
@@ -238,7 +239,10 @@
             <div class="nav-end">
                 <button class="icon-btn" id="themeBtn" title="Tema"><i class="fas fa-moon" id="themeIcon"></i></button>
                 <a href="contributors.html" class="icon-btn" title="Contribuidores" style="text-decoration:none;"><i class="fas fa-users"></i></a>
-                <button class="icon-btn" id="langBtn" title="Idioma"><i class="fas fa-globe"></i> <span id="langLabel">EN</span></button>
+                <div style="position:relative;">
+                    <button class="icon-btn" id="langBtn" title="Idioma"><i class="fas fa-globe"></i> <span id="langLabel">ES</span></button>
+                    <div id="langDropdown" class="lang-dropdown"></div>
+                </div>
                 <button class="icon-btn" id="adminBtn" title="Panel Admin" style="display:none;"><i class="fas fa-shield-halved"></i></button>
                 <button class="avatar-btn" id="profileNavBtn" title="Mi Perfil" style="display:none;background:var(--panel);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:50%;overflow:hidden;padding:0;position:relative;">
                     <div id="profileNavAvatar" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;background:var(--cyan-dim);color:var(--cyan);">?</div>
