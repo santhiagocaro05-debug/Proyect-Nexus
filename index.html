@@ -1089,31 +1089,38 @@
                 
                 <div class="admin-section" id="atab-products">
                     
-                    <div class="panel" style="padding:20px;margin-bottom:20px;border:1px solid rgba(79,216,255,0.1);">
-                        <h4 style="margin-bottom:14px;font-family:var(--font-display);font-size:1.05rem;">
-                            <i class="fas fa-plus-circle" style="color:var(--cyan);"></i> Nuevo producto
+                    <div class="admin-product-form" id="adminProductFormWrap">
+                        <input type="hidden" id="npEditId" value="">
+                        <h4 id="npFormTitle">
+                            <i class="fas fa-plus-circle"></i> Nuevo producto
                         </h4>
                         
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                        <div class="form-grid">
                             <input type="text" id="npName" class="field" placeholder="Nombre del producto" required>
-                            <select id="npCat" class="field">
-                                <option value="free">🆓 Gratis</option>
-                                <option value="premium">💎 Premium</option>
-                                <option value="apk">📱 APK</option>
-                                <option value="windows">🖥️ Windows</option>
-                                <option value="consolas">🎮 Consolas</option>
-                            </select>
                             <input type="text" id="npPrice" class="field" placeholder="Precio (ej: $0 o $19.99)">
-                            <input type="text" id="npEmoji" class="field" placeholder="Emoji (ej: 🤖 o ⭐)">
                         </div>
                         
-                        <input type="text" id="npId" class="field" placeholder="ID único (ej: mi_producto)" style="margin-bottom:12px;">
+                        <div style="margin-bottom:8px;font-size:.72rem;font-weight:700;color:var(--text-faint);letter-spacing:.08em;text-transform:uppercase;">
+                            🏷️ Categorías
+                        </div>
+                        <div id="npCatChips" class="cat-chips">
+                            <div class="cat-chip" data-val="free">🆓 Gratis</div>
+                            <div class="cat-chip" data-val="premium">💎 Premium</div>
+                            <div class="cat-chip" data-val="apk">📱 APK</div>
+                            <div class="cat-chip" data-val="windows">🖥️ Windows</div>
+                            <div class="cat-chip" data-val="consolas">🎮 Consolas</div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <input type="text" id="npEmoji" class="field" placeholder="Emoji (ej: 🤖 o ⭐)">
+                            <input type="text" id="npId" class="field" placeholder="ID único (ej: mi_producto)">
+                        </div>
                         
                         <textarea id="npShortDesc" class="field" rows="2" placeholder="Descripción corta (aparece en la tarjeta)" style="margin-bottom:12px;"></textarea>
                         <textarea id="npDesc" class="field" rows="3" placeholder="Descripción completa" style="margin-bottom:12px;"></textarea>
                         <textarea id="npFeats" class="field" rows="3" placeholder="Características (una por línea)" style="margin-bottom:12px;"></textarea>
                         
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+                        <div class="form-grid">
                             <input type="text" id="npDl" class="field" placeholder="Link de descarga / pago">
                             <input type="text" id="npColor" class="field" placeholder="Color (ej: #8b5cf6)">
                         </div>
@@ -1129,9 +1136,14 @@
                         </div>
                         <img id="npPreview" style="display:none;max-height:120px;border-radius:10px;margin-bottom:12px;border:1px solid var(--border);">
                         
-                        <button onclick="createNewProduct()" class="btn btn-solid btn-block" style="background:linear-gradient(135deg,var(--cyan),var(--amber));">
-                            <i class="fas fa-save"></i> Crear producto
-                        </button>
+                        <div style="display:flex;gap:10px;">
+                            <button onclick="createNewProduct()" class="btn btn-solid btn-block" style="background:linear-gradient(135deg,var(--cyan),var(--amber));">
+                                <i class="fas fa-save"></i> <span id="npSubmitBtnText">Crear producto</span>
+                            </button>
+                            <button id="npCancelEditBtn" onclick="cancelEditProduct()" class="btn btn-danger" style="display:none;padding:0 20px;">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
                     </div>
                     
                     
@@ -1217,9 +1229,21 @@
     <!-- Active Chat -->
     <div id="chatActiveView" class="chat-active" style="display:none;">
         <div id="chatMessages" class="chat-messages"></div>
-        <div class="chat-input-area">
-            <input type="text" id="chatMsgInput" placeholder="Escribe un mensaje..." onkeydown="if(event.key==='Enter')sendChatMsg()">
-            <button onclick="sendChatMsg()" class="chat-send-btn"><i class="fas fa-paper-plane"></i></button>
+        <div class="chat-input-area" style="position:relative; flex-direction:column; align-items:stretch; padding:10px;">
+            <div id="chatImagePreview" class="chat-image-preview-wrap" style="display:none;">
+                <img id="chatImgPreviewEl" src="">
+                <button class="del-btn" onclick="clearChatImage()"><i class="fas fa-times"></i></button>
+            </div>
+            <div style="display:flex; align-items:center; width: 100%; gap: 8px;">
+                <input type="file" id="chatImageInput" accept="image/*" style="display:none;" onchange="handleChatImage(this.files[0])">
+                <button onclick="document.getElementById('chatImageInput').click()" style="background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:1.1rem; padding:5px;"><i class="fas fa-image"></i></button>
+                
+                <input type="hidden" id="chatEditMsgId" value="">
+                <input type="text" id="chatMsgInput" style="flex:1; border:none; background:var(--bg-panel); color:var(--text); padding:10px 14px; border-radius:20px; font-size:.85rem; outline:none;" placeholder="Escribe un mensaje..." onkeydown="if(event.key==='Enter')sendChatMsg()">
+                
+                <button id="chatCancelEditBtn" onclick="cancelEditChatMsg()" style="display:none; background:none; border:none; color:var(--danger); cursor:pointer; padding:5px;"><i class="fas fa-times"></i></button>
+                <button onclick="sendChatMsg()" class="chat-send-btn" style="background:var(--cyan); color:black; border:none; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fas fa-paper-plane"></i></button>
+            </div>
         </div>
     </div>
 </div>
