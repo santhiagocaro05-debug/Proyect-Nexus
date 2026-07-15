@@ -3561,3 +3561,52 @@
     align-items: center;
     justify-content: center;
 }
+/* Ocultar la interfaz por defecto de Google Translate */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-gadget-icon,
+#goog-gt-tt,
+.goog-tooltip,
+.goog-text-highlight {
+    display: none !important;
+    background: none !important;
+    box-shadow: none !important;
+}
+body {
+    top: 0 !important;
+    position: static !important;
+}
+#google_translate_element {
+    display: none !important;
+}
+iframe.skiptranslate {
+    display: none !important;
+}
+
+/* Menú desplegable de idiomas */
+.lang-dropdown {
+    display: none;
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px;
+    min-width: 190px;
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 9999;
+    box-shadow: 0 10px 30px rgba(0,0,0,.5);
+}
+.lang-option {
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: .85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+    transition: background .15s;
+}
+.lang-option:hover { background: var(--panel-strong); }
