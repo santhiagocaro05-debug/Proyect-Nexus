@@ -480,7 +480,7 @@
             border-radius: var(--r-lg);
             overflow: hidden;
             border: 1px solid var(--border);
-            height: 440px;
+            height: 480px;
             background: #000;
         }
         .carousel-track {
@@ -493,6 +493,10 @@
             inset: 0;
             opacity: 0;
             transition: opacity .9s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0e14;
         }
         .carousel-slide.active {
             opacity: 1;
@@ -500,11 +504,21 @@
         .carousel-media {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            background-size: cover;
+            object-fit: contain;
+            background-size: contain;
             background-position: center;
+            background-repeat: no-repeat;
+            border-radius: 16px;
+            transition: transform 0.4s ease;
             display: block;
         }
+        .carousel-slide video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 16px;
+        }
+
         .carousel-slide::after {
             content: '';
             position: absolute;
@@ -960,7 +974,7 @@
         .forum-img {
             width: 100%;
             height: 170px;
-            object-fit: cover;
+            object-fit: contain;
             background: var(--bg-3);
         }
         .forum-img-ph {
@@ -3610,3 +3624,91 @@ iframe.skiptranslate {
     transition: background .15s;
 }
 .lang-option:hover { background: var(--panel-strong); }
+/* ===== IMÁGENES EN GENERAL ===== */
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* ===== CARRUSEL ===== */
+.carousel-media {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 16px;
+    transition: transform 0.4s ease;
+    display: block;
+    background: #0a0e14;
+}
+
+.carousel-slide video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 16px;
+}
+
+/* ===== PRODUCTOS ===== */
+.prod-thumb {
+    aspect-ratio: 16/10;
+    position: relative;
+    overflow: hidden;
+    background: #0a0e14;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prod-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #0a0e14;
+    transition: transform .5s;
+    padding: 4px;
+}
+
+.prod-card:hover .prod-thumb img {
+    transform: scale(1.03);
+}
+
+/* ===== FORO ===== */
+.forum-img {
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    background: #0a0e14;
+}
+
+.forum-img-ph {
+    width: 100%;
+    height: 170px;
+    background: #0a0e14;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-faint);
+    font-size: 2rem;
+}
+
+/* ===== MODAL DE PRODUCTO ===== */
+#mThumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #0a0e14;
+}
+
+/* ===== PERFIL ===== */
+#profileBannerDisplay img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar-lg img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
