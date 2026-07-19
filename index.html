@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -53,30 +53,29 @@
 
     
     <div id="loader">
-        <div class="loader-container" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:32px;position:relative;">
-            <div class="loader-particles">
-                <div class="loader-particle"></div>
-                <div class="loader-particle"></div>
-                <div class="loader-particle"></div>
-                <div class="loader-particle"></div>
-                <div class="loader-particle"></div>
-                <div class="loader-particle"></div>
+        <div class="loader-glass"></div>
+        <div class="loader-container" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;position:relative;z-index:2;">
+            
+            <!-- Core Rings -->
+            <div class="nexus-core">
+                <div class="nexus-ring n-ring-1"></div>
+                <div class="nexus-ring n-ring-2"></div>
+                <div class="nexus-ring n-ring-3"></div>
+                <div class="nexus-logo"><i class="fas fa-bolt"></i></div>
             </div>
-            <div class="loader-ring-premium">
-                <div class="loader-logo-premium">
-                    <i class="fas fa-bolt"></i>
-                </div>
-            </div>
-            <div class="loader-text-premium">
-                CARGANDO NEXUS
+            
+            <div class="nexus-text">
+                INICIANDO SISTEMA
                 <span class="loader-dot">.</span>
                 <span class="loader-dot">.</span>
                 <span class="loader-dot">.</span>
             </div>
-            <div class="loader-progress">
-                <div class="loader-progress-bar" id="loaderProgressBar"></div>
+            
+            <div class="nexus-progress-wrap">
+                <div class="nexus-progress-bar" id="loaderProgressBar"></div>
+                <div class="nexus-progress-glow" id="loaderProgressGlow"></div>
             </div>
-            <div style="font-size:0.75rem;color:var(--text-faint);font-weight:600;letter-spacing:0.1em;font-family:var(--font-mono);margin-top:-8px;" id="loaderPercent">0%</div>
+            <div class="nexus-percent" id="loaderPercent">0%</div>
         </div>
     </div>
 
@@ -261,12 +260,31 @@
         <nav class="mobile-nav" id="mobileNav">
             <div style="display:flex; flex-direction:column; gap:12px; padding: 5px 0;">
                 <div style="display:flex; gap:10px; align-items:center;">
-                    <select id="currencySelector" style="flex:1; background:var(--panel-strong); border:1px solid var(--border); color:var(--text); padding:8px 12px; border-radius:12px; font-size:.9rem; font-weight:600; cursor:pointer; outline:none; appearance:none;">
-                        <option value="USD">us Dólar (USD)</option>
-                        <option value="COP">🇨🇴 Peso (COP)</option>
-                        <option value="EUR">🇪🇺 Euro (EUR)</option>
-                        <option value="BRL">🇧🇷 Real (BRL)</option>
-                    </select>
+                    <div class="currency-select-wrap" style="position:relative;flex:1;">
+    <button type="button" id="currencyBtn" class="oauth-btn" style="width:100%;padding:8px 12px;font-size:.9rem;font-weight:600;justify-content:space-between;">
+        <span id="selectedCurrencyLabel" style="display:flex;align-items:center;gap:8px;">🇺🇸 USD</span>
+        <i class="fas fa-chevron-down" style="font-size:.65rem;color:var(--text-faint);"></i>
+    </button>
+
+    <!-- select oculto: mantiene compatibilidad con tu script.js actual -->
+    <select id="currencySelector" style="display:none;">
+        <option value="USD">Dólar (USD)</option>
+        <option value="COP">Peso (COP)</option>
+        <option value="MXN">Peso (MXN)</option>
+        <option value="ARS">Peso (ARS)</option>
+        <option value="EUR">Euro (EUR)</option>
+        <option value="BRL">Real (BRL)</option>
+    </select>
+
+    <div id="currencyDropdown" class="lang-dropdown" style="display:none;width:100%;">
+        <div class="currency-option" data-code="USD" data-flag="🇺🇸" data-name="Dólar">🇺🇸 <span>Dólar</span><small>USD</small></div>
+        <div class="currency-option" data-code="COP" data-flag="🇨🇴" data-name="Peso Colombiano">🇨🇴 <span>Peso Colombiano</span><small>COP</small></div>
+        <div class="currency-option" data-code="MXN" data-flag="🇲🇽" data-name="Peso Mexicano">🇲🇽 <span>Peso Mexicano</span><small>MXN</small></div>
+        <div class="currency-option" data-code="ARS" data-flag="🇦🇷" data-name="Peso Argentino">🇦🇷 <span>Peso Argentino</span><small>ARS</small></div>
+        <div class="currency-option" data-code="EUR" data-flag="🇪🇺" data-name="Euro">🇪🇺 <span>Euro</span><small>EUR</small></div>
+        <div class="currency-option" data-code="BRL" data-flag="🇧🇷" data-name="Real">🇧🇷 <span>Real</span><small>BRL</small></div>
+    </div>
+</div>
                     <button id="cartBtn" class="btn btn-solid" style="padding:8px 16px; position:relative; background:var(--cyan); color:#04121a;">
                         <i class="fas fa-shopping-cart"></i>
                         <span id="cartCount" style="position:absolute; top:-6px; right:-6px; background:var(--danger); color:#fff; font-size:.65rem; font-weight:700; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; opacity:0; transition:all .3s;">0</span>
@@ -390,7 +408,27 @@
                 </div>
                 <div class="prod-grid" id="productsGrid"></div>
                 <div id="productsShowMoreWrap" style="display:flex;justify-content:center;margin-top:36px;"></div>
+            </section>
+
+            <!-- SECCION DE APPS -->
+            <section id="apps-section" style="scroll-margin-top:80px;padding:104px 0;">
+                <div class="section-head rv vis">
+                    <span class="eyebrow">APPS DE LA COMUNIDAD</span>
+                    <h2>Nuestras Apps</h2>
+                    <p>Descubre y explora todas las aplicaciones disponibles con este catálogo interactivo.</p>
+                </div>
                 
+                <div class="book-container" id="appsBookContainer">
+                    <div id="appsBookEmpty" style="text-align:center;color:var(--text-faint);padding:40px;">Cargando apps...</div>
+                    <div class="book-slider" id="appsBookSlider" style="display:none;">
+                        <!-- JS injected cards -->
+                    </div>
+                    <div class="book-controls" id="appsBookControls" style="display:none; justify-content:center; gap:20px; margin-top:30px;">
+                        <button class="btn btn-ghost" id="appPrevBtn" onclick="prevAppPage()"><i class="fas fa-chevron-left"></i> Anterior</button>
+                        <span id="appPageIndicator" style="display:flex;align-items:center;font-weight:bold;font-family:var(--font-mono);">1 / 1</span>
+                        <button class="btn btn-ghost" id="appNextBtn" onclick="nextAppPage()">Siguiente <i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
             </section>
 
             
@@ -601,6 +639,7 @@
     <div class="mp-body" id="mpBody">
         <div class="mp-nowplaying">
             <div class="mp-art" id="mpArt"><i class="fas fa-compact-disc"></i></div>
+            <iframe id="ytIframe" width="60" height="60" style="display:none; border-radius:10px; flex-shrink:0;" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
             <div class="mp-trackinfo">
                 <div class="mp-track-name" id="mpTrackName">Selecciona una canción</div>
                 <div class="mp-track-artist" id="mpTrackArtist">—</div>
@@ -791,9 +830,27 @@
                 </div>
                 <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:8px;">
                     <p style="font-size:.82rem;color:var(--text-dim);line-height:1.6;margin-bottom:10px;">Escríbenos por Discord para coordinar el pago con tarjeta de forma segura y directa.</p>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
-                        <div style="background:var(--panel-strong);border:1px solid var(--border);border-radius:10px;padding:10px 12px;"><label style="font-size:.6rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Visa / Mastercard</label><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--text);">Aceptadas</span></div>
-                        <div style="background:var(--panel-strong);border:1px solid var(--border);border-radius:10px;padding:10px 12px;"><label style="font-size:.6rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Moneda</label><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--text);">USD · VES · COP</span></div>
+                    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px;">
+                        <div style="background:var(--panel-strong);border:1px solid var(--border);border-radius:10px;padding:10px 12px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <label style="font-size:.6rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Tarjetas Aceptadas</label>
+                                <span style="font-family:var(--font-mono);font-size:.82rem;color:var(--text);">Visa / Mastercard</span>
+                            </div>
+                            <div style="display:flex;gap:6px;font-size:1.4rem;">
+                                <i class="fab fa-cc-visa" style="color:#1A1F71;"></i>
+                                <i class="fab fa-cc-mastercard" style="color:#EB001B;"></i>
+                            </div>
+                        </div>
+                        <div style="background:var(--panel-strong);border:1px solid var(--border);border-radius:10px;padding:12px;">
+                            <label style="font-size:.6rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:8px;">Monedas Locales & Internacionales</label>
+                            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                                <span style="background:rgba(0,255,229,0.1);color:var(--cyan);border:1px solid rgba(0,255,229,0.2);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇺🇸 USD</span>
+                                <span style="background:rgba(255,193,7,0.1);color:var(--amber);border:1px solid rgba(255,193,7,0.2);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇨🇴 COP</span>
+                                <span style="background:rgba(255,93,106,0.1);color:var(--danger);border:1px solid rgba(255,93,106,0.2);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇲🇽 MXN</span>
+                                <span style="background:rgba(123,47,255,0.1);color:#a87bff;border:1px solid rgba(123,47,255,0.2);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇦🇷 ARS</span>
+                                <span style="background:rgba(255,255,255,0.05);color:var(--text);border:1px solid rgba(255,255,255,0.1);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇻🇪 VES</span>
+                            </div>
+                        </div>
                     </div>
                     <a href="https://discord.gg/Nahh9XhnvR" target="_blank" class="btn btn-solid btn-block" style="background:#5865F2;color:#fff;box-shadow:0 6px 20px rgba(88,101,242,.3);"><i class="fab fa-discord"></i> Coordinar por Discord</a>
                 </div>
@@ -1080,6 +1137,7 @@
             <div class="admin-tabs">
                 <button class="admin-tab active" data-atab="overview">📊 Vista general</button>
                 <button class="admin-tab" data-atab="products">📦 Productos</button>
+                <button class="admin-tab" data-atab="apps">📱 Apps</button>
                 <button class="admin-tab" data-atab="comments">💬 Comentarios</button>
                 <button class="admin-tab" data-atab="posts">📝 Publicaciones</button>
                 <button class="admin-tab" data-atab="users">👥 Usuarios</button>
@@ -1090,6 +1148,19 @@
                 <div class="admin-section active" id="atab-overview">
                     <div class="admin-stat-row" id="adminStats"></div>
                     <p style="color:var(--text-dim);font-size:.83rem;text-align:center;">Bienvenido al panel de control de 157 Team.</p>
+                </div>
+
+                <!-- ADMIN APPS -->
+                <div class="admin-section" id="atab-apps">
+                    <h4 style="margin-bottom:12px;font-family:var(--font-display);">Gestión de Apps</h4>
+                    <div class="admin-product-form" style="background:var(--panel);padding:16px;border-radius:10px;border:1px solid var(--border);margin-bottom:16px;">
+                        <input type="text" id="adminAppName" class="field" placeholder="Nombre de la App (ej: YimMenu)" style="margin-bottom:8px;">
+                        <input type="text" id="adminAppDesc" class="field" placeholder="Descripción corta" style="margin-bottom:8px;">
+                        <input type="text" id="adminAppIcon" class="field" placeholder="URL del Ícono / Imagen" style="margin-bottom:8px;">
+                        <input type="text" id="adminAppLink" class="field" placeholder="URL de Descarga/Acceso" style="margin-bottom:12px;">
+                        <button onclick="saveAdminApp()" class="btn btn-solid" style="width:100%;"><i class="fas fa-save"></i> Guardar App</button>
+                    </div>
+                    <div id="adminAppsList" style="display:flex;flex-direction:column;gap:8px;"></div>
                 </div>
 
                 
