@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -413,13 +413,13 @@
             <!-- SECCION DE APPS -->
             <section id="apps-section" style="scroll-margin-top:80px;padding:104px 0;">
                 <div class="section-head rv vis">
-                    <span class="eyebrow">APPS DE LA COMUNIDAD</span>
-                    <h2>Nuestras Apps</h2>
-                    <p>Descubre y explora todas las aplicaciones disponibles con este catálogo interactivo.</p>
+                    <span class="eyebrow">APPS</span>
+                    <h2>Actualizaciones</h2>
+                    <p>Descubre y explora todas las Actuualizaciones disponibles con este catálogo interactivo.</p>
                 </div>
                 
                 <div class="book-container" id="appsBookContainer">
-                    <div id="appsBookEmpty" style="text-align:center;color:var(--text-faint);padding:40px;">Cargando apps...</div>
+                    <div id="appsBookEmpty" style="text-align:center;color:var(--text-faint);padding:40px;">Cargando...</div>
                     <div class="book-slider" id="appsBookSlider" style="display:none;">
                         <!-- JS injected cards -->
                     </div>
@@ -639,7 +639,7 @@
     <div class="mp-body" id="mpBody">
         <div class="mp-nowplaying">
             <div class="mp-art" id="mpArt"><i class="fas fa-compact-disc"></i></div>
-            <iframe id="ytIframe" width="60" height="60" style="display:none; border-radius:10px; flex-shrink:0;" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            <div id="ytIframeContainer" style="display:none; border-radius:10px; flex-shrink:0; width:60px; height:60px; overflow:hidden;"><div id="ytIframe"></div></div>
             <div class="mp-trackinfo">
                 <div class="mp-track-name" id="mpTrackName">Selecciona una canción</div>
                 <div class="mp-track-artist" id="mpTrackArtist">—</div>
@@ -918,14 +918,20 @@
                 <!-- Redes Sociales -->
                 <div style="margin-top:12px;">
                     <label style="font-size:.72rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px;">🔗 Redes Sociales</label>
-                    <div style="display:flex;gap:8px;">
-                        <div style="flex:1;display:flex;align-items:center;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;">
-                            <i class="fab fa-discord" style="color:#5865F2;font-size:.9rem;"></i>
-                            <input type="text" id="profileDiscord" placeholder="Tu usuario Discord" style="flex:1;background:none;border:none;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;">
+                    <div style="display:flex;gap:8px;flex-direction:column;">
+                        <div style="display:flex;gap:8px;">
+                            <div style="flex:1;display:flex;align-items:center;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;">
+                                <i class="fab fa-discord" style="color:#5865F2;font-size:.9rem;"></i>
+                                <input type="text" id="profileDiscord" placeholder="Tu usuario Discord" style="flex:1;background:none;border:none;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;">
+                            </div>
+                            <div style="flex:1;display:flex;align-items:center;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;">
+                                <i class="fab fa-twitter" style="color:#1DA1F2;font-size:.9rem;"></i>
+                                <input type="text" id="profileTwitter" placeholder="@usuario Twitter" style="flex:1;background:none;border:none;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;">
+                            </div>
                         </div>
                         <div style="flex:1;display:flex;align-items:center;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;">
-                            <i class="fab fa-twitter" style="color:#1DA1F2;font-size:.9rem;"></i>
-                            <input type="text" id="profileTwitter" placeholder="@usuario" style="flex:1;background:none;border:none;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;">
+                            <i class="fab fa-instagram" style="color:#E1306C;font-size:.9rem;"></i>
+                            <input type="text" id="profileInstagram" placeholder="@usuario Instagram" style="flex:1;background:none;border:none;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;">
                         </div>
                     </div>
                 </div>
@@ -1154,11 +1160,12 @@
                 <div class="admin-section" id="atab-apps">
                     <h4 style="margin-bottom:12px;font-family:var(--font-display);">Gestión de Apps</h4>
                     <div class="admin-product-form" style="background:var(--panel);padding:16px;border-radius:10px;border:1px solid var(--border);margin-bottom:16px;">
-                        <input type="text" id="adminAppName" class="field" placeholder="Nombre de la App (ej: YimMenu)" style="margin-bottom:8px;">
-                        <input type="text" id="adminAppDesc" class="field" placeholder="Descripción corta" style="margin-bottom:8px;">
-                        <input type="text" id="adminAppIcon" class="field" placeholder="URL del Ícono / Imagen" style="margin-bottom:8px;">
-                        <input type="text" id="adminAppLink" class="field" placeholder="URL de Descarga/Acceso" style="margin-bottom:12px;">
-                        <button onclick="saveAdminApp()" class="btn btn-solid" style="width:100%;"><i class="fas fa-save"></i> Guardar App</button>
+                        <input type="text" id="adminAppName" class="field" placeholder="Nombre de la App (ej: Nexus)" style="margin-bottom:8px;">
+                        <input type="text" id="adminAppVersion" class="field" placeholder="Versión (ej: v1.2.0)" style="margin-bottom:8px;">
+                        <input type="text" id="adminAppDesc" class="field" placeholder="Descripción general de la actualización" style="margin-bottom:8px;">
+                        <textarea id="adminAppAdded" class="field" placeholder="Nuevas funciones (una por línea)" style="margin-bottom:8px; min-height:60px; resize:vertical;"></textarea>
+                        <textarea id="adminAppFixed" class="field" placeholder="Bugs solucionados (uno por línea)" style="margin-bottom:12px; min-height:60px; resize:vertical;"></textarea>
+                        <button onclick="saveAdminApp()" class="btn btn-solid" style="width:100%;"><i class="fas fa-save"></i> Publicar Actualización</button>
                     </div>
                     <div id="adminAppsList" style="display:flex;flex-direction:column;gap:8px;"></div>
                 </div>
@@ -1325,5 +1332,6 @@
     </div>
 </div>
 
+    <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
