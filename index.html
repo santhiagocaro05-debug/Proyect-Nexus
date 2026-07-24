@@ -1180,6 +1180,13 @@
                         <input type="text" id="adminAppName" class="field" placeholder="Nombre de la App (ej: Nexus)" style="margin-bottom:8px;">
                         <input type="text" id="adminAppVersion" class="field" placeholder="Versión (ej: v1.2.0)" style="margin-bottom:8px;">
                         <input type="text" id="adminAppDesc" class="field" placeholder="Descripción general de la actualización" style="margin-bottom:8px;">
+                        <input type="text" id="adminAppImage" class="field" placeholder="URL de la Imagen (opcional)" style="margin-bottom:8px;">
+                        <div style="display:flex; gap:8px; margin-bottom:8px;">
+                            <label style="color:var(--text-dim); font-size:0.85rem; display:flex; align-items:center; gap:8px;">
+                                Tema/Accesorio: 
+                                <input type="color" id="adminAppColor" value="#00ffe5" style="border:none; border-radius:4px; width:30px; height:30px; padding:0; cursor:pointer;">
+                            </label>
+                        </div>
                         <textarea id="adminAppAdded" class="field" placeholder="Nuevas funciones (una por línea)" style="margin-bottom:8px; min-height:60px; resize:vertical;"></textarea>
                         <textarea id="adminAppFixed" class="field" placeholder="Bugs solucionados (uno por línea)" style="margin-bottom:12px; min-height:60px; resize:vertical;"></textarea>
                         <button onclick="saveAdminApp()" class="btn btn-solid" style="width:100%;"><i class="fas fa-save"></i> Publicar Actualización</button>
