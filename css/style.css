@@ -4146,3 +4146,632 @@ img {
     color: var(--cyan);
     font-weight: bold;
 }
+/* ============================================================
+   BOTS DE DISCORD - ESTILOS CON BOTONES ALINEADOS
+   ============================================================ */
+
+/* --- Contenedor principal --- */
+#discord-bots {
+    background: transparent;
+}
+
+/* --- Encabezado --- */
+.section-head {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.section-head .eyebrow {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--cyan);
+    background: var(--cyan-dim);
+    padding: 4px 16px;
+    border-radius: 30px;
+    margin-bottom: 10px;
+}
+
+.section-head h2 {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, var(--text), var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.section-head p {
+    color: var(--text-dim);
+    font-size: 1rem;
+}
+
+/* --- Filtros --- */
+.bot-filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 40px;
+}
+
+.filter-btn {
+    padding: 8px 20px;
+    border-radius: 30px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text-dim);
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    border-color: var(--cyan);
+    color: var(--text);
+}
+
+.filter-btn.active {
+    background: var(--cyan);
+    color: #04121a;
+    border-color: var(--cyan);
+    box-shadow: 0 0 25px rgba(0, 255, 229, 0.2);
+}
+
+/* ==========================================================
+   GRID DE BOTS - MISMA ALTURA
+   ========================================================== */
+.bots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: stretch;
+}
+
+/* ==========================================================
+   TARJETA - FLEX PARA BOTONES ALINEADOS
+   ========================================================== */
+.bot-card {
+    background: var(--panel);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+.bot-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--cyan);
+    box-shadow: 0 16px 50px rgba(0, 255, 229, 0.12);
+}
+
+/* --- Tarjeta de raid (Bloody Chaos) --- */
+.bot-card.card-raid {
+    border-color: rgba(255, 0, 0, 0.25);
+    background: linear-gradient(170deg, var(--panel), rgba(255, 0, 0, 0.04));
+}
+
+.bot-card.card-raid:hover {
+    border-color: var(--danger);
+    box-shadow: 0 16px 50px rgba(255, 0, 0, 0.2);
+}
+
+/* ==========================================================
+   BANNER
+   ========================================================== */
+.bot-banner {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 21/9;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.banner-bg {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* --- Banner de raid con animación --- */
+.raid-banner .banner-bg {
+    animation: raidGlow 3s ease-in-out infinite;
+}
+
+@keyframes raidGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* --- Banner de música con animación --- */
+@keyframes musicGlow {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* --- Icono del banner --- */
+.banner-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    z-index: 2;
+}
+
+.raid-icon {
+    border-color: rgba(255, 0, 0, 0.4);
+    color: #ff4444;
+    animation: raidPulse 2s ease-in-out infinite;
+}
+
+@keyframes raidPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+}
+
+/* --- Badge de raid en el banner --- */
+.raid-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.raid-label {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: rgba(255, 0, 0, 0.1);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    user-select: none;
+}
+
+.raid-badge-top {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: rgba(255, 0, 0, 0.9);
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 30px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: raidPulse 1.5s ease-in-out infinite;
+    z-index: 5;
+}
+
+/* --- Estado del bot (online/offline) --- */
+.bot-status-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 14px;
+    border-radius: 30px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 5;
+}
+
+.bot-status-badge .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.bot-status-badge.online {
+    background: rgba(61, 220, 151, 0.2);
+    color: var(--success);
+    border: 1px solid rgba(61, 220, 151, 0.25);
+}
+
+.bot-status-badge.online .dot {
+    background: var(--success);
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.bot-status-badge.offline {
+    background: rgba(255, 93, 106, 0.2);
+    color: var(--danger);
+    border: 1px solid rgba(255, 93, 106, 0.25);
+}
+
+.bot-status-badge.offline .dot {
+    background: var(--danger);
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+/* ==========================================================
+   CUERPO DE LA TARJETA - FLEX PARA BOTÓN AL FINAL
+   ========================================================== */
+.bot-body {
+    padding: 20px 22px 24px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 10px;
+}
+
+/* --- Hace que todo el contenido crezca y el botón quede abajo --- */
+.bot-body > *:not(.bot-btn-wrapper) {
+    flex-shrink: 0;
+}
+
+.bot-body .bot-desc {
+    flex-shrink: 0;
+}
+
+.bot-body .bot-features-grid,
+.bot-body .raid-features,
+.bot-body .music-features {
+    flex-shrink: 0;
+}
+
+.bot-body .bot-tags {
+    flex-shrink: 0;
+}
+
+.bot-body .bot-stats {
+    flex-shrink: 0;
+}
+
+.bot-body .permission-warning {
+    flex-shrink: 0;
+}
+
+/* --- WRAPPER DEL BOTÓN - Empuja el botón hacia abajo --- */
+.bot-btn-wrapper {
+    margin-top: auto;
+    padding-top: 6px;
+    width: 100%;
+}
+
+/* ==========================================================
+   FEATURES GRID
+   ========================================================== */
+
+/* --- Features base --- */
+.bot-features-grid,
+.raid-features,
+.music-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+    border-radius: 12px;
+    padding: 12px 14px;
+}
+
+/* --- Features de MODERACIÓN (Nexus Info) --- */
+.bot-features-grid {
+    background: rgba(0, 255, 229, 0.04);
+    border: 1px solid rgba(0, 255, 229, 0.06);
+}
+
+.bot-features-grid .bf-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+
+.bot-features-grid .bf-item i {
+    color: var(--cyan);
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.bot-features-grid .bf-item strong {
+    color: var(--text);
+    display: block;
+    font-size: 0.75rem;
+}
+
+.bot-features-grid .bf-item span {
+    font-size: 0.65rem;
+    color: var(--text-faint);
+}
+
+/* --- Features de RAID (Bloody Chaos) --- */
+.raid-features {
+    background: rgba(255, 0, 0, 0.04);
+    border: 1px solid rgba(255, 0, 0, 0.06);
+}
+
+.raid-features .rf-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+
+.raid-features .rf-item i {
+    color: var(--danger);
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.raid-features .rf-item strong {
+    color: var(--text);
+    display: block;
+    font-size: 0.75rem;
+}
+
+.raid-features .rf-item span {
+    font-size: 0.65rem;
+    color: var(--text-faint);
+}
+
+/* --- Features de MÚSICA (Nexus Music) --- */
+.music-features {
+    background: rgba(192, 132, 252, 0.04);
+    border: 1px solid rgba(192, 132, 252, 0.06);
+    grid-template-columns: 1fr 1fr;
+}
+
+.music-features .mf-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+}
+
+.music-features .mf-item i {
+    color: #c084fc;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.music-features .mf-item strong {
+    color: var(--text);
+    display: block;
+    font-size: 0.75rem;
+}
+
+.music-features .mf-item span {
+    font-size: 0.65rem;
+    color: var(--text-faint);
+}
+
+/* ==========================================================
+   TAGS
+   ========================================================== */
+.bot-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.tag {
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 3px 12px;
+    border-radius: 30px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.tag-info { background: var(--cyan-dim); color: var(--cyan); }
+.tag-mod { background: rgba(192, 132, 252, 0.15); color: #c084fc; }
+.tag-util { background: var(--amber-dim); color: var(--amber); }
+.tag-ent { background: var(--danger-dim); color: var(--danger); }
+.tag-music { background: rgba(192, 132, 252, 0.15); color: #c084fc; }
+
+.tag-raid { background: rgba(255, 0, 0, 0.15); color: var(--danger); }
+.tag-dest { background: rgba(255, 93, 106, 0.15); color: #ff5d6a; }
+.tag-attack { background: rgba(255, 181, 71, 0.15); color: var(--amber); }
+.tag-admin { background: rgba(192, 132, 252, 0.15); color: #c084fc; }
+
+/* ==========================================================
+   ESTADÍSTICAS
+   ========================================================== */
+.bot-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 0.7rem;
+    color: var(--text-faint);
+}
+
+.bot-stats span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.bot-stats i {
+    font-size: 0.65rem;
+}
+
+/* ==========================================================
+   PERMISOS REQUERIDOS
+   ========================================================== */
+.permission-warning {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(255, 0, 0, 0.06);
+    border: 1px solid rgba(255, 0, 0, 0.12);
+    border-radius: 10px;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+}
+
+.permission-warning i {
+    color: var(--danger);
+    font-size: 0.85rem;
+}
+
+.permission-warning strong {
+    color: var(--danger);
+}
+
+/* ==========================================================
+   BOTONES - TODOS CON LA MISMA ALTURA
+   ========================================================== */
+.bot-btn-wrapper .btn-disabled,
+.bot-btn-wrapper .btn-raid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-radius: 12px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.85rem;
+    width: 100%;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    min-height: 48px;
+}
+
+/* --- Botón deshabilitado --- */
+.bot-btn-wrapper .btn-disabled {
+    background: var(--border);
+    color: var(--text-faint);
+    cursor: not-allowed;
+}
+
+/* --- Botón de invitación normal --- */
+.bot-btn-wrapper .btn-invite {
+    background: linear-gradient(135deg, #5865F2, #4752C4);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
+}
+
+.bot-btn-wrapper .btn-invite:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(88, 101, 242, 0.4);
+}
+
+/* --- Botón de RAID (peligroso) --- */
+.bot-btn-wrapper .btn-raid {
+    background: linear-gradient(135deg, #cc0000, #ff0000);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.35);
+    animation: raidPulse 2s ease-in-out infinite;
+}
+
+.bot-btn-wrapper .btn-raid:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 35px rgba(255, 0, 0, 0.55);
+}
+
+/* ==========================================================
+   DESCRIPCIÓN DE RAID
+   ========================================================== */
+.raid-desc .alert-text {
+    color: var(--danger);
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* ==========================================================
+   ANIMACIONES
+   ========================================================== */
+.bot-card.rv {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bot-card.rv.vis {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+@media (max-width: 768px) {
+    .bots-grid {
+        grid-template-columns: 1fr;
+        max-width: 440px;
+    }
+
+    .section-head h2 {
+        font-size: 1.6rem;
+    }
+
+    .bot-features-grid,
+    .raid-features,
+    .music-features {
+        grid-template-columns: 1fr;
+    }
+
+    .bot-filters .filter-btn {
+        font-size: 0.7rem;
+        padding: 6px 14px;
+    }
+
+    .bot-head {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .bot-body {
+        padding: 16px;
+    }
+
+    .bot-name {
+        font-size: 1rem;
+    }
+
+    .raid-label {
+        font-size: 2.2rem;
+    }
+
+    .bot-stats {
+        flex-wrap: wrap;
+        gap: 8px 14px;
+    }
+}
