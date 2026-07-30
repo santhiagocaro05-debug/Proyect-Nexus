@@ -2132,16 +2132,6 @@ function showSaveOrderButton() {
                 const res = await window.fb.getUserProfile(currentUser.uid);
                 if (res && res.success && res.data) {
                     const prof = res.data;
-
-                    // FIX: sincroniza isDeveloper desde Firestore (nunca se copiaba
-                    // desde ningún login), y refresca el botón del panel developer
-
-                    currentUser.isDeveloper = !!prof.isDeveloper;
-                    const devBtn = document.getElementById('devPanelBtn');
-                    if (devBtn) {
-                        devBtn.style.display = (currentUser.isDeveloper && !currentUser.isAdmin) ? 'flex' : 'none';
-                    }
-
                     if (prof.avatar) {
                         pna.innerHTML = `<img src="${prof.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
                         pna.style.background = 'transparent';
@@ -2160,12 +2150,8 @@ function showSaveOrderButton() {
                 av.textContent = currentUser.username[0].toUpperCase();
                 av.style.background = 'var(--cyan-dim)';
                 av.style.color = 'var(--cyan)';
-
             }
-
         })();
-
-
         pnb.onclick = () => { location.href = 'perfil.html'; };
         authText.textContent = currentUser.username;
         authBtn.title = 'Cerrar sesión';
