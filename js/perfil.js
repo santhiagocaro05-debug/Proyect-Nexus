@@ -31,7 +31,10 @@ const NAME_EFFECTS = [
     { id: 'gradient', label: 'Degradado' },
     { id: 'glow', label: 'Resplandor' },
     { id: 'rainbow', label: 'Arcoíris' },
-    { id: 'shimmer', label: 'Destello' }
+    { id: 'shimmer', label: 'Destello' },
+    { id: 'neon', label: 'Neón' },
+    { id: 'hologram', label: 'Holograma' },
+    { id: 'plusgold', label: 'Oro Nexus+' }
 ];
 
 const RANK_DISPLAY = {
