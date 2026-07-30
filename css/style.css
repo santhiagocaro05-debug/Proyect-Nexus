@@ -4775,3 +4775,147 @@ img {
         gap: 8px 14px;
     }
 }
+/* --- Username Effects --- */
+.uname-none {
+    color: inherit;
+}
+
+.uname-gradient {
+    background: linear-gradient(135deg, var(--cyan), var(--amber));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 600;
+}
+
+.uname-glow {
+    color: #fff;
+    text-shadow: 0 0 8px var(--cyan), 0 0 16px var(--cyan);
+    font-weight: 600;
+}
+
+.uname-rainbow {
+    background: linear-gradient(90deg, #ff5d6a, #ffc107, #3ddc97, #4fd8ff, #c084fc, #ff5d6a);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: bold;
+    animation: rainbowShift 4s linear infinite;
+}
+
+.uname-shimmer {
+    background: linear-gradient(90deg, var(--text) 0%, #fff 50%, var(--text) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 600;
+    animation: shimmerShift 3s linear infinite;
+}
+
+@keyframes rainbowShift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 150% 50%; }
+}
+
+@keyframes shimmerShift {
+    to { background-position: 200% center; }
+}
+/* ============================================================
+   EFECTOS DE NOMBRE DE USUARIO
+   Inclúyela en <head> de index.html y perfil.html, después de
+   tu css/style.css (para poder usar las mismas variables --cyan,
+   --amber, etc. que ya tienes definidas ahí).
+
+   Uso: <span class="uname uname-gradient">NombreUsuario</span>
+   El valor guardado en Firestore (users/{uid}.nameEffect) decide
+   qué clase aplicar: 'none' | 'gradient' | 'glow' | 'rainbow' | 'shimmer'
+   ============================================================ */
+
+.uname {
+    font-weight: 700;
+    display: inline-block;
+}
+
+.uname-none {
+    color: inherit;
+}
+
+.uname-gradient {
+    background: linear-gradient(135deg, var(--cyan), var(--amber));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.uname-glow {
+    color: #fff;
+    text-shadow: 0 0 6px var(--cyan), 0 0 14px var(--cyan), 0 0 22px rgba(79,216,255,.4);
+}
+
+.uname-rainbow {
+    background: linear-gradient(90deg, #ff5d6a, #ffc107, #3ddc97, #4fd8ff, #c084fc, #ff5d6a);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: unameRainbowShift 5s linear infinite;
+}
+
+.uname-shimmer {
+    background: linear-gradient(110deg, var(--text-dim) 40%, #fff 50%, var(--text-dim) 60%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: unameShimmerSweep 3s linear infinite;
+}
+
+@keyframes unameRainbowShift {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+@keyframes unameShimmerSweep {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Respeta prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    .uname-rainbow, .uname-shimmer {
+        animation: none;
+    }
+}
+
+/* ============================================================
+   Swatches del selector de efectos (usados en perfil.html,
+   pestaña "Ajustes")
+   ============================================================ */
+.effect-swatch {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+}
+
+.effect-swatch:hover {
+    border-color: var(--cyan-dim, rgba(79,216,255,.3));
+}
+
+.effect-swatch.selected {
+    border-color: var(--cyan);
+    background: var(--cyan-dim, rgba(79,216,255,.08));
+}
+
+.effect-swatch-label {
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--text);
+}
