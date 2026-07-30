@@ -4946,3 +4946,43 @@ img {
     -webkit-background-clip: text; background-clip: text; color: transparent;
     filter: drop-shadow(0 0 6px rgba(255,179,71,.35));
 }
+/* ============================================================
+   EFECTO: Developer Verificado (escribiéndose, estilo terminal)
+   ============================================================ */
+.uname-devtype {
+    position: relative;
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    color: var(--cyan, #4fd8ff);
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 2px solid var(--cyan, #4fd8ff);
+    padding-right: 4px;
+    animation:
+        unameTyping 2.2s steps(20, end) 1,
+        unameCaretBlink 0.8s step-end infinite;
+    text-shadow: 0 0 8px rgba(79, 216, 255, 0.35);
+}
+
+@keyframes unameTyping {
+    from { width: 0; }
+    to   { width: 100%; }
+}
+
+@keyframes unameCaretBlink {
+    50% { border-color: transparent; }
+}
+
+/* Si prefieres que el "cursor" se quede parpadeando para siempre
+   sin necesidad de recalcular el ancho exacto del texto (más simple
+   de mantener, funciona con cualquier largo de nombre): */
+.uname-devtype.simple {
+    border-right: none;
+    animation: none;
+}
+.uname-devtype.simple::after {
+    content: '▍';
+    margin-left: 3px;
+    color: var(--cyan, #4fd8ff);
+    animation: unameCaretBlink 0.8s step-end infinite;
+}
