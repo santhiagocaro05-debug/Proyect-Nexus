@@ -244,6 +244,10 @@
                     <div id="langDropdown" class="lang-dropdown"></div>
                 </div>
                 <button class="icon-btn" id="adminBtn" title="Panel Admin" style="display:none;"><i class="fas fa-shield-halved"></i></button>
+                <!-- ===== NUEVO BOTÓN DEV ===== -->
+                <button class="icon-btn" id="devPanelBtn" title="Panel de Desarrollador" style="display:none;">
+                    <i class="fas fa-code"></i>
+                </button>
                 <button class="avatar-btn" id="profileNavBtn" title="Mi Perfil" style="display:none;background:var(--panel);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:50%;overflow:hidden;padding:0;position:relative;">
                     <div id="profileNavAvatar" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;background:var(--cyan-dim);color:var(--cyan);">?</div>
                 </button>
@@ -1466,14 +1470,24 @@
         <div id="adminContent" style="display:none;">
             <div class="admin-tabs">
                 <button class="admin-tab active" data-atab="overview">📊 Vista general</button>
-                <button class="admin-tab" data-atab="products">📦 Productos</button>
+                <button class="admin-tab" data-atab="products">🛍️ Productos</button>
                 <button class="admin-tab" data-atab="apps">📱 Apps</button>
-                <button class="admin-tab" data-atab="comments">💬 Comentarios</button>
-                <button class="admin-tab" data-atab="posts">📝 Publicaciones</button>
-                <button class="admin-tab" data-atab="users">👥 Usuarios</button>
+                <button class="admin-tab admin-only-tab" data-atab="comments">💬 Comentarios</button>
+                <button class="admin-tab admin-only-tab" data-atab="posts">📝 Publicaciones</button>
+                <button class="admin-tab admin-only-tab" data-atab="users">👥 Usuarios</button>
+                <button class="admin-tab admin-only-tab" data-atab="devrequests">👨‍💻 Solicitudes Dev</button>
+                <button class="admin-tab admin-only-tab" data-atab="nexusrequests">🌟 Solicitudes Nexus+</button>
             </div>
             
             <div class="admin-body">
+                <div class="admin-section" id="atab-devrequests">
+                    <h3>Solicitudes de Desarrollador</h3>
+                    <div id="adminDevRequestsList">Cargando...</div>
+                </div>
+                <div class="admin-section" id="atab-nexusrequests">
+                    <h3>Solicitudes Nexus+</h3>
+                    <div id="adminNexusRequestsList">Cargando...</div>
+                </div>
                
                 <div class="admin-section active" id="atab-overview">
                     <div class="admin-stat-row" id="adminStats"></div>
@@ -1607,6 +1621,117 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- ====== NUEVO MODAL PANEL DEVELOPER ====== -->
+<div class="admin-overlay" id="devPanelOverlay">
+    <div class="admin-panel">
+        <div class="admin-head">
+            <h3 style="font-size:1.1rem;">
+                <i class="fas fa-code" style="color:var(--cyan);"></i>
+                Panel de Desarrollador
+                <span class="admin-badge" style="background:var(--cyan-dim);border:1px solid rgba(79,216,255,.3);color:var(--cyan);font-size:.62rem;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:.1em;text-transform:uppercase;margin-left:8px;">DEV</span>
+            </h3>
+            <button class="modal-x" style="position:static;" onclick="closeOverlay('devPanelOverlay')"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="admin-body">
+            <p style="color:var(--text-dim);font-size:.82rem;margin-bottom:20px;line-height:1.6;">
+                Aquí puedes publicar y gestionar <strong style="color:var(--text);">únicamente tus propios productos</strong>. No puedes ver ni editar contenido de otros usuarios.
+            </p>
+
+            <!-- Formulario -->
+            <div class="admin-product-form" id="devProductFormWrap">
+                <input type="hidden" id="dpEditId" value="">
+                <h4 id="dpFormTitle"><i class="fas fa-plus-circle"></i> Nuevo producto</h4>
+
+                <div class="form-grid">
+                    <input type="text" id="dpName" class="field" placeholder="Nombre del producto" required>
+                    <input type="text" id="dpPrice" class="field" placeholder="Precio (ej: $0 o $19.99)">
+                </div>
+
+                <div style="margin-bottom:8px;font-size:.72rem;font-weight:700;color:var(--text-faint);letter-spacing:.08em;text-transform:uppercase;">
+                    🏷️ Categorías
+                </div>
+                <div id="dpCatChips" class="cat-chips">
+                    <div class="cat-chip" data-val="free">🆓 Gratis</div>
+                    <div class="cat-chip" data-val="premium">💎 Premium</div>
+                    <div class="cat-chip" data-val="apk">📱 APK</div>
+                    <div class="cat-chip" data-val="windows">🖥️ Windows</div>
+                    <div class="cat-chip" data-val="asistentes">🤖 Asistentes</div>
+                    <div class="cat-chip" data-val="scripts">📜 Scripts</div>
+                </div>
+
+                <div class="form-grid">
+                    <input type="text" id="dpEmoji" class="field" placeholder="Emoji (ej: 🤖 o ⭐)">
+                    <input type="text" id="dpId" class="field" placeholder="ID único (ej: mi_producto)">
+                </div>
+
+                <textarea id="dpShortDesc" class="field" rows="2" placeholder="Descripción corta (aparece en la tarjeta)" style="margin-bottom:12px;"></textarea>
+                <textarea id="dpDesc" class="field" rows="3" placeholder="Descripción completa" style="margin-bottom:12px;"></textarea>
+                <textarea id="dpFeats" class="field" rows="3" placeholder="Características (una por línea)" style="margin-bottom:12px;"></textarea>
+
+                <div class="form-grid">
+                    <input type="text" id="dpDl" class="field" placeholder="Link de descarga / pago">
+                    <input type="text" id="dpColor" class="field" placeholder="Color (ej: #8b5cf6)">
+                </div>
+
+                <div style="margin-bottom:8px;font-size:.72rem;font-weight:700;color:var(--text-faint);letter-spacing:.08em;text-transform:uppercase;">
+                    🖼️ Imagen del producto
+                </div>
+                <div class="dropzone" style="margin-bottom:12px;padding:20px;">
+                    <input type="file" id="dpImageFile" accept="image/*" onchange="handleDevProductImage(this.files[0])">
+                    <i class="fas fa-cloud-upload-alt" style="font-size:1.5rem;"></i>
+                    <p style="font-size:.82rem;color:var(--text-dim);">Haz clic o arrastra una imagen</p>
+                    <small style="color:var(--text-faint);font-size:.72rem;">PNG, JPG, WEBP — máximo 2MB</small>
+                </div>
+                <img id="dpPreview" style="display:none;max-height:120px;border-radius:10px;margin-bottom:12px;border:1px solid var(--border);">
+
+                <div style="display:flex;gap:10px;">
+                    <button onclick="saveDevProduct()" class="btn btn-solid btn-block" style="background:linear-gradient(135deg,var(--cyan),var(--amber));">
+                        <i class="fas fa-save"></i> <span id="dpSubmitBtnText">Publicar producto</span>
+                    </button>
+                    <button id="dpCancelEditBtn" onclick="cancelEditDevProduct()" class="btn btn-danger" style="display:none;padding:0 20px;">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin:24px 0 16px;">
+                <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;">
+                    📋 Mis productos publicados
+                </h3>
+            </div>
+            <div id="devMyProductsList"></div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== MODAL DE SOLICITUD (AGREGADO) ====== -->
+<div class="overlay" id="devRequestOverlay">
+    <div class="modal" style="max-width:480px;">
+        <button class="modal-x" onclick="closeOverlay('devRequestOverlay')"><i class="fas fa-times"></i></button>
+        <div style="text-align:center;margin-bottom:20px;">
+            <div style="width:64px;height:64px;border-radius:18px;background:var(--cyan-dim);color:var(--cyan);display:grid;place-items:center;margin:0 auto 14px;font-size:1.6rem;">
+                <i class="fas fa-code"></i>
+            </div>
+            <h3 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;margin-bottom:6px;">Solicitar acceso de desarrollador</h3>
+            <p style="color:var(--text-dim);font-size:.83rem;line-height:1.6;">Cuéntanos por qué quieres publicar tus propios productos en la plataforma.</p>
+        </div>
+        <div style="margin-bottom:14px;">
+            <label style="font-size:.72rem;font-weight:700;color:var(--text-faint);display:block;margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em;">¿Por qué quieres ser developer?</label>
+            <textarea id="devReqReason" class="field" rows="4" maxlength="500" placeholder="Ej: Desarrollo herramientas de automatización para Discord y quiero compartirlas con la comunidad..." style="resize:vertical;"></textarea>
+            <small id="devReqReasonCount" style="color:var(--text-faint);font-size:.7rem;">0 / 500</small>
+        </div>
+        <div style="margin-bottom:18px;">
+            <label style="font-size:.72rem;font-weight:700;color:var(--text-faint);display:block;margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em;">Link a tu portafolio / GitHub (opcional)</label>
+            <input type="text" id="devReqPortfolio" class="field" placeholder="https://github.com/tu-usuario">
+        </div>
+        <button onclick="submitDevRequest()" id="devReqSubmitBtn" class="btn btn-solid btn-block">
+            <i class="fas fa-paper-plane"></i> Enviar solicitud
+        </button>
+        <div class="status-msg" id="devReqStatus" style="margin-top:10px;"></div>
     </div>
 </div>
 

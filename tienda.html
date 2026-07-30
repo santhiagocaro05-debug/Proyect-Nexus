@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyect Nexus | Tienda</title>
+
+    <meta name="description" content="Explora Proyect Nexus, la plataforma definitiva con herramientas premium de Inteligencia Artificial. Únete a nuestra comunidad y descarga los mejores recursos.">
+    <meta name="theme-color" content="#F2B544">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://proyect-nexus.vercel.app/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://proyect-nexus.vercel.app/">
+    <meta property="og:site_name" content="Proyect Nexus">
+    <meta property="og:title" content="Proyect Nexus | Premium AI Suite">
+    <meta property="og:description" content="Descubre herramientas exclusivas de IA, únete al foro comunitario y descarga contenido premium.">
+    <meta property="og:locale" content="es_ES">
+    <meta property="og:image" content="https://proyect-nexus.vercel.app/assets/vvv.png">
+    <meta property="og:image:secure_url" content="https://proyect-nexus.vercel.app/assets/vvv.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1774">
+    <meta property="og:image:height" content="887">
+    <meta property="og:image:alt" content="Proyect Nexus - Premium AI Suite">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@ProyectNexus">
+    <meta name="twitter:title" content="Proyect Nexus | Premium AI Suite">
+    <meta name="twitter:description" content="Descubre herramientas exclusivas de IA, únete al foro comunitario y descarga contenido premium.">
+    <meta name="twitter:image" content="https://proyect-nexus.vercel.app/assets/vvv.png">
+    <meta name="twitter:image:alt" content="Proyect Nexus - Premium AI Suite">
+
+    <link rel="icon" type="image/x-icon" href="/assets/ico.ico">
+    <link rel="apple-touch-icon" href="/assets/ico.ico">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css?v=2">
+    <script type="module" src="js/firebase-init.js?v=2"></script>
+    <script src="js/script.js"></script>
+    <script src="js/i18n.js"></script>
+</head>
+<body>
+    <div id="google_translate_element" style="display:none;"></div>
+    
+    <div id="particles"></div>
+
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+
+    <!-- Banner de alerta (se mantiene) -->
+    <div id="alertBanner" class="alert-banner">
+        <div class="alert-content">
+            <div class="alert-icon"><i class="fas fa-code"></i></div>
+            <div class="alert-ticker-wrap">
+                <div class="alert-ticker" id="alertTicker">
+                    <span class="ticker-item"><span class="ticker-badge">✦ DEV</span><span class="ticker-text"><strong>Nexus</strong> · <strong id="alertCountdown">0</strong> días en desarrollo</span><span class="ticker-divider">|</span></span>
+                    <span class="ticker-item"><span class="ticker-badge">⏳</span><span class="ticker-text">Lanzamiento en <strong id="alertCountdownDays">0</strong>d <strong id="alertCountdownHours">00</strong>h <strong id="alertCountdownMins">00</strong>m <strong id="alertCountdownSecs">00</strong>s</span><span class="ticker-divider">|</span></span>
+                    <span class="ticker-item"><span class="ticker-badge">📅</span><span class="ticker-text"><span id="alertStatus">Optimización</span> · <span id="alertProgressText">87%</span></span><span class="ticker-divider">|</span></span>
+                    <!-- Duplicado para scroll -->
+                    <span class="ticker-item"><span class="ticker-badge">✦ DEV</span><span class="ticker-text"><strong>Nexus</strong> · <strong id="alertCountdown2">10</strong> días en desarrollo</span><span class="ticker-divider">|</span></span>
+                    <span class="ticker-item"><span class="ticker-badge">⏳</span><span class="ticker-text">Lanzamiento en <strong id="alertCountdownDays2">0</strong>d <strong id="alertCountdownHours2">00</strong>h <strong id="alertCountdownMins2">00</strong>m <strong id="alertCountdownSecs2">00</strong>s</span><span class="ticker-divider">|</span></span>
+                    <span class="ticker-item"><span class="ticker-badge">📅</span><span class="ticker-text"><span id="alertStatus2">Optimización</span> · <span id="alertProgressText2">87%</span></span><span class="ticker-divider">|</span></span>
+                </div>
+            </div>
+            <button class="alert-info-btn" id="alertInfoBtn"><i class="fas fa-info-circle"></i></button>
+        </div>
+    </div>
+
+    <!-- Overlay Info Modal -->
+    <div class="overlay" id="infoModal">
+        <div class="modal info-modal">
+            <button class="modal-x" onclick="closeOverlay('infoModal')"><i class="fas fa-times"></i></button>
+            <div class="info-modal-header">
+                <div class="info-modal-icon"><i class="fas fa-code"></i></div>
+                <h2>NEXUS · Cuenta Regresiva</h2>
+                <p>Lanzamiento programado para el <strong>31 de Agosto 2026</strong></p>
+            </div>
+            <div class="info-modal-body">
+                <div class="info-card">
+                    <div class="info-card-header"><span class="info-card-icon"><i class="fas fa-clock"></i></span><span class="info-card-title">Tiempo restante</span></div>
+                    <div class="info-card-content">
+                        <div class="countdown-big">
+                            <div class="countdown-unit"><span class="countdown-number" id="modalDays">0</span><span class="countdown-label">Días</span></div>
+                            <div class="countdown-unit"><span class="countdown-number" id="modalHours">00</span><span class="countdown-label">Horas</span></div>
+                            <div class="countdown-unit"><span class="countdown-number" id="modalMins">00</span><span class="countdown-label">Minutos</span></div>
+                            <div class="countdown-unit"><span class="countdown-number" id="modalSecs">00</span><span class="countdown-label">Segundos</span></div>
+                        </div>
+                        <div style="text-align:center;margin-top:8px;font-size:.72rem;color:var(--text-faint);"><i class="fas fa-calendar-alt"></i> 27 Junio → 31 Agosto 2026</div>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-header"><span class="info-card-icon"><i class="fas fa-chart-line"></i></span><span class="info-card-title">Progreso general</span></div>
+                    <div class="info-card-content">
+                        <div class="progress-container"><div class="progress-bar-track"><div class="progress-bar-fill" id="infoProgressFill" style="width:0%"></div></div><div class="progress-stats"><span id="infoProgressText">0%</span><span id="infoDaysText">0 días</span></div></div>
+                        <div class="progress-phases"><span class="phase-done"><span class="phase-dot"></span> Planificación</span><span class="phase-done"><span class="phase-dot"></span> Desarrollo</span><span class="phase-active"><span class="phase-dot"></span> Optimización</span><span class="phase-pending"><span class="phase-dot"></span> Lanzamiento</span></div>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-header"><span class="info-card-icon"><i class="fas fa-calendar-alt"></i></span><span class="info-card-title">Fechas clave</span></div>
+                    <div class="info-card-content">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.82rem;color:var(--text-dim);">
+                            <div><strong style="color:var(--text);">Inicio:</strong> 27 Jun 2026</div>
+                            <div><strong style="color:var(--text);">Lanzamiento:</strong> 31 Ago 2026</div>
+                            <div><strong style="color:var(--text);">Duración:</strong> <span id="infoTotalDays">65</span> días</div>
+                            <div><strong style="color:var(--text);">Estado:</strong> <span style="color:var(--success);">● Activo</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="info-modal-footer">
+                <button class="btn btn-solid btn-block" onclick="closeOverlay('infoModal')"><i class="fas fa-check"></i> Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay de confirmación de eliminación -->
+    <div class="overlay" id="deleteConfirmOverlay">
+        <div class="modal" style="max-width:400px">
+            <button class="modal-x" onclick="closeOverlay('deleteConfirmOverlay')"><i class="fas fa-times"></i></button>
+            <div style="text-align:center;padding:8px 0 4px">
+                <div id="deleteConfirmIcon" style="width:72px;height:72px;border-radius:50%;background:var(--danger-dim);border:1px solid rgba(255,93,106,.2);display:grid;place-items:center;margin:0 auto 18px;font-size:1.8rem;color:var(--danger);animation:pulseRed 2s ease-in-out infinite"><i class="fas fa-trash-alt"></i></div>
+                <h3 style="font-family:var(--font-display);font-size:1.25rem;font-weight:700;margin-bottom:8px" id="deleteConfirmTitle">¿Eliminar?</h3>
+                <p style="color:var(--text-dim);font-size:.875rem;line-height:1.65;margin-bottom:8px" id="deleteConfirmSubtitle">Esta acción no se puede deshacer.</p>
+                <div id="deleteConfirmPreview" style="display:none;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin:0 0 20px;font-size:.82rem;color:var(--text-dim);text-align:left;max-height:72px;overflow:hidden;text-overflow:ellipsis"></div>
+                <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+                    <button onclick="closeOverlay('deleteConfirmOverlay')" class="btn btn-ghost btn-sm"><i class="fas fa-times"></i> Cancelar</button>
+                    <button id="deleteConfirmBtn" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cookie Banner -->
+    <div id="cookieBanner" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99998;background:var(--bg-2);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid var(--border-strong);border-radius:18px;padding:24px 32px;max-width:640px;width:calc(100% - 48px);box-shadow:0 20px 60px rgba(0,0,0,.7);display:flex;flex-direction:column;gap:16px;transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .5s ease;display:none;">
+        <div style="font-family:var(--font-display);font-size:1rem;font-weight:700;display:flex;align-items:center;gap:10px;color:var(--text);">
+            <i class="fas fa-cookie-bite" style="color:var(--amber);font-size:1.2rem;"></i> Aceptar cookies
+        </div>
+        <div style="font-size:.85rem;color:var(--text-dim);line-height:1.6;">
+            Usamos cookies para mejorar tu experiencia. <a href="#" onclick="document.getElementById('termsOverlay').classList.add('open');return false;" style="color:var(--cyan);text-decoration:underline;">Más información</a>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn btn-solid btn-sm" id="cookieAccept"><i class="fas fa-check"></i> Aceptar todo</button>
+            <button class="btn btn-ghost btn-sm" id="cookieReject"><i class="fas fa-times"></i> Rechazar</button>
+        </div>
+    </div>
+
+    <!-- Captcha Overlay -->
+    <div id="captchaOverlay" style="position:fixed;inset:0;z-index:99997;background:rgba(0,0,0,.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);display:none;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:var(--bg-2);border:1px solid var(--border-strong);border-radius:24px;padding:36px 40px;max-width:400px;width:100%;text-align:center;box-shadow:0 40px 100px rgba(0,0,0,.6);animation:modalIn .5s cubic-bezier(.34,1.56,.64,1);">
+            <div style="font-size:2.8rem;margin-bottom:12px;color:var(--amber);"><i class="fas fa-shield-halved"></i></div>
+            <h3 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:6px;">Verificación de seguridad</h3>
+            <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:20px;line-height:1.6;">Resuelve el captcha para continuar</p>
+            <div style="background:var(--bg-3);border:1px solid var(--border);border-radius:14px;padding:16px;font-family:var(--font-mono);font-size:2rem;font-weight:700;letter-spacing:6px;color:var(--text);margin-bottom:16px;user-select:none;position:relative;">
+                <span id="captchaText">ABCD12</span>
+                <button class="captcha-refresh" id="captchaRefresh" title="Actualizar" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-faint);font-size:1rem;cursor:pointer;transition:color .2s,transform .3s;"><i class="fas fa-sync-alt"></i></button>
+            </div>
+            <div style="display:flex;gap:10px;margin-bottom:16px;">
+                <input type="text" id="captchaInput" placeholder="Ingresa el código" maxlength="6" autocomplete="off" style="flex:1;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-family:inherit;font-size:.95rem;text-align:center;letter-spacing:4px;outline:none;transition:border-color .2s;">
+                <button class="btn btn-solid" id="captchaSubmit"><i class="fas fa-check"></i></button>
+            </div>
+            <div id="captchaError" style="color:var(--danger);font-size:.8rem;min-height:20px;margin-top:4px;"></div>
+            <div id="captchaSuccess" style="color:var(--success);font-size:.8rem;min-height:20px;margin-top:4px;"></div>
+        </div>
+    </div>
+
+    <!-- Términos Legales -->
+    <div class="overlay" id="termsOverlay">
+        <div class="modal" style="max-width:600px">
+            <button class="modal-x" onclick="document.getElementById('termsOverlay').classList.remove('open')"><i class="fas fa-times"></i></button>
+            <h3 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:14px;">Términos y Condiciones Legales</h3>
+            <div style="font-size:.85rem;color:var(--text-dim);line-height:1.7;max-height:60vh;overflow-y:auto;padding-right:10px;">
+                <p style="margin-bottom:10px;"><strong style="color:var(--text);">1. Uso Aceptable y Prohibición de Piratería</strong></p>
+                <p style="margin-bottom:14px;">El uso de Nexus e ILUM está estrictamente regulado. Queda terminantemente prohibida la copia, distribución no autorizada, ingeniería inversa, modificación o intento de piratería de nuestro software.</p>
+                <p style="margin-bottom:10px;"><strong style="color:var(--danger);">2. Demandas Legales y Penalizaciones</strong></p>
+                <p style="margin-bottom:14px;">Cualquier infracción relacionada con la piratería o distribución ilegal de nuestros productos resultará en acciones legales inmediatas y contundentes.</p>
+                <p style="margin-bottom:10px;"><strong style="color:var(--text);">3. Privacidad y Datos</strong></p>
+                <p>Tus datos son encriptados y no son compartidos con terceros sin tu consentimiento explícito.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header id="mainHeader">
+        <div class="wrap nav">
+            <a href="#" class="logo">
+                <div style="display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0;">
+                    <img src="assets/vvv.png" alt="Proyect Nexus" style="width:36px;height:36px;border-radius:11px;object-fit:cover;box-shadow:0 0 20px var(--cyan-dim);transition:transform .3s,box-shadow .3s;">
+                    <span class="logo-name">Proyect <span>Nexus</span></span>
+                </div>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html" data-i18n="nav_home">Inicio</a>
+                <a href="tienda.html">Tienda</a>
+                <!-- Se eliminan enlaces a otras secciones que ya no existen -->
+            </nav>
+            <div class="nav-end">
+                <button class="icon-btn" id="themeBtn" title="Tema"><i class="fas fa-moon" id="themeIcon"></i></button>
+                <a href="contributors.html" class="icon-btn" title="Contribuidores" style="text-decoration:none;"><i class="fas fa-users"></i></a>
+                <div style="position:relative;">
+                    <button class="icon-btn" id="langBtn" title="Idioma"><i class="fas fa-globe"></i> <span id="langLabel">ES</span></button>
+                    <div id="langDropdown" class="lang-dropdown"></div>
+                </div>
+                <button class="icon-btn" id="adminBtn" title="Panel Admin" style="display:none;"><i class="fas fa-shield-halved"></i></button>
+                <button class="avatar-btn" id="profileNavBtn" title="Mi Perfil" style="display:none;background:var(--panel);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:50%;overflow:hidden;padding:0;position:relative;">
+                    <div id="profileNavAvatar" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;background:var(--cyan-dim);color:var(--cyan);">?</div>
+                </button>
+                <button class="btn" id="authBtn" style="background: linear-gradient(135deg, var(--cyan), var(--amber)); color: #04121a; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 700; box-shadow: 0 4px 15px var(--cyan-dim); transition: transform 0.2s, box-shadow 0.2s;">
+                    <i class="fas fa-user-astronaut"></i> <span id="authText">Iniciar Sesión</span>
+                </button>
+                <button class="hamburger" id="hamburger" aria-label="Menú">
+                    <span class="hbar"></span>
+                    <span class="hbar"></span>
+                    <span class="hbar"></span> 
+                </button>
+            </div>
+        </div>
+        <div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
+        <nav class="mobile-nav" id="mobileNav">
+            <div style="display:flex; flex-direction:column; gap:12px; padding: 5px 0;">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <div class="currency-select-wrap" style="position:relative;flex:1;">
+                        <button type="button" id="currencyBtn" class="oauth-btn" style="width:100%;padding:8px 12px;font-size:.9rem;font-weight:600;justify-content:space-between;">
+                            <span id="selectedCurrencyLabel" style="display:flex;align-items:center;gap:8px;">🇺🇸 USD</span>
+                            <i class="fas fa-chevron-down" style="font-size:.65rem;color:var(--text-faint);"></i>
+                        </button>
+                        <select id="currencySelector" style="display:none;">
+                            <option value="USD">Dólar (USD)</option>
+                            <option value="COP">Peso (COP)</option>
+                            <option value="MXN">Peso (MXN)</option>
+                            <option value="ARS">Peso (ARS)</option>
+                            <option value="EUR">Euro (EUR)</option>
+                            <option value="BRL">Real (BRL)</option>
+                        </select>
+                        <div id="currencyDropdown" class="lang-dropdown" style="display:none;width:100%;">
+                            <div class="currency-option" data-code="USD" data-flag="🇺🇸" data-name="Dólar">🇺🇸 <span>Dólar</span><small>USD</small></div>
+                            <div class="currency-option" data-code="COP" data-flag="🇨🇴" data-name="Peso Colombiano">🇨🇴 <span>Peso Colombiano</span><small>COP</small></div>
+                            <div class="currency-option" data-code="MXN" data-flag="🇲🇽" data-name="Peso Mexicano">🇲🇽 <span>Peso Mexicano</span><small>MXN</small></div>
+                            <div class="currency-option" data-code="ARS" data-flag="🇦🇷" data-name="Peso Argentino">🇦🇷 <span>Peso Argentino</span><small>ARS</small></div>
+                            <div class="currency-option" data-code="EUR" data-flag="🇪🇺" data-name="Euro">🇪🇺 <span>Euro</span><small>EUR</small></div>
+                            <div class="currency-option" data-code="BRL" data-flag="🇧🇷" data-name="Real">🇧🇷 <span>Real</span><small>BRL</small></div>
+                        </div>
+                    </div>
+                    <button id="cartBtn" class="btn btn-solid" style="padding:8px 16px; position:relative; background:var(--cyan); color:#04121a;">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cartCount" style="position:absolute; top:-6px; right:-6px; background:var(--danger); color:#fff; font-size:.65rem; font-weight:700; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; opacity:0; transition:all .3s;">0</span>
+                    </button>
+                </div>
+                <button class="btn btn-ghost" onclick="document.getElementById('donateOverlay').classList.add('open');document.body.style.overflow='hidden';return false;" style="color:var(--danger); justify-content:center; border:1px solid var(--danger-dim);">
+                    <i class="fas fa-heart"></i> Donar al Proyecto
+                </button>
+            </div>
+            <div style="border-top:1px solid var(--border); margin:5px 0;" class="mobile-only"></div>
+            <div class="mobile-only" style="gap:2px;">
+                <a href="index.html">Inicio</a>
+                <a href="tienda.html">Tienda</a>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="wrap">
+            <!-- HERO TIENDA -->
+            <section class="tienda-hero" style="position:relative; padding: 140px 0 80px 0; text-align: center; overflow: hidden; border-bottom: 1px solid var(--border); margin: -40px -20px 60px -20px;">
+                <div style="position:absolute; top: -50%; left: 50%; transform: translateX(-50%); width: 800px; height: 800px; background: radial-gradient(circle, var(--cyan-dim) 0%, transparent 70%); opacity: 0.15; z-index: 0; pointer-events: none;"></div>
+                <div style="position:absolute; bottom: -20%; right: 10%; width: 400px; height: 400px; background: radial-gradient(circle, var(--amber-dim) 0%, transparent 70%); opacity: 0.1; z-index: 0; pointer-events: none;"></div>
+                <div class="rv vis" style="position: relative; z-index: 1; max-width: 800px; margin: 0 auto; padding: 0 20px;">
+                    <div style="display:inline-flex; align-items:center; gap:8px; padding:6px 16px; background:var(--panel); border:1px solid var(--border); border-radius:30px; margin-bottom:24px; font-size:.8rem; font-weight:700; color:var(--cyan); box-shadow: 0 4px 20px var(--cyan-dim);">
+                        <i class="fas fa-store"></i> NEXUS HUB OFICIAL
+                    </div>
+                    <h1 style="font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 16px; background: linear-gradient(to right, #fff, var(--text-dim)); -webkit-background-clip: text; background-clip: text; color: transparent; line-height: 1.1; font-family: var(--font-display); font-weight: 800;">
+                        Explora el <em style="font-style:normal; color:var(--cyan); text-shadow: 0 0 30px var(--cyan-dim);">Nexus</em>
+                    </h1>
+                    <p class="lead" style="margin-bottom: 40px; font-size: 1.15rem; color: var(--text-dim); max-width: 600px; margin-left: auto; margin-right: auto;">
+                        Descubre scripts de Roblox exclusivos, herramientas de inteligencia artificial y mods premium en un solo lugar.
+                    </p>
+                    <!-- Barra de búsqueda (se mantiene pero desactivada) -->
+                    <div class="tienda-search-container" style="position: relative; max-width: 580px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border-radius: 20px; opacity:0.5; pointer-events:none;">
+                        <div style="position: absolute; inset: -2px; background: linear-gradient(90deg, var(--cyan), var(--amber), var(--cyan)); background-size: 200% 100%; border-radius: 22px; z-index: -1; animation: bgPan 4s linear infinite; opacity: 0.3; transition: opacity 0.3s;"></div>
+                        <div style="position: relative; display: flex; align-items: center; background: var(--bg-2); border: 1px solid var(--border-strong); border-radius: 20px; padding: 6px 6px 6px 20px; backdrop-filter: blur(12px);">
+                            <i class="fas fa-search" style="color: var(--cyan); font-size: 1.2rem;"></i>
+                            <input type="text" id="tiendaSearch" placeholder="Buscar scripts, mods, herramientas..." style="flex: 1; background: transparent; border: none; color: var(--text); font-family: inherit; font-size: 1rem; padding: 12px 16px; outline: none; cursor:not-allowed;">
+                            <button class="btn btn-solid" style="padding: 12px 24px; border-radius: 14px; font-size: .95rem; font-weight: 700; background: linear-gradient(135deg, var(--cyan), var(--amber)); color: #04121a; border: none; box-shadow: 0 4px 15px var(--cyan-dim); cursor:not-allowed;">Buscar</button>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes bgPan { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+                </style>
+            </section>
+
+            <!-- SECCIÓN DE PRODUCTOS con cartel COMING SOON y contador al 28 de septiembre -->
+            <section id="products" style="padding: 0 0 104px 0;">
+                <div class="coming-soon-container" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 20px; text-align:center; background: radial-gradient(circle at 30% 20%, var(--panel-strong), var(--bg-2)); border-radius:32px; border:1px solid var(--border); min-height:460px; box-shadow: inset 0 0 60px rgba(0,0,0,0.3); position:relative; overflow:hidden;">
+                    
+                    <!-- Elementos decorativos de fondo -->
+                    <div style="position:absolute; top:-30%; right:-10%; width:400px; height:400px; background:radial-gradient(circle, var(--cyan-dim), transparent 70%); opacity:0.1; border-radius:50%; pointer-events:none;"></div>
+                    <div style="position:absolute; bottom:-20%; left:-10%; width:300px; height:300px; background:radial-gradient(circle, var(--amber-dim), transparent 70%); opacity:0.08; border-radius:50%; pointer-events:none;"></div>
+
+                    <!-- Icono -->
+                    <div style="font-size:5rem; margin-bottom:20px; background: linear-gradient(135deg, var(--cyan), var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent; display:inline-block; filter:drop-shadow(0 8px 20px rgba(0,255,229,0.3));">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+
+                    <!-- Título -->
+                    <h2 style="font-family:var(--font-display); font-size:3.2rem; font-weight:800; margin-bottom:12px; background: linear-gradient(135deg, var(--cyan), var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent; letter-spacing:-0.02em;">
+                        🚀 Próximamente
+                    </h2>
+
+                    <!-- Descripción -->
+                    <p style="font-size:1.2rem; color:var(--text-dim); max-width:540px; margin-bottom:30px; line-height:1.7;">
+                        Estamos preparando una selección increíble de <strong style="color:var(--text);">scripts</strong>, <strong style="color:var(--text);">herramientas de IA</strong> y <strong style="color:var(--text);">contenido premium</strong> para ti. <br>Muy pronto estará todo listo.
+                    </p>
+
+                    <!-- CONTADOR HASTA EL 28 DE SEPTIEMBRE -->
+                    <div style="display:flex; gap:20px; flex-wrap:wrap; justify-content:center; margin-bottom:20px;">
+                        <div style="background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:12px 24px; min-width:80px; backdrop-filter:blur(8px);">
+                            <span id="countdownDays" style="font-size:2.4rem; font-weight:700; font-family:var(--font-mono); color:var(--cyan); display:block;">00</span>
+                            <span style="font-size:.7rem; color:var(--text-faint); text-transform:uppercase; letter-spacing:.1em;">Días</span>
+                        </div>
+                        <div style="background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:12px 24px; min-width:80px; backdrop-filter:blur(8px);">
+                            <span id="countdownHours" style="font-size:2.4rem; font-weight:700; font-family:var(--font-mono); color:var(--cyan); display:block;">00</span>
+                            <span style="font-size:.7rem; color:var(--text-faint); text-transform:uppercase; letter-spacing:.1em;">Horas</span>
+                        </div>
+                        <div style="background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:12px 24px; min-width:80px; backdrop-filter:blur(8px);">
+                            <span id="countdownMinutes" style="font-size:2.4rem; font-weight:700; font-family:var(--font-mono); color:var(--cyan); display:block;">00</span>
+                            <span style="font-size:.7rem; color:var(--text-faint); text-transform:uppercase; letter-spacing:.1em;">Minutos</span>
+                        </div>
+                        <div style="background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:12px 24px; min-width:80px; backdrop-filter:blur(8px);">
+                            <span id="countdownSeconds" style="font-size:2.4rem; font-weight:700; font-family:var(--font-mono); color:var(--cyan); display:block;">00</span>
+                            <span style="font-size:.7rem; color:var(--text-faint); text-transform:uppercase; letter-spacing:.1em;">Segundos</span>
+                        </div>
+                    </div>
+
+                    <!-- Botón para ir al inicio -->
+                    <a href="index.html" class="btn btn-solid" style="padding:14px 40px; font-size:1.1rem; font-weight:700; background:linear-gradient(135deg, var(--cyan), var(--amber)); color:#04121a; border:none; border-radius:30px; box-shadow: 0 8px 24px rgba(0,255,229,0.25); transition: transform 0.2s, box-shadow 0.3s;">
+                        <i class="fas fa-arrow-left"></i> Volver al Inicio
+                    </a>
+
+                    <!-- Pequeño texto adicional -->
+                    <div style="margin-top:30px; font-size:.75rem; color:var(--text-faint); border-top:1px solid var(--border); padding-top:20px; max-width:400px;">
+                        <i class="fas fa-shield-alt" style="color:var(--cyan);"></i> Seguridad y calidad garantizadas por 157 Team.
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- FOOTER (se mantiene) -->
+    <footer class="modern-footer">
+        <div class="wrap">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo"><span class="logo-name">157 <span>TEAM</span></span></div>
+                    <p class="text-dim">IA del futuro, disponible hoy. Redefiniendo el control y la interacción tecnológica. Desarrollado con ❤️ por 157 Team.</p>
+                    <div class="social-links">
+                        <a href="https://github.com/dexter-666/IA_proyect-v1-free" target="_blank" class="social-btn"><i class="fab fa-github"></i></a>
+                        <a href="https://discord.com/invite/RBBXNZaNDw" target="_blank" class="social-btn"><i class="fab fa-discord"></i></a>
+                        <a href="mailto:157developersteam@gmail.com" class="social-btn"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Producto</h4>
+                    <a href="#products">N.E.X.U.S</a>
+                    <a href="#products">JARVIS Free</a>
+                    <a href="#products">ILUM Premium</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Compañía</h4>
+                    <a href="contributors.html">Contribuidores</a>
+                    <a href="#" onclick="document.getElementById('termsOverlay').classList.add('open');return false;">Términos Legales</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Apoyar</h4>
+                    <a href="#" class="donate-link" onclick="document.getElementById('donateOverlay').classList.add('open');document.body.style.overflow='hidden';return false;"><i class="fas fa-heart"></i> Donar</a>
+                    <a href="https://discord.com/invite/RBBXNZaNDw" target="_blank">Comunidad Discord</a>
+                </div>
+            </div>
+            <div class="f-bottom">
+                <p>© 2026 157 Team — Todos los derechos reservados.</p>
+                <div class="f-bottom-right">
+                    <p>Designed by <span>157 Team</span></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to top -->
+    <button id="backToTop" style="position:fixed;bottom:24px;left:24px;z-index:999;width:44px;height:44px;border-radius:50%;background:var(--panel);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-dim);font-size:1.1rem;cursor:pointer;transition:all .3s;opacity:0;transform:scale(.8);">↑</button>
+    
+    <!-- Cursor glow -->
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- Overlay de producto (se mantiene) -->
+    <div class="overlay" id="prodOverlay">
+        <div class="modal" id="prodModal" style="max-width:600px;">
+            <button class="modal-x" id="prodModalClose"><i class="fas fa-times"></i></button>
+            <div id="mThumb" style="width:100%;border-radius:14px;aspect-ratio:21/9;display:flex;align-items:center;justify-content:center;font-size:3.8rem;margin-bottom:20px;overflow:hidden;background:var(--panel);"></div>
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:14px;">
+                <div><div class="modal-title" id="mName" style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;letter-spacing:-.02em;"></div><div style="font-size:.73rem;color:var(--text-dim);margin-top:2px;" id="mCategory"></div></div>
+                <div class="modal-price-tag" id="mPrice" style="font-family:var(--font-mono);font-size:1.35rem;font-weight:700;background:linear-gradient(135deg,var(--cyan),var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;"></div>
+            </div>
+            <div id="mDesc" style="font-size:.84rem;color:var(--text-dim);line-height:1.7;margin-bottom:18px;"></div>
+            <ul class="modal-feats" id="mFeats" style="list-style:none;margin-bottom:22px;display:flex;flex-direction:column;gap:6px;"></ul>
+            <div id="mPaySection">
+                <span style="font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px;display:block;">Elige cómo pagar</span>
+                <div style="display:flex;flex-direction:column;gap:9px;">
+                    <a class="pay-row" id="ppLink" href="#" target="_blank" style="display:flex;align-items:center;gap:13px;background:var(--panel);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .25s;font-family:inherit;color:var(--text);font-size:.84rem;font-weight:500;width:100%;text-align:left;text-decoration:none;">
+                        <div style="width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:1rem;flex-shrink:0;background:rgba(0,112,240,.12);color:#0070f0;"><i class="fab fa-paypal"></i></div>
+                        <div><strong>PayPal</strong><small style="display:block;font-size:.7rem;color:var(--text-faint);margin-top:1px;">paypal.me/157teamai</small></div>
+                        <i class="fas fa-external-link-alt arr" style="color:var(--text-faint);font-size:.7rem;margin-left:auto;transition:transform .2s;"></i>
+                    </a>
+                    <a class="pay-row" id="daLink" href="#" target="_blank" style="display:flex;align-items:center;gap:13px;background:var(--panel);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .25s;font-family:inherit;color:var(--text);font-size:.84rem;font-weight:500;width:100%;text-align:left;text-decoration:none;">
+                        <div style="width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:1rem;flex-shrink:0;background:rgba(61,220,151,.12);color:var(--success);"><i class="fas fa-dollar-sign"></i></div>
+                        <div><strong>Dólar App</strong><small style="display:block;font-size:.7rem;color:var(--text-faint);margin-top:1px;">Transferencia directa USD</small></div>
+                        <i class="fas fa-external-link-alt arr" style="color:var(--text-faint);font-size:.7rem;margin-left:auto;transition:transform .2s;"></i>
+                    </a>
+                    <a class="pay-row" id="crLink" href="#" target="_blank" style="display:flex;align-items:center;gap:13px;background:var(--panel);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .25s;font-family:inherit;color:var(--text);font-size:.84rem;font-weight:500;width:100%;text-align:left;text-decoration:none;">
+                        <div style="width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:1rem;flex-shrink:0;background:var(--amber-dim);color:var(--amber);"><i class="fab fa-bitcoin"></i></div>
+                        <div><strong>Cripto</strong><small style="display:block;font-size:.7rem;color:var(--text-faint);margin-top:1px;">BTC · USDT · ETH</small></div>
+                        <i class="fas fa-external-link-alt arr" style="color:var(--text-faint);font-size:.7rem;margin-left:auto;transition:transform .2s;"></i>
+                    </a>
+                    <button class="discord-pay" id="discordPayBtn" style="display:flex;align-items:center;gap:13px;background:rgba(88,101,242,.07);border:1px solid rgba(88,101,242,.2);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .25s;font-family:inherit;color:var(--text);font-size:.84rem;font-weight:500;width:100%;text-align:left;">
+                        <div style="width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:1rem;flex-shrink:0;background:rgba(88,101,242,.15);color:#818cf8;"><i class="fab fa-discord"></i></div>
+                        <div><strong>Enviar comprobante en Discord</strong><small style="display:block;font-size:.7rem;color:var(--text-faint);margin-top:1px;">Abre ticket → sube comprobante → recibe la app</small></div>
+                        <i class="fas fa-chevron-right arr" style="color:var(--text-faint);font-size:.7rem;margin-left:auto;transition:transform .2s;"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="mFreeSection" style="display:none;">
+                <a id="mDownloadBtn" href="#" class="btn btn-solid btn-block"><i class="fas fa-download"></i> Descargar Gratis</a>
+            </div>
+            <div id="mReviewsSection" style="margin-top:24px;border-top:1px solid var(--border);padding-top:20px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h4 style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;">Reseñas de Usuarios</h4>
+                    <div id="mReviewsAvg" style="font-family:var(--font-mono);font-size:.9rem;color:var(--amber);font-weight:700;display:flex;align-items:center;gap:4px;"></div>
+                </div>
+                <div id="mReviewsList" style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;max-height:240px;overflow-y:auto;padding-right:8px;">
+                    <div style="text-align:center;color:var(--text-faint);font-size:.8rem;padding:20px;">Cargando reseñas...</div>
+                </div>
+                <div id="mReviewForm" style="display:none;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;">
+                    <div style="font-size:.85rem;font-weight:600;margin-bottom:10px;" id="mReviewFormTitle">Deja tu reseña:</div>
+                    <div id="mReviewStars" style="color:var(--text-dim);font-size:1.4rem;margin-bottom:12px;cursor:pointer;display:flex;gap:4px;">
+                        <i class="fas fa-star" data-val="1"></i>
+                        <i class="fas fa-star" data-val="2"></i>
+                        <i class="fas fa-star" data-val="3"></i>
+                        <i class="fas fa-star" data-val="4"></i>
+                        <i class="fas fa-star" data-val="5"></i>
+                    </div>
+                    <textarea id="mReviewText" class="field" rows="3" maxlength="200" placeholder="Escribe tu opinión (máx 200 caract.)" style="margin-bottom:8px;resize:none;"></textarea>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span id="mReviewCount" style="font-size:.7rem;color:var(--text-faint);">0 / 200</span>
+                        <div style="display:flex;gap:8px;">
+                            <button id="mReviewCancelBtn" class="btn btn-sm" style="display:none;background:var(--panel-strong);color:var(--text);">Cancelar</button>
+                            <button id="mReviewSubmitBtn" class="btn btn-solid btn-sm" style="padding:8px 16px;">Publicar</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="mReviewLoginMsg" style="font-size:.8rem;color:var(--text-dim);text-align:center;padding:16px;background:var(--panel);border-radius:14px;">
+                    Inicia sesión para dejar una reseña.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Discord Overlay -->
+    <div class="overlay" id="discordOverlay">
+        <div class="modal" style="max-width:460px;">
+            <button class="modal-x" id="discordModalClose"><i class="fas fa-times"></i></button>
+            <div style="text-align:center;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:20px;">
+                <div style="width:54px;height:54px;border-radius:15px;background:rgba(88,101,242,.12);color:#818cf8;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 12px;"><i class="fab fa-discord"></i></div>
+                <h3 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;margin-bottom:6px;">Pagar vía Discord</h3>
+                <p style="color:var(--text-dim);font-size:.83rem;">Un operador te entregará la app directamente.</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px;">
+                <div style="display:flex;align-items:flex-start;gap:13px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--amber));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#04121a;flex-shrink:0;box-shadow:0 4px 12px var(--cyan-dim);">1</div>
+                    <div><h4 style="font-size:.88rem;font-weight:700;margin-bottom:3px;">Únete al servidor</h4><p style="font-size:.8rem;color:var(--text-dim);line-height:1.55;"><a href="https://discord.gg/Nahh9XhnvR" target="_blank" style="color:var(--cyan);">discord.gg/Nahh9XhnvR</a></p></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:13px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--amber));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#04121a;flex-shrink:0;box-shadow:0 4px 12px var(--cyan-dim);">2</div>
+                    <div><h4 style="font-size:.88rem;font-weight:700;margin-bottom:3px;">Realiza tu pago</h4><p style="font-size:.8rem;color:var(--text-dim);line-height:1.55;">Paga por PayPal, Dólar App o Cripto y guarda el comprobante.</p></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:13px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--amber));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#04121a;flex-shrink:0;box-shadow:0 4px 12px var(--cyan-dim);">3</div>
+                    <div><h4 style="font-size:.88rem;font-weight:700;margin-bottom:3px;">Abre un ticket</h4><p style="font-size:.8rem;color:var(--text-dim);line-height:1.55;">En #tickets abre uno y sube tu comprobante.</p></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:13px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--amber));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#04121a;flex-shrink:0;box-shadow:0 4px 12px var(--cyan-dim);">4</div>
+                    <div><h4 style="font-size:.88rem;font-weight:700;margin-bottom:3px;">Espera al operador</h4><p style="font-size:.8rem;color:var(--text-dim);line-height:1.55;">Un operador verificará y te enviará el enlace de descarga.</p></div>
+                </div>
+            </div>
+            <a href="https://discord.gg/Nahh9XhnvR" target="_blank" class="btn btn-solid btn-block" style="background:#5865F2;color:#fff;box-shadow:0 6px 20px rgba(88,101,242,.3);"><i class="fab fa-discord"></i> Abrir Discord</a>
+        </div>
+    </div>
+
+    <!-- Donate Overlay -->
+    <div class="overlay" id="donateOverlay">
+        <div class="modal" style="max-width:520px;">
+            <button class="modal-x" onclick="closeOverlay('donateOverlay')"><i class="fas fa-times"></i></button>
+            <div style="text-align:center;">
+                <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,rgba(61,220,151,.12),rgba(255,181,71,.12));border:1px solid rgba(61,220,151,.2);display:grid;place-items:center;margin:0 auto 16px;font-size:2rem;animation:donateFloat 3s ease-in-out infinite;">💜</div>
+                <h3 style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--cyan),var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;">Apoya a 157 Team</h3>
+                <p style="color:var(--text-dim);font-size:.88rem;margin-bottom:28px;line-height:1.7;max-width:360px;margin-left:auto;margin-right:auto;">Tu donación nos ayuda a mantener Nexus Funcional, JARVIS gratis y seguir desarrollando ILUM. Cada contribución importa enormemente. ¡Gracias de corazón!</p>
+                <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px;text-align:left;display:flex;align-items:center;gap:8px;">
+                    <span>PayPal</span>
+                    <span style="flex:1;height:1px;background:var(--border);"></span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+                    <a class="donate-row" href="https://www.paypal.com/paypalme/157teamai" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .25s;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:500;">
+                        <div style="width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.1rem;flex-shrink:0;background:rgba(0,112,240,.1);color:#0070f0;"><i class="fab fa-paypal"></i></div>
+                        <div style="flex:1;text-align:left;"><strong>PayPal Principal</strong><small style="display:block;font-size:.7rem;color:var(--text-faint);margin-top:2px;">paypal.me/157teamai</small></div>
+                        <i class="fas fa-arrow-right d-arrow" style="color:var(--text-faint);font-size:.75rem;transition:transform .2s;"></i>
+                    </a>
+                    <a class="donate-row" href="https://www.paypal.com/paypalme/157teamsupport" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .25s;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:500;">
+                        <div style="width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.1rem;flex-shrink:0;background:rgba(0,112,240,.1);color:#0070f0;"><i class="fab fa-paypal"></i></div>
+                        <div style="flex:1;text-align:left;"><strong>PayPal Soporte</strong><small style="display:block;font-size:.7rem;color:var(--text-faint);margin-top:2px;">paypal.me/157teamsupport</small></div>
+                        <i class="fas fa-arrow-right d-arrow" style="color:var(--text-faint);font-size:.75rem;transition:transform .2s;"></i>
+                    </a>
+                </div>
+                <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px;text-align:left;display:flex;align-items:center;gap:8px;">
+                    <span>Dólar App</span>
+                    <span style="flex:1;height:1px;background:var(--border);"></span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+                    <a class="donate-row" href="https://dollarapp.net/pagar/157team" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .25s;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:500;">
+                        <div style="width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.1rem;flex-shrink:0;background:rgba(61,220,151,.1);color:var(--success);"><i class="fas fa-dollar-sign"></i></div>
+                        <div style="flex:1;text-align:left;"><strong>DólarApp Principal</strong><small style="display:block;font-size:.7rem;color:var(--text-faint);margin-top:2px;">@157team</small></div>
+                        <i class="fas fa-arrow-right d-arrow" style="color:var(--text-faint);font-size:.75rem;transition:transform .2s;"></i>
+                    </a>
+                    <a class="donate-row" href="https://dollarapp.net/pagar/157teamdev" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .25s;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:500;">
+                        <div style="width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.1rem;flex-shrink:0;background:rgba(61,220,151,.1);color:var(--success);"><i class="fas fa-dollar-sign"></i></div>
+                        <div style="flex:1;text-align:left;"><strong>DólarApp Dev</strong><small style="display:block;font-size:.7rem;color:var(--text-faint);margin-top:2px;">@157teamdev</small></div>
+                        <i class="fas fa-arrow-right d-arrow" style="color:var(--text-faint);font-size:.75rem;transition:transform .2s;"></i>
+                    </a>
+                </div>
+                <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px;text-align:left;display:flex;align-items:center;gap:8px;">
+                    <span>Tarjeta de Crédito / Débito</span>
+                    <span style="flex:1;height:1px;background:var(--border);"></span>
+                </div>
+                <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:8px;">
+                    <p style="font-size:.82rem;color:var(--text-dim);line-height:1.6;margin-bottom:10px;">Escríbenos por Discord para coordinar el pago con tarjeta de forma segura y directa.</p>
+                    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px;">
+                        <div style="background:var(--panel-strong);border:1px solid var(--border);border-radius:10px;padding:10px 12px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <label style="font-size:.6rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Tarjetas Aceptadas</label>
+                                <span style="font-family:var(--font-mono);font-size:.82rem;color:var(--text);">Visa / Mastercard</span>
+                            </div>
+                            <div style="display:flex;gap:6px;font-size:1.4rem;">
+                                <i class="fab fa-cc-visa" style="color:#1A1F71;"></i>
+                                <i class="fab fa-cc-mastercard" style="color:#EB001B;"></i>
+                            </div>
+                        </div>
+                        <div style="background:var(--panel-strong);border:1px solid var(--border);border-radius:10px;padding:12px;">
+                            <label style="font-size:.6rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:8px;">Monedas Locales & Internacionales</label>
+                            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                                <span style="background:rgba(0,255,229,0.1);color:var(--cyan);border:1px solid rgba(0,255,229,0.2);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇺🇸 USD</span>
+                                <span style="background:rgba(255,193,7,0.1);color:var(--amber);border:1px solid rgba(255,193,7,0.2);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇨🇴 COP</span>
+                                <span style="background:rgba(255,93,106,0.1);color:var(--danger);border:1px solid rgba(255,93,106,0.2);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇲🇽 MXN</span>
+                                <span style="background:rgba(123,47,255,0.1);color:#a87bff;border:1px solid rgba(123,47,255,0.2);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇦🇷 ARS</span>
+                                <span style="background:rgba(255,255,255,0.05);color:var(--text);border:1px solid rgba(255,255,255,0.1);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇻🇪 VES</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="https://discord.gg/Nahh9XhnvR" target="_blank" class="btn btn-solid btn-block" style="background:#5865F2;color:#fff;box-shadow:0 6px 20px rgba(88,101,242,.3);"><i class="fab fa-discord"></i> Coordinar por Discord</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Modal -->
+    <div class="overlay" id="logoutModal">
+        <div class="modal" style="max-width:400px;">
+            <button class="modal-x" onclick="closeOverlay('logoutModal')"><i class="fas fa-times"></i></button>
+            <div style="text-align:center;padding:10px 0;">
+                <div style="width:72px;height:72px;border-radius:50%;background:var(--danger-dim);border:1px solid rgba(255,93,106,.2);display:grid;place-items:center;margin:0 auto 20px;font-size:1.8rem;color:var(--danger);animation:pulseRed 2s ease-in-out infinite;"><i class="fas fa-sign-out-alt"></i></div>
+                <h3 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:8px;">¿Cerrar sesión?</h3>
+                <p style="color:var(--text-dim);font-size:.88rem;margin-bottom:24px;line-height:1.6;">Se cerrará tu sesión actual. Podrás volver a iniciarla en cualquier momento.</p>
+                <div style="display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:30px;padding:6px 14px;font-size:.82rem;color:var(--text-dim);margin-bottom:20px;">
+                    <i class="fas fa-user" style="color:var(--amber);"></i> Conectado como: <strong id="logoutUsername" style="color:var(--text);">—</strong>
+                </div>
+                <div style="display:flex;gap:10px;justify-content:center;">
+                    <button class="btn btn-ghost btn-sm" onclick="closeOverlay('logoutModal')"><i class="fas fa-times"></i> Cancelar</button>
+                    <button class="btn btn-danger btn-sm" id="confirmLogoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="overlay profile-modal" id="profileOverlay">
+        <div class="modal" style="max-width:480px;overflow:hidden;">
+            <button class="modal-x" onclick="closeOverlay('profileOverlay')"><i class="fas fa-times"></i></button>
+            <div id="profileBannerDisplay" style="width:100%;height:100px;background:linear-gradient(135deg, var(--bg-2), var(--panel-strong));margin:-24px -24px 0 -24px;width:calc(100% + 48px);overflow:hidden;position:relative;"></div>
+            <div class="profile-avatar-lg" id="profileAvatar" onclick="document.getElementById('avatarInput').click()" style="margin-top:-40px;position:relative;z-index:2;">
+                <div id="profileAvatarContent">👤</div>
+                <div class="cam"><i class="fas fa-camera"></i> Cambiar foto</div>
+                <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+            </div>
+            <div class="p-name" id="profileDisplayName"></div>
+            <div style="text-align:center;"><span class="role-pill" id="profileRoleBadge">MEMBER</span></div>
+            <div class="p-bio" id="profileBio">Sin descripción aún</div>
+            <div class="badge-row" id="profileBadges"></div>
+            <div id="profileSocials" style="display:flex;gap:12px;justify-content:center;margin-top:8px;"></div>
+            <div id="profileEditSection">
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:.72rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px;">🖼️ Portada</label>
+                    <div id="profileBannerPreview" style="width:100%;height:90px;border-radius:12px;background:var(--bg-2);border:1px dashed var(--border);overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:.8rem;transition:all .2s;" onclick="document.getElementById('bannerInput').click()">
+                        <i class="fas fa-image" style="margin-right:6px;"></i> Subir portada
+                    </div>
+                    <input type="file" id="bannerInput" accept="image/*" style="display:none;">
+                </div>
+                <textarea id="profileBioInput" rows="3" placeholder="Escribe una descripción sobre ti..." style="width:100%;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:12px;color:var(--text);font-family:inherit;resize:vertical;font-size:.88rem;margin-top:4px;outline:none;"></textarea>
+                <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
+                    <input type="text" id="profileBadgeInput" placeholder="Agregar insignia (ej: 🚀 Early Adopter)" style="flex:1;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;">
+                    <button onclick="addCustomBadge()" class="btn btn-solid btn-sm" style="padding:10px 16px;font-size:.78rem;"><i class="fas fa-plus"></i></button>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;margin-top:12px;">
+                    <label style="font-size:.75rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;">🎨 Color</label>
+                    <input type="color" id="profileAccentColor" value="#F2B544" style="width:36px;height:30px;border:1px solid var(--border);border-radius:8px;background:var(--bg-2);cursor:pointer;padding:2px;">
+                </div>
+                <div style="margin-top:12px;">
+                    <label style="font-size:.72rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px;">🔗 Redes Sociales</label>
+                    <div style="display:flex;gap:8px;flex-direction:column;">
+                        <div style="display:flex;gap:8px;">
+                            <div style="flex:1;display:flex;align-items:center;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;">
+                                <i class="fab fa-discord" style="color:#5865F2;font-size:.9rem;"></i>
+                                <input type="text" id="profileDiscord" placeholder="Tu usuario Discord" style="flex:1;background:none;border:none;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;">
+                            </div>
+                            <div style="flex:1;display:flex;align-items:center;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;">
+                                <i class="fab fa-twitter" style="color:#1DA1F2;font-size:.9rem;"></i>
+                                <input type="text" id="profileTwitter" placeholder="@usuario Twitter" style="flex:1;background:none;border:none;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;">
+                            </div>
+                        </div>
+                        <div style="flex:1;display:flex;align-items:center;gap:6px;background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:8px 12px;">
+                            <i class="fab fa-instagram" style="color:#E1306C;font-size:.9rem;"></i>
+                            <input type="text" id="profileInstagram" placeholder="@usuario Instagram" style="flex:1;background:none;border:none;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;">
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:12px;display:flex;gap:8px;">
+                    <button onclick="saveProfile()" class="btn btn-solid" style="flex:1;justify-content:center;"><i class="fas fa-save"></i> Guardar perfil</button>
+                    <button onclick="openLogoutModal()" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--danger-dim);border:1px solid rgba(255,93,106,.25);color:var(--danger);padding:12px;border-radius:100px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit;transition:all .2s;"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</button>
+                </div>
+            </div>
+            <div id="adminRankSection" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+                <div style="font-size:.7rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">🔧 Asignar Rango (Admin)</div>
+                <div class="rank-row">
+                    <button class="rank-btn rank-member" data-rank="member" onclick="setUserRank('member')"><span class="rank-icon">👤</span> Member</button>
+                    <button class="rank-btn rank-collaborator" data-rank="collaborator" onclick="setUserRank('collaborator')"><span class="rank-icon">🤝</span> Colaborador</button>
+                    <button class="rank-btn rank-moderator" data-rank="moderator" onclick="setUserRank('moderator')"><span class="rank-icon">🛡️</span> Moderador</button>
+                    <button class="rank-btn rank-admin" data-rank="admin" onclick="setUserRank('admin')"><span class="rank-icon">👑</span> Admin</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Post Overlay -->
+    <div class="overlay" id="editPostOverlay">
+        <div class="modal" style="max-width:480px;">
+            <button class="modal-x" onclick="closeOverlay('editPostOverlay')"><i class="fas fa-times"></i></button>
+            <h3 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;margin-bottom:20px;"><i class="fas fa-edit" style="color:var(--cyan);"></i> Editar publicación</h3>
+            <input type="hidden" id="editPostId">
+            <div style="margin-bottom:14px;"><label style="font-size:.72rem;font-weight:700;color:var(--text-faint);display:block;margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em;">Título</label><input type="text" id="editPostTitle" class="field"></div>
+            <div style="margin-bottom:14px;"><label style="font-size:.72rem;font-weight:700;color:var(--text-faint);display:block;margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em;">Descripción</label><textarea id="editPostDesc" class="field" rows="4" style="resize:vertical;"></textarea></div>
+            <div style="margin-bottom:14px;"><label style="font-size:.72rem;font-weight:700;color:var(--text-faint);display:block;margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em;">URL de imagen</label><input type="text" id="editPostImage" class="field"></div>
+            <button onclick="saveEditPost()" class="btn btn-solid btn-block"><i class="fas fa-save"></i> Guardar cambios</button>
+        </div>
+    </div>
+
+    <!-- Cart -->
+    <div class="cart-overlay" id="cartOverlay">
+        <div class="cart-panel">
+            <div class="cart-head">
+                <h3 style="font-size:1.1rem;"><i class="fas fa-shopping-cart" style="color:var(--cyan);"></i> Mi Carrito</h3>
+                <button class="icon-btn" onclick="closeCart()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="cart-body" id="cartBody">
+                <div style="text-align:center;padding:50px 0;color:var(--text-dim);">
+                    <i class="fas fa-bag-shopping" style="font-size:2.4rem;margin-bottom:14px;display:block;color:var(--text-faint);"></i>
+                    <p>Tu carrito está vacío</p>
+                    <button class="btn btn-ghost btn-sm" onclick="closeCart()" style="margin-top:12px;">Seguir comprando</button>
+                </div>
+            </div>
+            <div class="cart-foot" id="cartFooter" style="display:none;">
+                <div class="cart-total"><span>Total:</span><span id="cartTotal">$0.00</span></div>
+                <button class="btn btn-solid btn-block" id="checkoutBtn"><i class="fas fa-credit-card"></i> Pagar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout -->
+    <div class="overlay" id="checkoutOverlay">
+        <div class="modal" style="max-width:400px; text-align:center;">
+            <button class="modal-x" onclick="document.getElementById('checkoutOverlay').classList.remove('open')"><i class="fas fa-times"></i></button>
+            <div style="font-size:3rem; margin-bottom:15px; color:var(--success);">
+                <i class="fab fa-whatsapp"></i>
+            </div>
+            <h3 style="font-family:var(--font-display); font-size:1.4rem; margin-bottom:10px;">Completar Compra</h3>
+            <p style="color:var(--text-dim); font-size:0.95rem; margin-bottom:25px;">Para finalizar tu compra de forma segura, contáctanos por WhatsApp o Discord para recibir tus productos instantáneamente.</p>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <a href="https://wa.me/573018951690?text=Hola,%20quiero%20comprar%20los%20productos%20de%20mi%20carrito%20en%20Proyect%20Nexus." target="_blank" class="btn btn-solid" style="background:#25D366; color:#fff; font-weight:bold; border:none; text-decoration:none; justify-content:center;">
+                    <i class="fab fa-whatsapp"></i> WhatsApp (+57 301 895 1690)
+                </a>
+                <button class="btn btn-ghost" onclick="document.getElementById('discordOverlay').classList.add('open'); document.getElementById('checkoutOverlay').classList.remove('open');" style="color:#5865F2; justify-content:center;">
+                    <i class="fab fa-discord"></i> Contactar por Discord
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="overlay" id="authModal">
+        <div class="modal auth-modal">
+            <button class="modal-x" id="authModalClose"><i class="fas fa-times"></i></button>
+            <div class="auth-split">
+                <div class="auth-visual">
+                    <div style="position:relative;width:110px;height:110px;">
+                        <svg width="110" height="110" viewBox="0 0 200 200" style="position:absolute;inset:0;">
+                            <circle cx="100" cy="100" r="92" fill="none" stroke="var(--border)" stroke-width="1" />
+                            <circle cx="100" cy="100" r="72" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 7" />
+                            <circle cx="100" cy="100" r="92" fill="none" stroke="var(--cyan)" stroke-width="2" stroke-dasharray="90 400" stroke-linecap="round">
+                                <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="6s" repeatCount="indefinite" />
+                            </circle>
+                            <circle cx="100" cy="100" r="55" fill="var(--cyan)" opacity="0.08" />
+                            <circle cx="100" cy="100" r="40" fill="var(--cyan)" opacity="0.14" />
+                        </svg>
+                    </div>
+                    <p>Precisión de ingeniero,<br />para cada asistente</p>
+                    <span>NEXUS · 157 TEAM</span>
+                </div>
+                <div class="auth-side">
+                    <h3 id="authModalTitle">Bienvenido de nuevo</h3>
+                    <p class="modal-sub" id="authModalSub">Accede a tu cuenta de 157 Team</p>
+                    <div class="auth-tabs2">
+                        <button class="active" id="tabLogin">Iniciar sesión</button>
+                        <button id="tabRegister">Crear cuenta</button>
+                    </div>
+                    <div class="oauth-row">
+                        <button class="oauth-btn" id="googleLoginBtn"><i class="fab fa-google" style="color:#ea4335;"></i> Continuar con Google</button>
+                        <button class="oauth-btn" id="githubLoginBtn"><i class="fab fa-github"></i> Continuar con GitHub</button>
+                    </div>
+                    <div class="or-div">o</div>
+                    <div id="loginPane">
+                        <div class="field-group"><span class="field-label">Correo</span><input type="email" id="loginEmail" class="field" placeholder="tu@correo.com" autocomplete="email"></div>
+                        <div class="field-group"><span class="field-label">Contraseña</span><input type="password" id="loginPassword" class="field" placeholder="••••••••" autocomplete="current-password"></div>
+                        <button class="btn btn-solid btn-block" id="doLoginBtn"><i class="fas fa-sign-in-alt"></i> Iniciar sesión</button>
+                        <div class="status-msg" id="loginStatus"></div>
+                        <div class="auth-links"><a href="#" id="forgotPassword">¿Olvidaste tu contraseña?</a><span>¿Sin cuenta? <a href="#" id="switchToRegister">Créala</a></span></div>
+                    </div>
+                    <div id="registerPane" style="display:none;">
+                        <div class="field-group"><span class="field-label">Nombre de usuario</span><input type="text" id="regName" class="field" placeholder="User" autocomplete="username"></div>
+                        <div class="field-group"><span class="field-label">Correo</span><input type="email" id="regEmail" class="field" placeholder="tu@correo.com" autocomplete="email"></div>
+                        <div class="field-group">
+                            <span class="field-label">Número de teléfono</span>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <button type="button" id="phoneCodeBtn" class="oauth-btn" style="flex:0 0 110px;padding:10px 12px;display:flex;align-items:center;gap:6px;justify-content:center;font-size:.82rem;background:var(--panel);border:1px solid var(--border);border-radius:12px;color:var(--text);cursor:pointer;transition:all .2s;font-family:inherit;">
+                                    <span id="selectedPhoneCode">🇨🇴 +57</span>
+                                    <i class="fas fa-chevron-down" style="font-size:.6rem;color:var(--text-faint);"></i>
+                                </button>
+                                <input type="tel" id="regPhone" class="field" placeholder="Numero" autocomplete="tel" style="flex:1;">
+                            </div>
+                            <div id="phoneCodeDropdown" style="display:none;position:absolute;margin-top:4px;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;max-height:200px;overflow-y:auto;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,0.3);padding:4px 0;width:100%;">
+                                <div class="phone-code-option" data-code="+57" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇨🇴 +57</div>
+                                <div class="phone-code-option" data-code="+1" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇺🇸 +1</div>
+                                <div class="phone-code-option" data-code="+34" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇪🇸 +34</div>
+                                <div class="phone-code-option" data-code="+52" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇲🇽 +52</div>
+                                <div class="phone-code-option" data-code="+54" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇦🇷 +54</div>
+                                <div class="phone-code-option" data-code="+56" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇨🇱 +56</div>
+                                <div class="phone-code-option" data-code="+51" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇵🇪 +51</div>
+                                <div class="phone-code-option" data-code="+58" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇻🇪 +58</div>
+                                <div class="phone-code-option" data-code="+591" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇧🇴 +591</div>
+                                <div class="phone-code-option" data-code="+593" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇪🇨 +593</div>
+                                <div class="phone-code-option" data-code="+502" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇬🇹 +502</div>
+                                <div class="phone-code-option" data-code="+503" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇸🇻 +503</div>
+                                <div class="phone-code-option" data-code="+504" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇭🇳 +504</div>
+                                <div class="phone-code-option" data-code="+505" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇳🇮 +505</div>
+                                <div class="phone-code-option" data-code="+506" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇨🇷 +506</div>
+                                <div class="phone-code-option" data-code="+507" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇵🇦 +507</div>
+                                <div class="phone-code-option" data-code="+53" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇨🇺 +53</div>
+                                <div class="phone-code-option" data-code="+1809" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇩🇴 +1809</div>
+                                <div class="phone-code-option" data-code="+595" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇵🇾 +595</div>
+                                <div class="phone-code-option" data-code="+598" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇺🇾 +598</div>
+                                <div class="phone-code-option" data-code="+55" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇧🇷 +55</div>
+                                <div class="phone-code-option" data-code="+44" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇬🇧 +44</div>
+                                <div class="phone-code-option" data-code="+33" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇫🇷 +33</div>
+                                <div class="phone-code-option" data-code="+49" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇩🇪 +49</div>
+                                <div class="phone-code-option" data-code="+39" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇮🇹 +39</div>
+                                <div class="phone-code-option" data-code="+61" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇦🇺 +61</div>
+                                <div class="phone-code-option" data-code="+81" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇯🇵 +81</div>
+                                <div class="phone-code-option" data-code="+86" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇨🇳 +86</div>
+                                <div class="phone-code-option" data-code="+91" style="padding:8px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text);transition:background .15s;">🇮🇳 +91</div>
+                            </div>
+                            <small style="color:var(--text-faint);font-size:.7rem;display:block;margin-top:4px;">
+                                <i class="fas fa-info-circle"></i> Opcional - Solo para contacto y verificación
+                            </small>
+                        </div>
+                        <div class="field-group"><span class="field-label">Contraseña</span><input type="password" id="regPassword" class="field" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
+                        <button class="btn btn-solid btn-block" id="doRegisterBtn"><i class="fas fa-user-plus"></i> Crear cuenta</button>
+                        <div class="status-msg" id="registerStatus"></div>
+                        <div class="auth-links"><span>¿Ya tienes cuenta? <a href="#" id="switchToLogin">Inicia sesión</a></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-overlay" id="adminOverlay">
+        <div class="admin-panel">
+            <div class="admin-head">
+                <h3 style="font-size:1.1rem;">
+                    <i class="fas fa-shield-halved" style="color:var(--danger);"></i> 
+                    Panel de Administración 
+                    <span class="admin-badge" style="background:var(--danger-dim);border:1px solid rgba(255,93,106,.3);color:var(--danger);font-size:.62rem;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:.1em;text-transform:uppercase;margin-left:8px;">ADMIN</span>
+                </h3>
+                <button class="modal-x" style="position:static;" onclick="closeOverlay('adminOverlay')"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="adminLoginWrap" style="padding:48px 32px;text-align:center;">
+                <div style="width:72px;height:72px;border-radius:22px;background:var(--danger-dim);border:1px solid rgba(255,93,106,.2);display:grid;place-items:center;margin:0 auto 20px;font-size:1.8rem;color:var(--danger);">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h3 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;margin-bottom:8px;">Acceso restringido</h3>
+                <p style="color:var(--text-dim);font-size:.85rem;margin-bottom:24px;">Solo administradores autorizados pueden acceder</p>
+                <div style="display:flex;gap:10px;max-width:340px;margin:0 auto;">
+                    <div style="position:relative;flex:1;">
+                        <input type="password" id="adminPassword" class="field" placeholder="Contraseña admin" style="padding-right:44px;">
+                        <button class="auth-eye-btn" onclick="togglePass('adminPassword',this)" type="button" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-faint);cursor:pointer;padding:4px;font-size:.82rem;transition:color .2s;z-index:2;">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <button onclick="adminLogin()" class="btn btn-solid" style="padding:10px 20px;white-space:nowrap;">
+                        <i class="fas fa-sign-in-alt"></i> Entrar
+                    </button>
+                </div>
+                <div id="adminLoginError" style="color:var(--danger);font-size:.82rem;margin-top:12px;display:none;"></div>
+            </div>
+            <div id="adminContent" style="display:none;">
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-atab="overview">📊 Vista general</button>
+                    <button class="admin-tab" data-atab="products">📦 Productos</button>
+                    <button class="admin-tab" data-atab="apps">📱 Apps</button>
+                    <button class="admin-tab" data-atab="comments">💬 Comentarios</button>
+                    <button class="admin-tab" data-atab="posts">📝 Publicaciones</button>
+                    <button class="admin-tab" data-atab="users">👥 Usuarios</button>
+                </div>
+                <div class="admin-body">
+                    <div class="admin-section active" id="atab-overview">
+                        <div class="admin-stat-row" id="adminStats"></div>
+                        <p style="color:var(--text-dim);font-size:.83rem;text-align:center;">Bienvenido al panel de control de 157 Team.</p>
+                    </div>
+                    <div class="admin-section" id="atab-apps">
+                        <h4 style="margin-bottom:12px;font-family:var(--font-display);">Gestión de Apps</h4>
+                        <div class="admin-product-form" style="background:var(--panel);padding:16px;border-radius:10px;border:1px solid var(--border);margin-bottom:16px;">
+                            <input type="text" id="adminAppName" class="field" placeholder="Nombre de la App (ej: Nexus)" style="margin-bottom:8px;">
+                            <input type="text" id="adminAppVersion" class="field" placeholder="Versión (ej: v1.2.0)" style="margin-bottom:8px;">
+                            <input type="text" id="adminAppDesc" class="field" placeholder="Descripción general de la actualización" style="margin-bottom:8px;">
+                            <input type="text" id="adminAppImage" class="field" placeholder="URL de la Imagen (opcional)" style="margin-bottom:8px;">
+                            <div style="display:flex; gap:8px; margin-bottom:8px;">
+                                <label style="color:var(--text-dim); font-size:0.85rem; display:flex; align-items:center; gap:8px;">
+                                    Tema/Accesorio: 
+                                    <input type="color" id="adminAppColor" value="#00ffe5" style="border:none; border-radius:4px; width:30px; height:30px; padding:0; cursor:pointer;">
+                                </label>
+                            </div>
+                            <textarea id="adminAppAdded" class="field" placeholder="Nuevas funciones (una por línea)" style="margin-bottom:8px; min-height:60px; resize:vertical;"></textarea>
+                            <textarea id="adminAppFixed" class="field" placeholder="Bugs solucionados (uno por línea)" style="margin-bottom:12px; min-height:60px; resize:vertical;"></textarea>
+                            <button onclick="saveAdminApp()" class="btn btn-solid" style="width:100%;"><i class="fas fa-save"></i> Publicar Actualización</button>
+                        </div>
+                        <div id="adminAppsList" style="display:flex;flex-direction:column;gap:8px;"></div>
+                    </div>
+                    <div class="admin-section" id="atab-products">
+                        <div class="admin-product-form" id="adminProductFormWrap">
+                            <input type="hidden" id="npEditId" value="">
+                            <h4 id="npFormTitle"><i class="fas fa-plus-circle"></i> Nuevo producto</h4>
+                            <div class="form-grid">
+                                <input type="text" id="npName" class="field" placeholder="Nombre del producto" required>
+                                <input type="text" id="npPrice" class="field" placeholder="Precio (ej: $0 o $19.99)">
+                            </div>
+                            <div style="margin-bottom:8px;font-size:.72rem;font-weight:700;color:var(--text-faint);letter-spacing:.08em;text-transform:uppercase;">🏷️ Categorías</div>
+                            <div id="npCatChips" class="cat-chips">
+                                <div class="cat-chip" data-val="free">🆓 Gratis</div>
+                                <div class="cat-chip" data-val="premium">💎 Premium</div>
+                                <div class="cat-chip" data-val="apk">📱 APK</div>
+                                <div class="cat-chip" data-val="windows">🖥️ Windows</div>
+                                <div class="cat-chip" data-val="asistentes">🤖 Asistentes</div>
+                                <div class="cat-chip" data-val="scripts">📜 Scripts</div>
+                            </div>
+                            <div class="form-grid">
+                                <input type="text" id="npEmoji" class="field" placeholder="Emoji (ej: 🤖 o ⭐)">
+                                <input type="text" id="npId" class="field" placeholder="ID único (ej: mi_producto)">
+                            </div>
+                            <textarea id="npShortDesc" class="field" rows="2" placeholder="Descripción corta (aparece en la tarjeta)" style="margin-bottom:12px;"></textarea>
+                            <textarea id="npDesc" class="field" rows="3" placeholder="Descripción completa" style="margin-bottom:12px;"></textarea>
+                            <textarea id="npFeats" class="field" rows="3" placeholder="Características (una por línea)" style="margin-bottom:12px;"></textarea>
+                            <div class="form-grid">
+                                <input type="text" id="npDl" class="field" placeholder="Link de descarga / pago">
+                                <input type="text" id="npColor" class="field" placeholder="Color (ej: #8b5cf6)">
+                            </div>
+                            <div style="margin-bottom:8px;font-size:.72rem;font-weight:700;color:var(--text-faint);letter-spacing:.08em;text-transform:uppercase;">🖼️ Imagen del producto</div>
+                            <div class="dropzone" style="margin-bottom:12px;padding:20px;">
+                                <input type="file" id="npImageFile" accept="image/*" onchange="handleNewProductImage(this.files[0])">
+                                <i class="fas fa-cloud-upload-alt" style="font-size:1.5rem;"></i>
+                                <p style="font-size:.82rem;color:var(--text-dim);">Haz clic o arrastra una imagen (se usará como miniatura)</p>
+                                <small style="color:var(--text-faint);font-size:.72rem;">PNG, JPG, WEBP — máximo 2MB</small>
+                            </div>
+                            <img id="npPreview" style="display:none;max-height:120px;border-radius:10px;margin-bottom:12px;border:1px solid var(--border);">
+                            <div style="display:flex;gap:10px;">
+                                <button onclick="createNewProduct()" class="btn btn-solid btn-block" style="background:linear-gradient(135deg,var(--cyan),var(--amber));">
+                                    <i class="fas fa-save"></i> <span id="npSubmitBtnText">Crear producto</span>
+                                </button>
+                                <button id="npCancelEditBtn" onclick="cancelEditProduct()" class="btn btn-danger" style="display:none;padding:0 20px;">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:20px;">
+                            <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;display:flex;align-items:center;gap:8px;">
+                                📋 Productos existentes 
+                                <span style="font-size:.72rem;color:var(--text-faint);font-weight:400;">(haz clic en el emoji para ver más)</span>
+                            </h3>
+                        </div>
+                        <div id="adminProductsList"></div>
+                    </div>
+                    <div class="admin-section" id="atab-comments">
+                        <div style="margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                            <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;">💬 Gestión de comentarios</h3>
+                            <button onclick="adminDeleteAllComments()" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Borrar todos</button>
+                        </div>
+                        <div id="adminCommentsList" style="max-height:450px;overflow-y:auto;"></div>
+                    </div>
+                    <div class="admin-section" id="atab-posts">
+                        <div style="margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                            <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;">📝 Gestión de publicaciones</h3>
+                            <button onclick="adminDeleteAllPosts()" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i> Borrar todas</button>
+                        </div>
+                        <div id="adminPostsList" style="max-height:450px;overflow-y:auto;"></div>
+                    </div>
+                    <div class="admin-section" id="atab-users">
+                        <h3 style="font-family:var(--font-display);font-size:1rem;font-weight:700;margin-bottom:20px;">👥 Usuarios registrados</h3>
+                        <div id="adminUsersList" style="max-height:450px;overflow-y:auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat FAB -->
+    <button id="chatFab" class="chat-fab" style="display:none;" onclick="toggleChatPanel()">
+        <i class="fas fa-comment-dots"></i>
+        <span id="chatUnread" class="chat-unread" style="display:none;">0</span>
+    </button>
+
+    <!-- Chat Panel -->
+    <div id="chatPanel" class="chat-panel">
+        <div class="chat-panel-header">
+            <div id="chatHeaderTitle" style="display:flex;align-items:center;gap:8px;">
+                <i class="fas fa-comments" style="color:var(--cyan);"></i>
+                <span style="font-weight:700;font-family:var(--font-display);">Mensajes</span>
+            </div>
+            <div style="display:flex;gap:6px;">
+                <button id="chatBackBtn" class="icon-btn" style="display:none;" onclick="showChatList()"><i class="fas fa-arrow-left"></i></button>
+                <button class="icon-btn" onclick="toggleChatPanel()"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+        <div class="chat-search">
+            <i class="fas fa-search" style="color:var(--text-faint);font-size:.8rem;"></i>
+            <input type="text" id="chatSearchInput" placeholder="Buscar usuario por nombre o email..." oninput="searchChatUsers(this.value)">
+        </div>
+        <div id="chatSearchResults" class="chat-search-results" style="display:none;"></div>
+        <div id="chatListView" class="chat-list">
+            <div id="chatListEmpty" style="text-align:center;padding:40px 20px;color:var(--text-faint);">
+                <i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:10px;"></i>
+                <p style="font-size:.85rem;">No tienes conversaciones aún</p>
+                <p style="font-size:.75rem;margin-top:4px;">Busca a alguien arriba para empezar</p>
+            </div>
+        </div>
+        <div id="chatActiveView" class="chat-active" style="display:none;">
+            <div id="chatMessages" class="chat-messages"></div>
+            <div class="chat-input-area" style="position:relative; flex-direction:column; align-items:stretch; padding:10px;">
+                <div id="chatImagePreview" class="chat-image-preview-wrap" style="display:none;">
+                    <img id="chatImgPreviewEl" src="">
+                    <button class="del-btn" onclick="clearChatImage()"><i class="fas fa-times"></i></button>
+                </div>
+                <div style="display:flex; align-items:center; width: 100%; gap: 8px;">
+                    <input type="file" id="chatImageInput" accept="image/*" style="display:none;" onchange="handleChatImage(this.files[0])">
+                    <button onclick="document.getElementById('chatImageInput').click()" style="background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:1.1rem; padding:5px;"><i class="fas fa-image"></i></button>
+                    <input type="hidden" id="chatEditMsgId" value="">
+                    <input type="text" id="chatMsgInput" style="flex:1; border:none; background:var(--bg-panel); color:var(--text); padding:10px 14px; border-radius:20px; font-size:.85rem; outline:none;" placeholder="Escribe un mensaje..." onkeydown="if(event.key==='Enter')sendChatMsg()">
+                    <button id="chatCancelEditBtn" onclick="cancelEditChatMsg()" style="display:none; background:none; border:none; color:var(--danger); cursor:pointer; padding:5px;"><i class="fas fa-times"></i></button>
+                    <button onclick="sendChatMsg()" class="chat-send-btn" style="background:var(--cyan); color:black; border:none; width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script para el contador hasta el 28 de septiembre -->
+    <script>
+        (function() {
+            // Fecha objetivo: 28 de septiembre de 2026 (puedes cambiar el año si es necesario)
+            const target = new Date('2026-09-28T00:00:00').getTime();
+
+            function updateCountdown() {
+                const now = Date.now();
+                const diff = target - now;
+
+                if (diff <= 0) {
+                    document.getElementById('countdownDays').textContent = '00';
+                    document.getElementById('countdownHours').textContent = '00';
+                    document.getElementById('countdownMinutes').textContent = '00';
+                    document.getElementById('countdownSeconds').textContent = '00';
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                document.getElementById('countdownDays').textContent = String(days).padStart(2, '0');
+                document.getElementById('countdownHours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('countdownMinutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('countdownSeconds').textContent = String(seconds).padStart(2, '0');
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        })();
+    </script>
+
+</body>
+</html>
