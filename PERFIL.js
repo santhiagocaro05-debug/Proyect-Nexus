@@ -5,6 +5,13 @@
 // de abrir el overlay. Ver instrucciones al final de este archivo.
 // ============================================================
 
+// ===== APLICAR TEMA GUARDADO =====
+function applyTheme() {
+    const dark = localStorage.getItem('jv_dark') !== 'false';
+    document.body.classList.toggle('light', !dark);
+}
+applyTheme();
+
 const $ = id => document.getElementById(id);
 const esc = t => {
     const d = document.createElement('div');
