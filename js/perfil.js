@@ -34,7 +34,8 @@ const NAME_EFFECTS = [
     { id: 'shimmer', label: 'Destello' },
     { id: 'neon', label: 'Neón' },
     { id: 'hologram', label: 'Holograma' },
-    { id: 'plusgold', label: 'Oro Nexus+' }
+    { id: 'plusgold', label: 'Oro Nexus+', plusOnly: true },
+    { id: 'devtype', label: 'Developer Verificado', devOnly: true }
 ];
 
 const RANK_DISPLAY = {
@@ -441,7 +442,10 @@ window.saveOpRedes = async function() {
 function renderEffectSwatches() {
     const container = $('opEffectSwatches');
     const current = profileData.nameEffect || 'none';
-    container.innerHTML = NAME_EFFECTS.map(fx => `
+    // Los efectos marcados como plusOnly (ej. el oro de Nexus+) solo se
+    // ofrecen a quien ya es suscriptor, para que sea un beneficio real.
+    const available = NAME_EFFECTS.filter(fx => !fx.plusOnly || profileData.nexusPlus);
+    container.innerHTML = available.map(fx => `
         <div class="effect-swatch ${fx.id === current ? 'selected' : ''}" data-fx="${fx.id}">
             <span class="uname uname-${fx.id}" style="font-size:1rem;">${esc(profileData.username || 'Nombre')}</span>
         </div>
