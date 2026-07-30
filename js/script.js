@@ -847,7 +847,7 @@ async function applySavedProductOrder() {
                         <div class="c-avatar" onclick="location.href='perfil.html?u=${c.authorId}'" style="cursor:pointer;overflow:hidden;background:var(--cyan-dim);display:grid;place-items:center;">
   ${avatarHTML}
 </div>
-<span class="c-author" onclick="location.href='perfil.html?u=${c.authorId}'" style="cursor:pointer">${esc(c.author)}</span>
+<span class="c-author uname uname-${nameFx}" onclick="location.href='perfil.html?u=${c.authorId}'" style="cursor:pointer">${esc(c.author)}</span>
                         ${rb}
                         ${isOwner ? '<span style="font-size:.62rem;background:var(--cyan-dim);color:var(--cyan);padding:2px 8px;border-radius:6px;font-weight:700">Tú</span>' : ''}
                         <span class="c-date">${new Date(c.date).toLocaleString()}</span>
