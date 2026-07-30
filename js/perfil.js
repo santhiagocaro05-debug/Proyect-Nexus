@@ -23,6 +23,8 @@ let authUser = null;       // usuario logueado actualmente (o null)
 let viewUid = null;        // uid del perfil que se está mostrando
 let isOwnProfile = false;
 let profileData = null;    // doc completo de users/{viewUid}
+let authIsAdmin = false;   // si el usuario logueado es admin (para controles sobre OTROS perfiles)
+let currentPlusPlan = 'monthly'; // plan seleccionado dentro del modal Nexus+
 
 const NAME_EFFECTS = [
     { id: 'none', label: 'Sin efecto' },
@@ -37,6 +39,13 @@ const RANK_DISPLAY = {
     collaborator: { label: 'Colaborador', bg: 'var(--cyan-dim)', color: 'var(--cyan)' },
     moderator: { label: 'Moderador', bg: 'var(--amber-dim)', color: 'var(--amber)' },
     member: { label: 'Member', bg: 'var(--panel-strong)', color: 'var(--text-dim)' }
+};
+
+// Precios de los planes Nexus+ — se usan tanto para el texto del modal
+// como para armar los links de pago con el monto ya cargado.
+const PLUS_PLANS = {
+    monthly: { amount: '4.99', label: 'mensual' },
+    yearly: { amount: '39.99', label: 'anual' }
 };
 
 function toast(msg, type = 'success') {
@@ -118,6 +127,8 @@ async function loadProfile() {
         await checkDevStatus();
 
         setupOwnEditControls();
+    } else {
+        await checkAdminPlusControl();
     }
 }
 
@@ -129,6 +140,7 @@ function renderIdentity() {
     } else {
         avatarEl.textContent = (profileData.username || '?')[0].toUpperCase();
     }
+    avatarEl.classList.toggle('plus', !!profileData.nexusPlus);
 
     // Banner
     const bannerEl = $('opBanner');
@@ -144,6 +156,12 @@ function renderIdentity() {
     const nameSpan = $('opNameSpan');
     nameSpan.textContent = profileData.username || 'Usuario';
     nameSpan.className = `uname uname-${profileData.nameEffect || 'none'}`;
+
+    // Pin Nexus+ junto al nombre
+    $('opPlusPin').style.display = profileData.nexusPlus ? 'inline-flex' : 'none';
+
+    // Tarjeta con marco dorado si es suscriptor
+    $('opCard').classList.toggle('is-plus', !!profileData.nexusPlus);
 
     // Meta line
     $('opUidShort').textContent = 'OP-' + viewUid.substring(0, 6).toUpperCase();
@@ -162,6 +180,9 @@ function renderIdentity() {
     // Bio (header)
     $('opBio').textContent = profileData.bio || 'Sin descripción aún';
 
+    // Banner de invitación a Nexus+ — solo en tu propio perfil y si aún no eres suscriptor
+    $('opPlusBanner').style.display = (isOwnProfile && !profileData.nexusPlus) ? 'flex' : 'none';
+
     // Controles de edición (solo dueño)
     if (isOwnProfile) {
         $('opAvatarEditBtn').style.display = 'flex';
@@ -178,10 +199,11 @@ function renderGeneral() {
     if (rank === 'admin') badgesRow.innerHTML += badgeChip('👑 Admin');
     else if (rank === 'collaborator') badgesRow.innerHTML += badgeChip('🤝 Colaborador');
     else if (rank === 'moderator') badgesRow.innerHTML += badgeChip('🛡️ Moderador');
+    if (profileData.nexusPlus) badgesRow.innerHTML += badgeChip('💎 Nexus+', true);
     if (profileData.isDeveloper) badgesRow.innerHTML += badgeChip('👨‍💻 Developer');
     (profileData.badges || []).forEach(b => { badgesRow.innerHTML += badgeChip(b); });
 
-    $('opStatBadges').textContent = (profileData.badges || []).length + (profileData.isDeveloper ? 1 : 0);
+    $('opStatBadges').textContent = (profileData.badges || []).length + (profileData.isDeveloper ? 1 : 0) + (profileData.nexusPlus ? 1 : 0);
 
     if (isOwnProfile) {
         $('opGeneralView').style.display = 'none';
@@ -191,8 +213,8 @@ function renderGeneral() {
     }
 }
 
-function badgeChip(text) {
-    return `<span style="background:var(--panel-strong);border:1px solid var(--border);color:var(--text-dim);font-size:.75rem;font-weight:600;padding:5px 12px;border-radius:20px;">${esc(text)}</span>`;
+function badgeChip(text, plus = false) {
+    return `<span class="badge-chip${plus ? ' plus' : ''}">${esc(text)}</span>`;
 }
 
 function renderRedes() {
@@ -372,7 +394,7 @@ window.saveOpGeneral = async function() {
     const accentColor = $('opAccentColor').value;
     const badges = Array.from($('opBadgesRow').children)
         .map(el => el.textContent.trim())
-        .filter(t => !['👑 Admin', '🤝 Colaborador', '🛡️ Moderador', '👨‍💻 Developer'].includes(t));
+        .filter(t => !['👑 Admin', '🤝 Colaborador', '🛡️ Moderador', '👨‍💻 Developer', '💎 Nexus+'].includes(t));
 
     const result = await window.fb.saveUserProfile(viewUid, {
         bio: bio || 'Sin descripción aún',
@@ -438,6 +460,79 @@ function renderEffectSwatches() {
         };
     });
 }
+
+
+// ============================================================
+// NEXUS+ — modal informativo/de compra y control de admin
+// ============================================================
+
+window.openNexusPlusModal = function() {
+    selectPlusPlan(currentPlusPlan || 'monthly');
+    $('nexusPlusOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+};
+
+window.selectPlusPlan = function(plan) {
+    if (!PLUS_PLANS[plan]) return;
+    currentPlusPlan = plan;
+
+    $('planMonthly').classList.toggle('selected', plan === 'monthly');
+    $('planYearly').classList.toggle('selected', plan === 'yearly');
+
+    // Actualiza los links de pago con el monto del plan elegido, para que
+    // la persona no tenga que escribirlo a mano en PayPal / Dólar App.
+    const amount = PLUS_PLANS[plan].amount;
+    const ppLink = $('plusPpLink');
+    const daLink = $('plusDaLink');
+    if (ppLink) ppLink.href = `https://www.paypal.com/paypalme/157teamai/${amount}`;
+    if (daLink) daLink.href = `https://dollarapp.net/pagar/157team?monto=${amount}`;
+};
+
+// Control manual para que un admin active/quite Nexus+ en OTRO perfil.
+// La verificación real de permisos ocurre siempre en el backend (reglas
+// de Firestore / función), esto solo evita mostrar el botón a quien no
+// debería verlo.
+async function checkAdminPlusControl() {
+    const section = $('opAdminPlusSectionView');
+    section.style.display = 'none';
+    if (!authUser) return;
+
+    try {
+        const authRes = await window.fb.getUserProfile(authUser.uid);
+        authIsAdmin = !!(authRes.success && authRes.data && authRes.data.rank === 'admin');
+    } catch (e) {
+        authIsAdmin = false;
+    }
+
+    if (!authIsAdmin) return;
+
+    section.style.display = 'block';
+    updatePlusToggleButtons();
+}
+
+function updatePlusToggleButtons() {
+    const onBtn = $('opPlusOnBtnView');
+    const offBtn = $('opPlusOffBtnView');
+    if (!onBtn || !offBtn) return;
+    const isPlus = !!profileData.nexusPlus;
+    onBtn.classList.toggle('active', isPlus);
+    onBtn.classList.toggle('on', true);
+    offBtn.classList.toggle('active', !isPlus);
+    offBtn.classList.toggle('off', true);
+}
+
+window.setOpNexusPlus = async function(value) {
+    const result = await window.fb.saveUserProfile(viewUid, { nexusPlus: !!value });
+    if (result.success) {
+        profileData.nexusPlus = !!value;
+        renderIdentity();
+        renderGeneral();
+        updatePlusToggleButtons();
+        toast(value ? 'Nexus+ activado para este operador' : 'Nexus+ retirado de este operador');
+    } else {
+        toast('Error: ' + result.error, 'error');
+    }
+};
 
 
 // ============================================================
@@ -541,4 +636,13 @@ document.getElementById('devRequestOverlay')?.addEventListener('click', function
 //    requestDeveloperStatus y getMyDeveloperRequestStatus del
 //    paso 2, e isUserDeveloper/isUserAdmin del paso 1 — perfil.js
 //    los usa vía window.fb.
+//
+// 5) Nexus+: guarda el estado como un booleano `nexusPlus` en el
+//    documento de cada usuario (users/{uid}.nexusPlus). No hace
+//    falta ninguna función nueva en firebase-config.js: el botón
+//    de admin usa el mismo saveUserProfile(uid, campos) que ya
+//    usa el resto de la página. IMPORTANTE: protege ese campo con
+//    tus reglas de seguridad de Firestore para que solo un admin
+//    pueda escribirlo en el documento de otro usuario — el botón
+//    aquí solo oculta la opción, no reemplaza esa validación.
 // ============================================================
