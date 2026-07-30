@@ -812,11 +812,16 @@ async function applySavedProductOrder() {
         const users = usersResult.success ? usersResult.data : [];
         const userAvatarMap = {};
         const rankMap = {};
+        const nameEffectMap = {};
         users.forEach(u => {
             userAvatarMap[u.id] = u.avatar || '';
             if (u.isAdmin) rankMap[u.id] = 'admin';
             else if (u.rank) rankMap[u.id] = u.rank;
             else rankMap[u.id] = 'member';
+            const fx = u.nameEffect || 'none';
+            if (fx === 'plusgold' && !u.nexusPlus) nameEffectMap[u.id] = 'none';
+            else if (fx === 'devtype' && !u.isDeveloper) nameEffectMap[u.id] = 'none';
+            else nameEffectMap[u.id] = fx;
         });
 
         if (!comments.length) {
@@ -828,11 +833,12 @@ async function applySavedProductOrder() {
         list.innerHTML = comments.map(c => {
             const rank = rankMap[c.authorId] || 'member';
             const rb = getCommentBadge(rank);
+            const nameFx = nameEffectMap[c.authorId] || 'none';
             const isOwner = currentUser && (c.authorId === currentUser.uid);
             const ul = currentUser && (c.likes || []).includes(currentUser.uid);
             const ud = currentUser && (c.dislikes || []).includes(currentUser.uid);
             const avatarUrl = userAvatarMap[c.authorId] || '';
-            const avatarHTML = avatarUrl && avatarUrl.startsWith('http') ?
+            const avatarHTML = avatarUrl ?
                 `<img src="${avatarUrl}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.1)">` :
                 (c.author[0] || '?').toUpperCase();
 
@@ -3564,7 +3570,7 @@ function renderReviews(reviews, productId) {
     reviews.forEach(r => {
         totalStars += r.rating;
         const isMine = currentUser && r.userId === currentUser.uid;
-        const avatarStr = (r.avatar && r.avatar.startsWith('http')) ? `<img src="${r.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : `<i class="fas fa-user"></i>`;
+        const avatarStr = r.avatar ? `<img src="${r.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : `<i class="fas fa-user"></i>`;
         
         let starsHtml = '';
         for(let i=1; i<=5; i++) {
@@ -3644,8 +3650,12 @@ $('mReviewSubmitBtn').onclick = async function() {
         if (userReviewId) {
             result = await window.fb.editProductReview(userReviewId, currentRatingSelected, text, currentUser.uid);
         } else {
-            result = await window.fb.addProductReview(currentProd.id, currentRatingSelected, text, currentUser.uid, currentUser.username, currentUser.avatar);
-            // Enviar notificación global de que alguien reseñó (opcional, por ahora solo compran)
+            // Obtener avatar actual desde Firebase
+            let userAvatar = '';
+            const profRes = await window.fb.getUserProfile(currentUser.uid);
+            if (profRes.success && profRes.data.avatar) userAvatar = profRes.data.avatar;
+
+            result = await window.fb.addProductReview(currentProd.id, currentRatingSelected, text, currentUser.uid, currentUser.username, userAvatar);
             window.fb.addActivityNotification(currentUser.uid, currentUser.username, 'review', currentProd.name, currentProd.id);
         }
         
@@ -3903,7 +3913,12 @@ window.submitPostComment = async function() {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     
     if (window.fb && window.fb.addPostComment) {
-        await window.fb.addPostComment(currentOpenPostId, text, currentUser.uid, currentUser.username, currentUser.avatar);
+        // ✅ Obtener avatar actual
+        let userAvatar = '';
+        const profRes = await window.fb.getUserProfile(currentUser.uid);
+        if (profRes.success && profRes.data.avatar) userAvatar = profRes.data.avatar;
+
+        await window.fb.addPostComment(currentOpenPostId, text, currentUser.uid, currentUser.username, userAvatar);
         inp.value = '';
     }
     
