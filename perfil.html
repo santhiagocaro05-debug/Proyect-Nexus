@@ -21,91 +21,135 @@
 
     <style>
         /* ============================================================
-           ESTILOS PROPIOS DE LA FICHA DE OPERADOR
-           Todo derivado de las variables ya definidas en style.css —
-           no se inventa paleta nueva, se extiende la existente.
+           FICHA DE OPERADOR — v2
+           Extiende los tokens ya definidos en style.css. La única paleta
+           nueva es la de Nexus+ (oro/violeta), reservada exclusivamente
+           para esa función, para que se lea como un tier distinto sin
+           romper la identidad cian/ámbar del resto del sitio.
            ============================================================ */
 
-        body { min-height: 100vh; }
+        :root {
+            --plus-gold-1: #ffe9b8;
+            --plus-gold-2: #ffb347;
+            --plus-gold-3: #f2861d;
+            --plus-violet: #b98cff;
+            --plus-grad: linear-gradient(135deg, var(--plus-gold-1) 0%, var(--plus-gold-2) 55%, var(--plus-violet) 130%);
+        }
 
-        .op-wrap { max-width: 920px; margin: 0 auto; padding: 32px 20px 100px; }
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(60vw 40vh at 12% -10%, rgba(79,216,255,.07), transparent 60%),
+                radial-gradient(50vw 40vh at 110% 10%, rgba(255,179,71,.06), transparent 60%);
+            background-attachment: fixed;
+        }
 
-        /* Topbar minimal */
+        .op-wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 110px; }
+
+        /* ---------- Topbar ---------- */
         .op-topbar {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 4px; margin-bottom: 28px;
+            padding: 12px 4px; margin-bottom: 26px;
         }
         .op-back {
             display: inline-flex; align-items: center; gap: 8px;
             color: var(--text-dim); text-decoration: none; font-size: .85rem;
-            transition: color .2s;
+            padding: 8px 4px; transition: color .2s, transform .2s;
         }
+        .op-back i { transition: transform .2s; }
         .op-back:hover { color: var(--cyan); }
+        .op-back:hover i { transform: translateX(-3px); }
         .op-topbar-status {
-            font-family: var(--font-mono); font-size: .72rem; color: var(--text-faint);
+            font-family: var(--font-mono); font-size: .7rem; color: var(--text-faint);
             display: flex; align-items: center; gap: 8px;
+            background: var(--panel); border: 1px solid var(--border);
+            padding: 6px 12px; border-radius: 20px;
         }
         .op-topbar-status .dot {
             width: 6px; height: 6px; border-radius: 50%; background: var(--success);
-            box-shadow: 0 0 8px var(--success);
+            box-shadow: 0 0 8px var(--success); animation: opPulse 2s ease-in-out infinite;
         }
+        @keyframes opPulse { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
 
-        /* Card principal con esquinas tipo HUD */
+        /* ---------- Card principal ---------- */
         .op-card {
             position: relative;
             background: var(--panel);
             border: 1px solid var(--border);
-            border-radius: 20px;
+            border-radius: 22px;
             overflow: hidden;
-            margin-bottom: 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 24px 60px -30px rgba(0,0,0,.6);
         }
         .op-card::before, .op-card::after {
-            content: ''; position: absolute; width: 22px; height: 22px;
-            pointer-events: none; z-index: 3;
+            content: ''; position: absolute; width: 20px; height: 20px;
+            pointer-events: none; z-index: 3; opacity: .8;
         }
         .op-card::before { top: 10px; left: 10px; border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
         .op-card::after { bottom: 10px; right: 10px; border-bottom: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
+        .op-card.is-plus::before, .op-card.is-plus::after { border-color: var(--plus-gold-2); }
 
         .op-banner {
-            width: 100%; height: 180px;
+            width: 100%; height: 190px;
             background: linear-gradient(135deg, var(--bg-2), var(--panel-strong));
             position: relative; overflow: hidden;
         }
+        .op-banner::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(5,7,12,0) 45%, var(--panel) 100%);
+        }
         .op-banner img { width: 100%; height: 100%; object-fit: cover; }
         .op-banner-edit {
-            position: absolute; bottom: 12px; right: 12px;
-            background: rgba(5,7,12,.7); backdrop-filter: blur(8px);
+            position: absolute; bottom: 12px; right: 12px; z-index: 2;
+            background: rgba(5,7,12,.72); backdrop-filter: blur(10px);
             border: 1px solid var(--border-strong); color: var(--text);
             padding: 7px 14px; border-radius: 20px; font-size: .74rem; font-weight: 600;
             cursor: pointer; display: flex; align-items: center; gap: 6px;
             transition: all .2s;
         }
-        .op-banner-edit:hover { border-color: var(--cyan); color: var(--cyan); }
+        .op-banner-edit:hover { border-color: var(--cyan); color: var(--cyan); transform: translateY(-1px); }
 
         .op-identity {
-            padding: 0 28px 24px; margin-top: -46px; position: relative; z-index: 2;
+            padding: 0 28px 22px; margin-top: -48px; position: relative; z-index: 2;
             display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap;
         }
         .op-avatar-wrap { position: relative; flex-shrink: 0; }
         .op-avatar {
-            width: 96px; height: 96px; border-radius: 22px;
+            width: 98px; height: 98px; border-radius: 24px;
             border: 4px solid var(--panel);
             background: var(--cyan-dim); color: var(--cyan);
             display: flex; align-items: center; justify-content: center;
             font-size: 2.2rem; font-weight: 700; overflow: hidden;
-            box-shadow: 0 8px 24px rgba(0,0,0,.4);
+            box-shadow: 0 10px 28px rgba(0,0,0,.45);
+            transition: box-shadow .3s;
         }
         .op-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .op-avatar.plus {
+            box-shadow: 0 0 0 3px rgba(255,179,71,.35), 0 10px 30px rgba(242,134,29,.25);
+        }
         .op-avatar-edit {
             position: absolute; bottom: -4px; right: -4px;
             width: 30px; height: 30px; border-radius: 50%;
             background: var(--cyan); color: #04121a;
             display: flex; align-items: center; justify-content: center;
             font-size: .78rem; cursor: pointer; border: 3px solid var(--panel);
+            transition: transform .2s;
         }
+        .op-avatar-edit:hover { transform: scale(1.08); }
 
         .op-namebox { padding-bottom: 4px; }
-        .op-name { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; line-height: 1.15; }
+        .op-name-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+        .op-name { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; line-height: 1.15; }
+        .op-plus-pin {
+            display: none; align-items: center; gap: 5px;
+            font-family: var(--font-mono); font-size: .64rem; font-weight: 800;
+            letter-spacing: .04em; padding: 4px 9px 4px 6px; border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255,233,184,.16), rgba(185,140,255,.16));
+            border: 1px solid rgba(255,179,71,.4); color: var(--plus-gold-1);
+            cursor: pointer;
+        }
+        .op-plus-pin i { font-size: .68rem; color: var(--plus-gold-2); }
+
         .op-meta-line {
             font-family: var(--font-mono); font-size: .74rem; color: var(--text-faint);
             margin-top: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
@@ -115,56 +159,79 @@
 
         .op-rank-badge {
             font-size: .64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
-            padding: 4px 12px; border-radius: 7px; margin-top: 8px; display: inline-block;
+            padding: 4px 12px; border-radius: 7px; margin-top: 9px; display: inline-block;
         }
 
-        .op-bio { padding: 0 28px 24px; color: var(--text-dim); font-size: .9rem; line-height: 1.7; max-width: 620px; }
+        .op-bio { padding: 0 28px 24px; color: var(--text-dim); font-size: .9rem; line-height: 1.7; max-width: 640px; }
 
-        /* Tira de stats estilo HUD */
+        /* ---------- Banner de invitación a Nexus+ ---------- */
+        .op-plus-banner {
+            margin: 0 28px 24px; display: none; align-items: center; gap: 14px;
+            padding: 14px 18px; border-radius: 16px;
+            background: linear-gradient(120deg, rgba(255,233,184,.08), rgba(185,140,255,.06));
+            border: 1px solid rgba(255,179,71,.28);
+            cursor: pointer; transition: transform .2s, border-color .2s;
+        }
+        .op-plus-banner:hover { transform: translateY(-1px); border-color: rgba(255,179,71,.5); }
+        .op-plus-banner-ico {
+            width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+            background: var(--plus-grad); display: grid; place-items: center;
+            color: #2a1200; font-size: 1.1rem;
+        }
+        .op-plus-banner-txt strong { display: block; font-size: .86rem; color: var(--text); }
+        .op-plus-banner-txt span { font-size: .76rem; color: var(--text-dim); }
+        .op-plus-banner-arrow { margin-left: auto; color: var(--plus-gold-2); font-size: .8rem; }
+
+        /* ---------- Tira de stats ---------- */
         .op-statline {
             display: grid; grid-template-columns: repeat(4, 1fr);
             border-top: 1px solid var(--border);
         }
         .op-stat {
-            padding: 16px 20px; text-align: center;
+            padding: 17px 14px; text-align: center;
             border-right: 1px solid var(--border);
+            transition: background .2s;
         }
+        .op-stat:hover { background: rgba(255,255,255,.015); }
         .op-stat:last-child { border-right: none; }
-        .op-stat-n { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; color: var(--cyan); }
-        .op-stat-l { font-size: .68rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: .06em; margin-top: 3px; }
+        .op-stat-ico { font-size: .78rem; color: var(--text-faint); margin-bottom: 4px; }
+        .op-stat-n { font-family: var(--font-mono); font-size: 1.2rem; font-weight: 700; color: var(--cyan); }
+        .op-stat-l { font-size: .66rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: .06em; margin-top: 3px; }
 
         @media (max-width: 640px) {
             .op-statline { grid-template-columns: repeat(2, 1fr); }
             .op-stat:nth-child(2) { border-right: none; }
         }
 
-        /* Tabs estilo terminal */
+        /* ---------- Tabs ---------- */
         .op-tabs {
-            display: flex; gap: 4px; margin-bottom: 18px; overflow-x: auto;
-            border-bottom: 1px solid var(--border); padding-bottom: 0;
+            display: flex; gap: 2px; margin-bottom: 18px; overflow-x: auto;
+            border-bottom: 1px solid var(--border);
         }
         .op-tab {
-            font-family: var(--font-mono); font-size: .8rem; color: var(--text-faint);
-            background: none; border: none; padding: 10px 16px; cursor: pointer;
+            font-family: var(--font-mono); font-size: .78rem; color: var(--text-faint);
+            background: none; border: none; padding: 11px 16px; cursor: pointer;
             white-space: nowrap; border-bottom: 2px solid transparent;
+            display: flex; align-items: center; gap: 7px;
             transition: color .2s, border-color .2s;
         }
+        .op-tab i { font-size: .74rem; }
         .op-tab:hover { color: var(--text-dim); }
         .op-tab.active { color: var(--cyan); border-color: var(--cyan); }
+        .op-tab[data-tab="dev"].active { color: var(--cyan); border-color: var(--cyan); }
 
         .op-panel { display: none; }
         .op-panel.active { display: block; animation: opFadeIn .3s ease; }
         @keyframes opFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
-        .op-empty {
-            text-align: center; padding: 50px 20px; color: var(--text-faint);
-        }
+        .op-empty { text-align: center; padding: 50px 20px; color: var(--text-faint); }
         .op-empty i { font-size: 1.8rem; display: block; margin-bottom: 10px; }
 
         .op-activity-item {
             background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
-            padding: 14px 18px; margin-bottom: 10px;
+            padding: 14px 18px; margin-bottom: 10px; transition: border-color .2s;
         }
+        .op-activity-item:hover { border-color: var(--border-strong); }
         .op-activity-item .kind {
             font-family: var(--font-mono); font-size: .68rem; color: var(--cyan);
             text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; display: block;
@@ -177,6 +244,149 @@
             font-size: .7rem; font-weight: 700; color: var(--text-faint);
             text-transform: uppercase; letter-spacing: .07em; display: block; margin-bottom: 7px;
         }
+
+        .badge-chip {
+            background: var(--panel-strong); border: 1px solid var(--border); color: var(--text-dim);
+            font-size: .75rem; font-weight: 600; padding: 5px 12px; border-radius: 20px;
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+        .badge-chip.plus {
+            background: linear-gradient(120deg, rgba(255,233,184,.14), rgba(185,140,255,.12));
+            border-color: rgba(255,179,71,.4); color: var(--plus-gold-1);
+        }
+
+        /* ---------- Panel admin: control de Nexus+ ---------- */
+        .op-admin-plus {
+            margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border);
+        }
+        .op-admin-plus-label {
+            font-size: .68rem; font-weight: 700; color: var(--text-faint);
+            text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .plus-toggle-row { display: flex; gap: 8px; }
+        .plus-toggle-btn {
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+            padding: 10px; border-radius: 12px; font-size: .78rem; font-weight: 700;
+            font-family: inherit; cursor: pointer; transition: all .2s;
+            background: var(--panel-strong); border: 1px solid var(--border); color: var(--text-dim);
+        }
+        .plus-toggle-btn:hover { border-color: var(--border-strong); color: var(--text); }
+        .plus-toggle-btn.active.on {
+            background: linear-gradient(120deg, rgba(255,233,184,.16), rgba(185,140,255,.14));
+            border-color: rgba(255,179,71,.5); color: var(--plus-gold-1);
+        }
+        .plus-toggle-btn.active.off {
+            background: var(--danger-dim); border-color: rgba(255,93,106,.3); color: var(--danger);
+        }
+
+        /* ============================================================
+           MODAL NEXUS+
+           ============================================================ */
+        #nexusPlusOverlay .modal {
+            max-width: 640px; padding: 0; overflow: hidden; background: var(--bg-2);
+            border: 1px solid rgba(255,179,71,.25);
+        }
+        .plus-modal-scroll { max-height: 86vh; overflow-y: auto; }
+
+        .plus-hero {
+            position: relative; padding: 40px 32px 28px; text-align: center; overflow: hidden;
+            background:
+                radial-gradient(120% 100% at 50% -20%, rgba(255,179,71,.16), transparent 60%),
+                radial-gradient(80% 80% at 90% 110%, rgba(185,140,255,.12), transparent 60%);
+        }
+        .plus-modal .modal-x {
+            background: rgba(5,7,12,.5); border-radius: 50%; width: 30px; height: 30px;
+            display: grid; place-items: center; z-index: 5;
+        }
+        .plus-core { position: relative; width: 108px; height: 108px; margin: 0 auto 18px; }
+        .plus-core svg { position: absolute; inset: 0; animation: plusSpin 14s linear infinite; }
+        @keyframes plusSpin { to { transform: rotate(360deg); } }
+        .plus-core-mark {
+            position: absolute; inset: 0; display: grid; place-items: center;
+            font-family: var(--font-display); font-size: 1.7rem; font-weight: 700;
+            background: var(--plus-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .plus-wordmark {
+            font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; letter-spacing: -.01em;
+            background: var(--plus-grad); -webkit-background-clip: text; background-clip: text; color: transparent;
+            margin-bottom: 6px;
+        }
+        .plus-tagline { color: var(--text-dim); font-size: .86rem; max-width: 380px; margin: 0 auto; line-height: 1.6; }
+
+        .plus-body { padding: 28px 32px 32px; }
+        .plus-section-label {
+            font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+            color: var(--text-faint); margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+        }
+        .plus-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        .plus-feature-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 30px;
+        }
+        @media (max-width: 560px) { .plus-feature-grid { grid-template-columns: 1fr; } }
+        .plus-feature-card {
+            display: flex; gap: 11px; padding: 13px; border-radius: 14px;
+            background: var(--panel); border: 1px solid var(--border);
+            transition: transform .2s, border-color .2s;
+        }
+        .plus-feature-card:hover { transform: translateY(-2px); border-color: rgba(255,179,71,.35); }
+        .plus-feature-ico {
+            width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+            background: linear-gradient(135deg, rgba(255,233,184,.14), rgba(185,140,255,.12));
+            color: var(--plus-gold-2); display: grid; place-items: center; font-size: .92rem;
+        }
+        .plus-feature-card h4 { font-size: .83rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+        .plus-feature-card p { font-size: .74rem; color: var(--text-dim); line-height: 1.5; }
+
+        .plus-pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 26px; }
+        @media (max-width: 560px) { .plus-pricing-grid { grid-template-columns: 1fr; } }
+        .plus-price-card {
+            position: relative; padding: 18px; border-radius: 16px; text-align: center;
+            background: var(--panel); border: 1px solid var(--border); cursor: pointer;
+            transition: all .2s;
+        }
+        .plus-price-card:hover { border-color: rgba(255,179,71,.4); transform: translateY(-2px); }
+        .plus-price-card.featured {
+            border-color: rgba(255,179,71,.5);
+            background: linear-gradient(160deg, rgba(255,233,184,.06), rgba(185,140,255,.05));
+        }
+        .plus-price-tag {
+            position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+            background: var(--plus-grad); color: #2a1200; font-size: .62rem; font-weight: 800;
+            padding: 3px 10px; border-radius: 20px; letter-spacing: .04em; white-space: nowrap;
+        }
+        .plus-price-period { font-size: .7rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+        .plus-price-amount { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 700; color: var(--text); }
+        .plus-price-amount span { font-size: .72rem; color: var(--text-faint); font-weight: 500; }
+        .plus-price-sub { font-size: .72rem; color: var(--text-dim); margin-top: 4px; }
+        .plus-price-radio {
+            width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--border-strong);
+            margin: 12px auto 0; transition: all .2s;
+        }
+        .plus-price-card.selected .plus-price-radio { border-color: var(--plus-gold-2); background: var(--plus-gold-2); box-shadow: inset 0 0 0 3px var(--panel); }
+        .plus-price-card.selected { border-color: var(--plus-gold-2); }
+
+        .plus-pay-row {
+            display: flex; align-items: center; gap: 13px;
+            background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+            padding: 13px 16px; cursor: pointer; transition: all .2s; text-decoration: none;
+            color: var(--text); font-size: .84rem; font-weight: 500; margin-bottom: 9px;
+        }
+        .plus-pay-row:hover { border-color: rgba(255,179,71,.4); transform: translateX(2px); }
+        .plus-pay-ico {
+            width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+        .plus-pay-row small { display: block; font-size: .7rem; color: var(--text-faint); margin-top: 1px; }
+        .plus-pay-row .arr { margin-left: auto; color: var(--text-faint); font-size: .72rem; }
+
+        .plus-note {
+            display: flex; gap: 10px; align-items: flex-start; margin-top: 18px;
+            padding: 12px 14px; border-radius: 12px; background: rgba(79,216,255,.05);
+            border: 1px solid rgba(79,216,255,.15); font-size: .74rem; color: var(--text-dim); line-height: 1.6;
+        }
+        .plus-note i { color: var(--cyan); margin-top: 1px; }
     </style>
 </head>
 <body>
@@ -195,7 +405,7 @@
         </div>
 
         <!-- FICHA PRINCIPAL -->
-        <div class="op-card">
+        <div class="op-card" id="opCard">
             <div class="op-banner" id="opBanner">
                 <button class="op-banner-edit" id="opBannerEditBtn" style="display:none;">
                     <i class="fas fa-camera"></i> Cambiar portada
@@ -210,7 +420,12 @@
                     <input type="file" id="opAvatarInput" accept="image/*" style="display:none;">
                 </div>
                 <div class="op-namebox">
-                    <div class="op-name"><span class="uname uname-none" id="opNameSpan">—</span></div>
+                    <div class="op-name-row">
+                        <div class="op-name"><span class="uname uname-none" id="opNameSpan">—</span></div>
+                        <button class="op-plus-pin" id="opPlusPin" onclick="openNexusPlusModal()" title="Miembro Nexus+">
+                            <i class="fas fa-gem"></i> NEXUS+
+                        </button>
+                    </div>
                     <div class="op-meta-line">
                         <span id="opUidShort">OP-000000</span>
                         <span>·</span>
@@ -223,21 +438,31 @@
 
             <div class="op-bio" id="opBio">Sin descripción aún</div>
 
+            <!-- Invitación a Nexus+ (solo visible en tu propio perfil si no eres suscriptor) -->
+            <div class="op-plus-banner" id="opPlusBanner" onclick="openNexusPlusModal()">
+                <div class="op-plus-banner-ico"><i class="fas fa-gem"></i></div>
+                <div class="op-plus-banner-txt">
+                    <strong>Hazte Nexus+</strong>
+                    <span>Insignia Verificado+, efectos exclusivos y soporte prioritario</span>
+                </div>
+                <i class="fas fa-arrow-right op-plus-banner-arrow"></i>
+            </div>
+
             <div class="op-statline">
-                <div class="op-stat"><div class="op-stat-n" id="opStatPosts">0</div><div class="op-stat-l">Publicaciones</div></div>
-                <div class="op-stat"><div class="op-stat-n" id="opStatComments">0</div><div class="op-stat-l">Comentarios</div></div>
-                <div class="op-stat"><div class="op-stat-n" id="opStatProducts">0</div><div class="op-stat-l">Productos</div></div>
-                <div class="op-stat"><div class="op-stat-n" id="opStatBadges">0</div><div class="op-stat-l">Insignias</div></div>
+                <div class="op-stat"><div class="op-stat-ico"><i class="fas fa-pen-nib"></i></div><div class="op-stat-n" id="opStatPosts">0</div><div class="op-stat-l">Publicaciones</div></div>
+                <div class="op-stat"><div class="op-stat-ico"><i class="fas fa-comment"></i></div><div class="op-stat-n" id="opStatComments">0</div><div class="op-stat-l">Comentarios</div></div>
+                <div class="op-stat"><div class="op-stat-ico"><i class="fas fa-box"></i></div><div class="op-stat-n" id="opStatProducts">0</div><div class="op-stat-l">Productos</div></div>
+                <div class="op-stat"><div class="op-stat-ico"><i class="fas fa-award"></i></div><div class="op-stat-n" id="opStatBadges">0</div><div class="op-stat-l">Insignias</div></div>
             </div>
         </div>
 
         <!-- TABS -->
         <div class="op-tabs" id="opTabs">
-            <button class="op-tab active" data-tab="general">&gt; general</button>
-            <button class="op-tab" data-tab="redes">&gt; redes</button>
-            <button class="op-tab" data-tab="actividad">&gt; actividad</button>
-            <button class="op-tab" data-tab="dev" id="opTabDevBtn" style="display:none;">&gt; desarrollador</button>
-            <button class="op-tab" data-tab="ajustes" id="opTabAjustesBtn" style="display:none;">&gt; ajustes</button>
+            <button class="op-tab active" data-tab="general"><i class="fas fa-id-badge"></i> General</button>
+            <button class="op-tab" data-tab="redes"><i class="fas fa-link"></i> Redes</button>
+            <button class="op-tab" data-tab="actividad"><i class="fas fa-satellite-dish"></i> Actividad</button>
+            <button class="op-tab" data-tab="dev" id="opTabDevBtn" style="display:none;"><i class="fas fa-code"></i> Desarrollador</button>
+            <button class="op-tab" data-tab="ajustes" id="opTabAjustesBtn" style="display:none;"><i class="fas fa-sliders-h"></i> Ajustes</button>
         </div>
 
         <!-- PANEL: GENERAL -->
@@ -266,6 +491,15 @@
                         </div>
                     </div>
                     <button onclick="saveOpGeneral()" class="btn btn-solid" style="margin-top:6px;"><i class="fas fa-save"></i> Guardar cambios</button>
+
+                    <!-- ADMIN: control manual de Nexus+ (solo visible a admins viendo otro perfil) -->
+                    <div class="op-admin-plus" id="opAdminPlusSection" style="display:none;">
+                        <div class="op-admin-plus-label"><i class="fas fa-gem" style="color:var(--plus-gold-2);"></i> Suscripción Nexus+ (Admin)</div>
+                        <div class="plus-toggle-row">
+                            <button class="plus-toggle-btn on" id="opPlusOnBtn" onclick="setOpNexusPlus(true)"><i class="fas fa-check"></i> Activar</button>
+                            <button class="plus-toggle-btn off" id="opPlusOffBtn" onclick="setOpNexusPlus(false)"><i class="fas fa-times"></i> Quitar</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -359,6 +593,106 @@
                 <i class="fas fa-paper-plane"></i> Enviar solicitud
             </button>
             <div class="status-msg" id="devReqStatus" style="margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL NEXUS+
+         ============================================================ -->
+    <div class="overlay plus-modal" id="nexusPlusOverlay" onclick="if(event.target===this) closeOverlay('nexusPlusOverlay')">
+        <div class="modal">
+            <button class="modal-x" onclick="closeOverlay('nexusPlusOverlay')"><i class="fas fa-times"></i></button>
+            <div class="plus-modal-scroll">
+
+                <div class="plus-hero">
+                    <div class="plus-core">
+                        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="plusGradSvg" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#ffe9b8"/>
+                                    <stop offset="55%" stop-color="#ffb347"/>
+                                    <stop offset="100%" stop-color="#b98cff"/>
+                                </linearGradient>
+                            </defs>
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1.5"/>
+                            <circle cx="60" cy="60" r="54" fill="none" stroke="url(#plusGradSvg)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="60 280"/>
+                            <circle cx="60" cy="60" r="40" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1" stroke-dasharray="3 6"/>
+                        </svg>
+                        <div class="plus-core-mark"><i class="fas fa-gem"></i></div>
+                    </div>
+                    <div class="plus-wordmark">Nexus+</div>
+                    <p class="plus-tagline">El nivel superior de la comunidad 157 Team: insignia de confianza, personalización y prioridad en todo lo que haces dentro de Nexus.</p>
+                </div>
+
+                <div class="plus-body">
+                    <div class="plus-section-label"><i class="fas fa-star" style="color:var(--plus-gold-2);"></i> Beneficios incluidos</div>
+                    <div class="plus-feature-grid">
+                        <div class="plus-feature-card">
+                            <div class="plus-feature-ico"><i class="fas fa-certificate"></i></div>
+                            <div><h4>Insignia Verificado+</h4><p>Tus productos publicados muestran la etiqueta dorada Verificado+ frente a toda la comunidad.</p></div>
+                        </div>
+                        <div class="plus-feature-card">
+                            <div class="plus-feature-ico"><i class="fas fa-palette"></i></div>
+                            <div><h4>Efectos de nombre</h4><p>Desbloquea animaciones exclusivas para tu nombre de usuario en comentarios y foro.</p></div>
+                        </div>
+                        <div class="plus-feature-card">
+                            <div class="plus-feature-ico"><i class="fas fa-bolt"></i></div>
+                            <div><h4>Soporte prioritario</h4><p>Tus tickets y solicitudes se revisan primero, sin hacer fila con el resto.</p></div>
+                        </div>
+                        <div class="plus-feature-card">
+                            <div class="plus-feature-ico"><i class="fas fa-cloud-upload-alt"></i></div>
+                            <div><h4>Más límite de subida</h4><p>Publica más productos activos y archivos de mayor tamaño en tu panel developer.</p></div>
+                        </div>
+                        <div class="plus-feature-card">
+                            <div class="plus-feature-ico"><i class="fas fa-comment-dots"></i></div>
+                            <div><h4>Chat destacado</h4><p>Tu insignia dorada acompaña tus mensajes en el chat interno de Nexus.</p></div>
+                        </div>
+                        <div class="plus-feature-card">
+                            <div class="plus-feature-ico"><i class="fas fa-gem"></i></div>
+                            <div><h4>Insignia permanente</h4><p>Un distintivo fijo en tu ficha de operador, visible para toda la comunidad.</p></div>
+                        </div>
+                    </div>
+
+                    <div class="plus-section-label"><i class="fas fa-tags" style="color:var(--plus-gold-2);"></i> Elige tu plan</div>
+                    <div class="plus-pricing-grid">
+                        <div class="plus-price-card selected" id="planMonthly" onclick="selectPlusPlan('monthly')">
+                            <div class="plus-price-period">Mensual</div>
+                            <div class="plus-price-amount">$4.99 <span>/ mes</span></div>
+                            <div class="plus-price-sub">Cancela cuando quieras</div>
+                            <div class="plus-price-radio"></div>
+                        </div>
+                        <div class="plus-price-card" id="planYearly" onclick="selectPlusPlan('yearly')">
+                            <span class="plus-price-tag">2 meses gratis</span>
+                            <div class="plus-price-period">Anual</div>
+                            <div class="plus-price-amount">$39.99 <span>/ año</span></div>
+                            <div class="plus-price-sub">Equivale a $3.33 / mes</div>
+                            <div class="plus-price-radio"></div>
+                        </div>
+                    </div>
+
+                    <div class="plus-section-label"><i class="fas fa-wallet" style="color:var(--plus-gold-2);"></i> Elige cómo pagar</div>
+                    <a class="plus-pay-row" id="plusPpLink" href="https://www.paypal.com/paypalme/157teamai" target="_blank">
+                        <div class="plus-pay-ico" style="background:rgba(0,112,240,.12);color:#0070f0;"><i class="fab fa-paypal"></i></div>
+                        <div><strong>PayPal</strong><small>paypal.me/157teamai</small></div>
+                        <i class="fas fa-external-link-alt arr"></i>
+                    </a>
+                    <a class="plus-pay-row" id="plusDaLink" href="https://dollarapp.net/pagar/157team" target="_blank">
+                        <div class="plus-pay-ico" style="background:rgba(61,220,151,.12);color:var(--success);"><i class="fas fa-dollar-sign"></i></div>
+                        <div><strong>Dólar App</strong><small>Transferencia directa USD</small></div>
+                        <i class="fas fa-external-link-alt arr"></i>
+                    </a>
+                    <a class="plus-pay-row" href="https://discord.gg/Nahh9XhnvR" target="_blank">
+                        <div class="plus-pay-ico" style="background:rgba(88,101,242,.15);color:#818cf8;"><i class="fab fa-discord"></i></div>
+                        <div><strong>Activar por Discord</strong><small>Abre ticket → sube comprobante → recibe Nexus+</small></div>
+                        <i class="fas fa-chevron-right arr"></i>
+                    </a>
+
+                    <div class="plus-note">
+                        <i class="fas fa-circle-info"></i>
+                        <span>La activación es manual: un operador confirma tu pago y activa la insignia Nexus+ en tu ficha en menos de 24h.</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
