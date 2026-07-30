@@ -38,10 +38,23 @@
 
         body {
             min-height: 100vh;
+            /* FIX: antes este background (con solo los 2 degradados,
+               ambos terminando en transparent) tapaba el fondo oscuro
+               que ya definía style.css para <body>, por eso se veía
+               blanco. Ahora se agrega var(--bg) como capa base debajo
+               de los degradados, para conservar el negro/oscuro de
+               siempre y solo sumarle el brillo sutil encima. */
             background:
                 radial-gradient(60vw 40vh at 12% -10%, rgba(79,216,255,.07), transparent 60%),
-                radial-gradient(50vw 40vh at 110% 10%, rgba(255,179,71,.06), transparent 60%);
+                radial-gradient(50vw 40vh at 110% 10%, rgba(255,179,71,.06), transparent 60%),
+                var(--bg, #05070c);
             background-attachment: fixed;
+        }
+        body.light {
+            background:
+                radial-gradient(60vw 40vh at 12% -10%, rgba(79,216,255,.05), transparent 60%),
+                radial-gradient(50vw 40vh at 110% 10%, rgba(255,179,71,.04), transparent 60%),
+                var(--bg, #ffffff);
         }
 
         .op-wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 110px; }
