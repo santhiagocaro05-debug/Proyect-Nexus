@@ -443,10 +443,27 @@ function renderEffectSwatches() {
     const container = $('opEffectSwatches');
     const current = profileData.nameEffect || 'none';
     // Los efectos marcados como plusOnly (ej. el oro de Nexus+) solo se
-    // ofrecen a quien ya es suscriptor, para que sea un beneficio real.
-    const available = NAME_EFFECTS.filter(fx => !fx.plusOnly || profileData.nexusPlus);
+    // ofrecen a quien ya es suscriptor, y los marcados como devOnly (el
+    // efecto "Developer Verificado") solo se ofrecen a quien tiene
+    // isDeveloper === true, para que ambos sean beneficios reales y no
+    // cualquiera pueda ponerse el efecto exclusivo de otro tier.
+    const available = NAME_EFFECTS.filter(fx =>
+        (!fx.plusOnly || profileData.nexusPlus) &&
+        (!fx.devOnly  || profileData.isDeveloper)
+    );
+
+    // Si el usuario tenía puesto un efecto exclusivo y luego perdió el
+    // beneficio (le quitaron Nexus+ o el rol de developer), lo regresamos
+    // a "none" para que no se quede con un efecto que ya no le corresponde.
+    const stillHasCurrent = available.some(fx => fx.id === current);
+    if (!stillHasCurrent && current !== 'none') {
+        profileData.nameEffect = 'none';
+        window.fb.saveUserProfile(viewUid, { nameEffect: 'none' });
+    }
+    const effectiveCurrent = stillHasCurrent ? current : 'none';
+
     container.innerHTML = available.map(fx => `
-        <div class="effect-swatch ${fx.id === current ? 'selected' : ''}" data-fx="${fx.id}">
+        <div class="effect-swatch ${fx.id === effectiveCurrent ? 'selected' : ''}" data-fx="${fx.id}">
             <span class="uname uname-${fx.id}" style="font-size:1rem;">${esc(profileData.username || 'Nombre')}</span>
         </div>
     `).join('');
@@ -636,8 +653,9 @@ document.getElementById('devRequestOverlay')?.addEventListener('click', function
 //    como respaldo si prefieres una transición gradual — no es
 //    obligatorio borrarla.
 //
-// 3) Copia css/username-effects.css (del bloque anterior) a tu
-//    carpeta css/, junto a style.css.
+// 3) Copia css/username-effects.css (del bloque anterior, más el
+//    bloque nuevo .uname-devtype que te pasé para el efecto de
+//    "Developer Verificado") a tu carpeta css/, junto a style.css.
 //
 // 4) Asegúrate de que firebase-config.js exporte también
 //    requestDeveloperStatus y getMyDeveloperRequestStatus del
@@ -652,4 +670,15 @@ document.getElementById('devRequestOverlay')?.addEventListener('click', function
 //    tus reglas de seguridad de Firestore para que solo un admin
 //    pueda escribirlo en el documento de otro usuario — el botón
 //    aquí solo oculta la opción, no reemplaza esa validación.
+//
+// 6) FIX aplicado en este archivo: renderEffectSwatches() ahora
+//    también filtra por `devOnly`, así que el efecto "Developer
+//    Verificado" (devtype) solo aparece en la lista de swatches
+//    de un usuario con isDeveloper === true — antes cualquier
+//    usuario podía verlo y seleccionarlo. Además, si a alguien le
+//    quitan Nexus+ o el rol developer mientras tenía puesto un
+//    efecto exclusivo, ahora se le resetea a "none" automáticamente
+//    la próxima vez que abre su ficha (protección en frontend;
+//    igual protege el campo `nameEffect` en tus reglas de Firestore
+//    si quieres blindarlo también del lado del servidor).
 // ============================================================
