@@ -1673,36 +1673,54 @@ function showSaveOrderButton() {
     function renderAdminUsers(users) {
         const container = document.getElementById('adminUsersList');
         if (!users || users.length === 0) {
-            container.innerHTML =
-                '<div style="text-align:center;padding:30px;color:var(--text-dim)">No hay usuarios registrados</div>';
+            container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim)">No hay usuarios registrados</div>';
             return;
         }
         container.innerHTML = `
-                  <table class="adm">
-                    <thead><tr><th>Usuario</th><th>Email</th><th>Registrado</th><th>Rol</th><th>Acciones</th></tr></thead>
-                    <tbody>
-                      ${users.map(u => `
-                        <tr>
-                          <td><strong>${esc(u.username)}</strong></td>
-                          <td class="truncate">${esc(u.email)}</td>
-                          <td style="color:var(--text-faint);font-size:.75rem">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
-                          <td>
-                            <span style="font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.06em;background:${u.isAdmin ? 'var(--danger-dim)' : 'var(--cyan-dim)'};color:${u.isAdmin ? 'var(--danger)' : 'var(--cyan)'};border:1px solid ${u.isAdmin ? 'rgba(255,93,106,.2)' : 'rgba(79,216,255,.2)'};">
-                              ${u.isAdmin ? '👑 Admin' : '👤 User'}
-                            </span>
-                          </td>
-                          <td>
-                            <div style="display:flex;gap:6px;">
-                              <button onclick="adminDeleteUser('${u.id}')" class="btn btn-danger btn-sm" style="padding:5px 10px;font-size:.7rem;">
-                                <i class="fas fa-trash"></i>
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      `).join('')}
-                    </tbody>
-                  </table>
-                `;
+            <table class="adm">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Registrado</th>
+                        <th>Rol</th>
+                        <th>Nexus+</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${users.map(u => {
+                        const isPlus = !!(u.nexusPlus || u.hasNexusPlus);
+                        return `
+                            <tr>
+                                <td><strong>${esc(u.username)}</strong></td>
+                                <td class="truncate">${esc(u.email)}</td>
+                                <td style="color:var(--text-faint);font-size:.75rem">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
+                                <td>
+                                    <span style="font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.06em;background:${u.isAdmin ? 'var(--danger-dim)' : 'var(--cyan-dim)'};color:${u.isAdmin ? 'var(--danger)' : 'var(--cyan)'};border:1px solid ${u.isAdmin ? 'rgba(255,93,106,.2)' : 'rgba(79,216,255,.2)'};">
+                                        ${u.isAdmin ? '👑 Admin' : '👤 User'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button onclick="adminToggleNexusPlus('${u.id}', ${isPlus})" 
+                                            class="btn btn-sm" 
+                                            style="background:${isPlus ? 'var(--success)' : 'var(--panel-strong)'}; color:${isPlus ? '#04121a' : 'var(--text-dim)'}; border:1px solid ${isPlus ? 'var(--success)' : 'var(--border)'}; padding:4px 12px; border-radius:20px; font-weight:600; font-size:.7rem; cursor:pointer; transition:all .2s;">
+                                            ${isPlus ? '✅ Activo' : '⬜ Inactivo'}
+                                        </button>
+                                </td>
+                                <td>
+                                    <div style="display:flex;gap:6px;">
+                                        <button onclick="adminDeleteUser('${u.id}')" class="btn btn-danger btn-sm" style="padding:5px 10px;font-size:.7rem;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
     }
 
     window.adminSaveProduct = function(id) {
@@ -3324,6 +3342,7 @@ window.submitDevRequest = async function() {
     }
 };
 
+
 // Consulta y refleja el estado actual (ninguna / pendiente / rechazada / aprobada)
 // en el perfil propio. Se llama al abrir tu propio perfil.
 async function checkDevStatus(uid) {
@@ -3359,31 +3378,55 @@ async function checkDevStatus(uid) {
     }
 }
 
-    // ============================================================
-    // FUNCIONES GLOBALES
-    // ============================================================
-    window.openAuthModal = openAuthModal;
-    window.openLogoutModal = openLogoutModal;
-    window.closeOverlay = closeOverlay;
-    window.togglePass = function(id, btn) {
-        const inp = document.getElementById(id);
-        const ic = btn.querySelector('i');
-        if (inp.type === 'password') { inp.type = 'text';
-            ic.className = 'fas fa-eye-slash'; } else { inp.type = 'password';
-            ic.className = 'fas fa-eye'; }
-    };
-    window.openProfile = openProfile;
-    window.saveProfile = saveProfile;
-    window.addCustomBadge = addCustomBadge;
-    window.setUserRank = setUserRank;
-    window.addToCart = addToCart;
-    window.removeFromCart = removeFromCart;
-    window.removeAllFromCart = removeAllFromCart;
-    window.closeCart = closeCart;
+// ============================================================
+// FUNCIONES GLOBALES
+// ============================================================
+window.openAuthModal = openAuthModal;
+window.openLogoutModal = openLogoutModal;
+window.closeOverlay = closeOverlay;
+window.togglePass = function(id, btn) {
+    const inp = document.getElementById(id);
+    const ic = btn.querySelector('i');
+    if (inp.type === 'password') { inp.type = 'text';
+        ic.className = 'fas fa-eye-slash'; } else { inp.type = 'password';
+        ic.className = 'fas fa-eye'; }
+};
+window.openProfile = openProfile;
+window.saveProfile = saveProfile;
+window.addCustomBadge = addCustomBadge;
+window.setUserRank = setUserRank;
+window.addToCart = addToCart;
+window.removeFromCart = removeFromCart;
+window.removeAllFromCart = removeAllFromCart;
+window.closeCart = closeCart;
 
-    console.log('%c157 Team · Nexus Protect', 'color: #4fd8ff; font-size: 16px; font-weight: bold;');
-    console.log('%c© 2026 157 Developers team - Todos los derechos reservados', 'color: #8a93a6; font-size: 12px;');
-    console.log('%cCodigo Protegido', 'color: #3ddc97; font-size: 14px; font-weight: bold;');
+// ============================================================
+// ADMIN: ACTIVAR/DESACTIVAR NEXUS+
+// ============================================================
+window.adminToggleNexusPlus = async function(userId, currentStatus) {
+    if (!currentUser || !currentUser.isAdmin) {
+        toast('No tienes permisos para realizar esta acción', 'error');
+        return;
+    }
+    if (!window.fb || !window.fb.saveUserProfile) {
+        toast('Firebase no disponible', 'error');
+        return;
+    }
+
+    const newStatus = !currentStatus;
+    const result = await window.fb.saveUserProfile(userId, { nexusPlus: newStatus });
+
+    if (result.success) {
+        toast(`Nexus+ ${newStatus ? 'activado' : 'desactivado'} correctamente`);
+        loadAdminData();
+    } else {
+        toast('Error al cambiar el estado: ' + result.error, 'error');
+    }
+};
+
+console.log('%c157 Team · Nexus Protect', 'color: #4fd8ff; font-size: 16px; font-weight: bold;');
+console.log('%c© 2026 157 Developers team - Todos los derechos reservados', 'color: #8a93a6; font-size: 12px;');
+console.log('%cCodigo Protegido', 'color: #3ddc97; font-size: 14px; font-weight: bold;');
 let pendingProductImage = null;
 
 window.handleNewProductImage = function(file) {
