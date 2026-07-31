@@ -2807,24 +2807,26 @@ function initLangButton() {
         const percent = document.getElementById('loaderPercent');
         let progress = 0;
         const interval = setInterval(() => {
-            if (progress < 30) { progress += Math.random() * 3 + 1; } else if (progress < 60) { progress +=
-                    Math.random() * 2 + 0.5; } else if (progress < 85) { progress += Math.random() * 1 +
-                    0.3; } else if (progress < 98) { progress += Math.random() * 0.3 + 0.1; } else {
+            if (progress < 30) { progress += Math.random() * 8 + 4; } 
+            else if (progress < 60) { progress += Math.random() * 6 + 2; } 
+            else if (progress < 85) { progress += Math.random() * 4 + 1; } 
+            else if (progress < 98) { progress += Math.random() * 2 + 0.5; } 
+            else {
                 progress = 100;
                 clearInterval(interval);
-                setTimeout(() => { document.getElementById('loader').classList.add('hidden'); }, 300);
+                setTimeout(() => { document.getElementById('loader').classList.add('hidden'); }, 150);
             }
             if (progress > 100) progress = 100;
             if (bar) bar.style.width = progress + '%';
             if (glow) glow.style.width = progress + '%';
             if (percent) percent.textContent = Math.round(progress) + '%';
-        }, 80);
+        }, 30);
         setTimeout(() => {
             if (progress < 100) {
                 clearInterval(interval);
                 let fastProgress = progress;
                 const fastInterval = setInterval(() => {
-                    fastProgress += 5;
+                    fastProgress += 15;
                     if (fastProgress >= 100) {
                         fastProgress = 100;
                         clearInterval(fastInterval);
@@ -4634,8 +4636,8 @@ function renderAppsBook() {
     controls.style.display = 'flex';
     
     slider.innerHTML = appsList.map((a, i) => {
-        const addedList = (a.added||'').split('').filter(l=>l.trim()!=='').map(l=>`<li style="margin-bottom:4px;">${l}</li>`).join('');
-        const fixedList = (a.fixed||'').split('').filter(l=>l.trim()!=='').map(l=>`<li style="margin-bottom:4px;">${l}</li>`).join('');
+        const addedList = (a.added||'').split('\n').filter(l=>l.trim()!=='').map(l=>`<li style="margin-bottom:4px;">${l}</li>`).join('');
+        const fixedList = (a.fixed||'').split('\n').filter(l=>l.trim()!=='').map(l=>`<li style="margin-bottom:4px;">${l}</li>`).join('');
         const themeColor = a.color || '#00ffe5';
         
         const ul = currentUser && (a.likes || []).includes(currentUser.uid);
@@ -4876,6 +4878,11 @@ function renderAdminNexusRequests(requests) {
 
     if (!requests || requests.length === 0) {
         container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim)">No hay solicitudes</div>';
+        return;
+    }
+
+    if (requests[0] && requests[0].error) {
+        container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--danger)">Error: ${requests[0].error} <br><br> Por favor actualiza las reglas de Firestore en la consola.</div>`;
         return;
     }
 

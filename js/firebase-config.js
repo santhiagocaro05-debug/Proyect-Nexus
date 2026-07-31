@@ -1261,6 +1261,7 @@ export async function requestNexusPlusAccess(userId, email, username) {
     });
     return { success: true };
   } catch (error) {
+    console.error("requestNexusPlusAccess error:", error);
     return { success: false, error: error.message };
   }
 }
@@ -1271,6 +1272,9 @@ export function listenNexusPlusRequests(callback) {
     const requests = [];
     snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
     callback(requests);
+  }, (err) => {
+    console.error("listenNexusPlusRequests error:", err);
+    callback([{ error: err.message }]);
   });
 }
 
