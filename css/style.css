@@ -5458,3 +5458,60 @@ body.light .liquid-dock{
         font-size: 0.8rem !important;
     }
 }
+/* ============================================================
+   SEPARADOR PREMIUM (dentro del dock)
+   ============================================================ */
+.dock-sep {
+    width: 2px;
+    height: 30px;
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        var(--cyan) 30%,
+        var(--amber) 70%,
+        transparent
+    );
+    border-radius: 4px;
+    margin: 0 8px;
+    opacity: 0.7;
+    box-shadow: 0 0 12px rgba(79, 216, 255, 0.15);
+    flex-shrink: 0;
+}
+
+/* Efecto de brillo al pasar el mouse sobre el dock (opcional) */
+.liquid-dock:hover .dock-sep {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(79, 216, 255, 0.3);
+    transition: all 0.4s ease;
+}
+
+/* ============================================================
+   BOTÓN ADMIN (dentro del dock)
+   ============================================================ */
+.liquid-dock .icon-btn#adminBtn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    display: none; /* Se controla con JavaScript cuando el usuario es admin */
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-size: 1rem;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.liquid-dock .icon-btn#adminBtn:hover {
+    background: var(--danger-dim);
+    border-color: var(--danger);
+    color: var(--danger);
+    transform: scale(1.08) rotate(-4deg);
+    box-shadow: 0 0 20px rgba(255, 93, 106, 0.3);
+}
+
+.liquid-dock .icon-btn#adminBtn:active {
+    transform: scale(0.92);
+}
