@@ -1536,7 +1536,7 @@ function renderProductsShowMoreButton(totalCount) {
         renderAdminComments(comments);
         renderAdminPosts(posts);
         renderAdminUsers(users);
-        loadAdminDevRequests();
+        await loadAdminDevRequests();
         if (window.loadAdminNexusRequests) {
             await window.loadAdminNexusRequests();
         }
@@ -1821,17 +1821,24 @@ function showSaveOrderButton() {
     // ============================================================
     async function loadAdminDevRequests() {
         const container = document.getElementById('adminDevRequestsList');
-        if (!container || !window.fb || !window.fb.getDeveloperRequests) return;
-
-        container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim)"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
-
-        const result = await window.fb.getDeveloperRequests();
-        if (!result.success) {
-            container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim)">❌ Error al cargar solicitudes</div>';
+        if (!container || !window.fb || !window.fb.getDeveloperRequests) {
+            if (container) container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim)">❌ Firebase no disponible</div>';
             return;
         }
 
-        renderAdminDevRequests(result.data);
+        container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim)"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+
+        try {
+            const result = await window.fb.getDeveloperRequests();
+            if (!result.success) {
+                container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-dim)">❌ Error al cargar solicitudes: ${result.error || ''}</div>`;
+                return;
+            }
+            renderAdminDevRequests(result.data);
+        } catch (error) {
+            console.error('Error en loadAdminDevRequests:', error);
+            container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--text-dim)">❌ Error inesperado: ${error.message}</div>`;
+        }
     }
 
     function renderAdminDevRequests(requests) {
@@ -2272,7 +2279,7 @@ function showSaveOrderButton() {
 // ============================================================
 const SLIDE_IMAGES = [
     { type: 'video', src: 'assets/NEXUSEXPLAIN.mp4', title: 'TRAILER N.E.X.U.S', desc: 'Control total por voz, Spotify, automatización y más.' },
-        { type: 'image', src: 'assets/Bts/gif-pr0.gif', title: 'Bot Bloody Chaos', desc: 'Bot avanzado gratis de raid.' },
+    { type: 'image', src: 'assets/Bts/gif-pr0.gif', title: 'Bot Bloody Chaos', desc: 'Bot avanzado gratis de raid.' },
     { type: 'image', src: 'assets/a.png', title: 'Nexus — Motor Neural Pro', desc: 'Red neuronal multimodal con análisis predictivo.' },
     { type: 'image', src: 'assets/2.jpg', title: 'Jarvis — Asistente Inteligente', desc: 'Control total por voz, Spotify y más.' },
 
