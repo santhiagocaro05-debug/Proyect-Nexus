@@ -73,8 +73,17 @@
             xpForLevel,
             levelFromXp,
             BADGE_DEFS,
-            XP_REWARDS
-
+            XP_REWARDS,
+            // ===== NUEVAS FUNCIONES DE NOTICIAS =====
+            addNews,
+            getNews,
+            deleteNews,
+            addNewsComment,
+            getNewsComments,
+            listenNewsComments,
+            addNewsReply,
+            toggleNewsReaction,
+            likeNewsComment
 
         } = await import('./firebase-config.js');
 
@@ -95,7 +104,17 @@
             getDeveloperRequests, listenDeveloperRequests, reviewDeveloperRequest,
             isUserDeveloper, requestNexusPlusAccess, listenNexusPlusRequests,
             reviewNexusPlusRequest, getUserActivityStats, registerUserDownload,
-            xpForLevel, levelFromXp, BADGE_DEFS, XP_REWARDS
+            xpForLevel, levelFromXp, BADGE_DEFS, XP_REWARDS,
+            // ===== NUEVAS FUNCIONES DE NOTICIAS =====
+            addNews,
+            getNews,
+            deleteNews,
+            addNewsComment,
+            getNewsComments,
+            listenNewsComments,
+            addNewsReply,
+            toggleNewsReaction,
+            likeNewsComment
         };
 
         window.fbReady = true;
