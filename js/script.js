@@ -3460,7 +3460,7 @@ window.createNewProduct = async function() {
     const customColor = $('npColor').value.trim();
     const shortDesc = $('npShortDesc').value.trim();
     const desc = $('npDesc').value.trim();
-    const feats = $('npFeats').value.split('\n').map(f => f.trim()).filter(Boolean);
+    const feats = $('npFeats').value.split('').map(f => f.trim()).filter(Boolean);
     const dl = $('npDl').value.trim();
 
     if (!name || !price || !shortDesc) { toast('Completa nombre, precio y descripción corta', 'error'); return; }
@@ -3548,7 +3548,7 @@ window.saveDevProduct = async function() {
   const customColor = document.getElementById('dpColor').value.trim();
   const shortDesc = document.getElementById('dpShortDesc').value.trim();
   const desc = document.getElementById('dpDesc').value.trim();
-  const feats = document.getElementById('dpFeats').value.split('\n').map(f => f.trim()).filter(Boolean);
+  const feats = document.getElementById('dpFeats').value.split('').map(f => f.trim()).filter(Boolean);
   const dl = document.getElementById('dpDl').value.trim();
 
   // Categorías seleccionadas
@@ -4625,8 +4625,8 @@ function renderAppsBook() {
     controls.style.display = 'flex';
     
     slider.innerHTML = appsList.map((a, i) => {
-        const addedList = (a.added||'').split('\n').filter(l=>l.trim()!=='').map(l=>`<li style="margin-bottom:4px;">${l}</li>`).join('');
-        const fixedList = (a.fixed||'').split('\n').filter(l=>l.trim()!=='').map(l=>`<li style="margin-bottom:4px;">${l}</li>`).join('');
+        const addedList = (a.added||'').split('').filter(l=>l.trim()!=='').map(l=>`<li style="margin-bottom:4px;">${l}</li>`).join('');
+        const fixedList = (a.fixed||'').split('').filter(l=>l.trim()!=='').map(l=>`<li style="margin-bottom:4px;">${l}</li>`).join('');
         const themeColor = a.color || '#00ffe5';
         
         const ul = currentUser && (a.likes || []).includes(currentUser.uid);
@@ -4746,6 +4746,24 @@ document.addEventListener('DOMContentLoaded', () => {
         avatarInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
+
+            if (file.type === 'image/gif' && currentUser && currentUser.hasNexusPlus) {
+                if (file.size > 1024 * 1024) {
+                    toast('El GIF debe ser menor a 1MB', 'error');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = evt => {
+                    window._tempAvatar = evt.target.result;
+                    const ac = document.getElementById('profileAvatarContent');
+                    if (ac) {
+                        ac.innerHTML = `<img src="${window._tempAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+                    }
+                };
+                reader.readAsDataURL(file);
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = function(evt) {
                 const img = new Image();
@@ -4778,6 +4796,27 @@ document.addEventListener('DOMContentLoaded', () => {
         bannerInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
+
+            if (file.type === 'image/gif' && currentUser && currentUser.hasNexusPlus) {
+                if (file.size > 1024 * 1024) {
+                    toast('El GIF debe ser menor a 1MB', 'error');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = evt => {
+                    window._tempBanner = evt.target.result;
+                    const pv = document.getElementById('profileBannerPreview');
+                    const pb = document.getElementById('profileBannerDisplay');
+                    if (pv) pv.innerHTML = `<img src="${window._tempBanner}" style="width:100%;height:100%;object-fit:cover;">`;
+                    if (pb) {
+                        pb.innerHTML = '';
+                        pb.style.background = `url(${window._tempBanner}) center/cover no-repeat`;
+                    }
+                };
+                reader.readAsDataURL(file);
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = function(evt) {
                 const img = new Image();
@@ -4807,6 +4846,65 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 }
+
+// NEXUS+ REQUESTS ADMIN LOGIC
+let nexusRequestsBadgeUnsub = null;
+
+window.loadAdminNexusRequests = async function() {
+    if (!window.fb || !window.fb.listenNexusPlusRequests) return;
+    if (nexusRequestsBadgeUnsub) {
+        nexusRequestsBadgeUnsub();
+    }
+    
+    nexusRequestsBadgeUnsub = window.fb.listenNexusPlusRequests((requests) => {
+        renderAdminNexusRequests(requests);
+    });
+};
+
+function renderAdminNexusRequests(requests) {
+    const container = document.getElementById('adminNexusRequestsList');
+    if (!container) return;
+
+    if (!requests || requests.length === 0) {
+        container.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-dim)">No hay solicitudes</div>';
+        return;
+    }
+
+    const statusBadge = (status) => {
+        if (status === 'pending') return '<span style="background:var(--amber-dim);color:var(--amber);font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:6px;text-transform:uppercase;">⏳ Pendiente</span>';
+        if (status === 'approved') return '<span style="background:rgba(61,220,151,.12);color:var(--success);font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:6px;text-transform:uppercase;">✅ Aprobada</span>';
+        return '<span style="background:var(--danger-dim);color:var(--danger);font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:6px;text-transform:uppercase;">❌ Rechazada</span>';
+    };
+
+    container.innerHTML = requests.map(r => `
+        <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;">
+                <div>
+                    <div style="font-weight:700;font-size:.92rem;">${esc(r.username)}</div>
+                    <div style="font-size:.72rem;color:var(--text-faint);">${esc(r.email)} • ${new Date(r.requestedAt).toLocaleDateString()}</div>
+                </div>
+                ${statusBadge(r.status)}
+            </div>
+            ${r.status === 'pending' ? `
+                <div style="display:flex;gap:8px;margin-top:12px;">
+                    <button onclick="reviewNexusReq('${r.id}', true)" class="btn btn-solid btn-sm" style="flex:1;background:var(--success);color:#fff;border:none;"><i class="fas fa-check"></i> Aprobar</button>
+                    <button onclick="reviewNexusReq('${r.id}', false)" class="btn btn-sm" style="flex:1;background:var(--danger-dim);color:var(--danger);border:none;"><i class="fas fa-times"></i> Rechazar</button>
+                </div>
+            ` : ''}
+        </div>
+    `).join('');
+}
+
+window.reviewNexusReq = async function(requestId, approve) {
+    if (!currentUser || !currentUser.isAdmin) return;
+    const result = await window.fb.reviewNexusPlusRequest(requestId, approve, currentUser.uid);
+    if (result.success) {
+        toast(approve ? 'Solicitud aprobada' : 'Solicitud rechazada', 'success');
+    } else {
+        toast('Error: ' + result.error, 'error');
+    }
+};
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', __nexusMain);
 } else {
