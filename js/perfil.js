@@ -19,6 +19,25 @@ const esc = t => {
     return d.innerHTML;
 };
 
+// ============================================================
+// HELPER: getIsPlus()
+// ------------------------------------------------------------
+// Fuente única de verdad para saber si un perfil es Nexus+.
+// Históricamente el campo se guardó en Firestore unas veces como
+// `nexusPlus` y otras como `hasNexusPlus`, así que este helper
+// acepta cualquiera de los dos para no dejar swatches, badges o
+// controles de admin desincronizados entre sí.
+//
+// Recomendado a mediano plazo: correr una migración que escriba
+// `nexusPlus` en todos los docs que solo tengan `hasNexusPlus`, y
+// una vez migrado, eliminar la referencia a `hasNexusPlus` de este
+// helper. Mientras tanto, todo el archivo debe llamar a esta
+// función en vez de leer profileData.nexusPlus directamente.
+// ============================================================
+function getIsPlus(data) {
+    return !!(data && (data.nexusPlus || data.hasNexusPlus));
+}
+
 let authUser = null;       // usuario logueado actualmente (o null)
 let viewUid = null;        // uid del perfil que se está mostrando
 let isOwnProfile = false;
@@ -146,6 +165,8 @@ async function loadProfile() {
 }
 
 function renderIdentity() {
+    const isPlus = getIsPlus(profileData);
+
     // Avatar
     const avatarEl = $('opAvatar');
     if (profileData.avatar) {
@@ -153,7 +174,7 @@ function renderIdentity() {
     } else {
         avatarEl.textContent = (profileData.username || '?')[0].toUpperCase();
     }
-    avatarEl.classList.toggle('plus', !!profileData.nexusPlus);
+    avatarEl.classList.toggle('plus', isPlus);
 
     // Banner
     const bannerEl = $('opBanner');
@@ -176,10 +197,10 @@ function renderIdentity() {
     }
 
     // Pin Nexus+ junto al nombre
-    $('opPlusPin').style.display = (profileData.nexusPlus || profileData.hasNexusPlus) ? 'inline-flex' : 'none';
+    $('opPlusPin').style.display = isPlus ? 'inline-flex' : 'none';
 
     // Tarjeta con marco dorado si es suscriptor
-    $('opCard').classList.toggle('is-plus', !!profileData.nexusPlus);
+    $('opCard').classList.toggle('is-plus', isPlus);
 
     // Meta line
     $('opUidShort').textContent = 'OP-' + viewUid.substring(0, 6).toUpperCase();
@@ -199,7 +220,7 @@ function renderIdentity() {
     $('opBio').textContent = profileData.bio || 'Sin descripción aún';
 
     // Banner de invitación a Nexus+ — solo en tu propio perfil y si aún no eres suscriptor
-    $('opPlusBanner').style.display = (isOwnProfile && !(profileData.nexusPlus || profileData.hasNexusPlus)) ? 'flex' : 'none';
+    $('opPlusBanner').style.display = (isOwnProfile && !isPlus) ? 'flex' : 'none';
 
     // Controles de edición (solo dueño)
     if (isOwnProfile) {
@@ -209,6 +230,8 @@ function renderIdentity() {
 }
 
 function renderGeneral() {
+    const isPlus = getIsPlus(profileData);
+
     $('opBioReadonly').textContent = profileData.bio || 'Sin descripción aún';
 
     const badgesRow = $('opBadgesRow');
@@ -217,11 +240,11 @@ function renderGeneral() {
     if (rank === 'admin') badgesRow.innerHTML += badgeChip('👑 Admin');
     else if (rank === 'collaborator') badgesRow.innerHTML += badgeChip('🤝 Colaborador');
     else if (rank === 'moderator') badgesRow.innerHTML += badgeChip('🛡️ Moderador');
-    if (profileData.nexusPlus) badgesRow.innerHTML += badgeChip('💎 Nexus+', true);
+    if (isPlus) badgesRow.innerHTML += badgeChip('💎 Nexus+', true);
     if (profileData.isDeveloper) badgesRow.innerHTML += badgeChip('👨‍💻 Developer');
     (profileData.badges || []).forEach(b => { badgesRow.innerHTML += badgeChip(b); });
 
-    $('opStatBadges').textContent = (profileData.badges || []).length + (profileData.isDeveloper ? 1 : 0) + (profileData.nexusPlus ? 1 : 0);
+    $('opStatBadges').textContent = (profileData.badges || []).length + (profileData.isDeveloper ? 1 : 0) + (isPlus ? 1 : 0);
 
     if (isOwnProfile) {
         $('opGeneralView').style.display = 'none';
@@ -371,7 +394,7 @@ function setupOwnEditControls() {
 }
 
 function resizeImage(file, maxW, maxH, square, callback) {
-    if (file.type === 'image/gif' && currentUser && currentUser.hasNexusPlus) {
+    if (file.type === 'image/gif' && currentUser && getIsPlus(currentUser)) {
         if (file.size > 1024 * 1024) {
             toast('El GIF debe ser menor a 1MB para proteger el rendimiento', 'error');
             return;
@@ -472,8 +495,9 @@ function renderEffectSwatches() {
     // efecto "Developer Verificado") solo se ofrecen a quien tiene
     // isDeveloper === true, para que ambos sean beneficios reales y no
     // cualquiera pueda ponerse el efecto exclusivo de otro tier.
+    const isPlus = getIsPlus(profileData);
     const available = NAME_EFFECTS.filter(fx =>
-        (!fx.plusOnly || profileData.nexusPlus) &&
+        (!fx.plusOnly || isPlus) &&
         (!fx.devOnly  || profileData.isDeveloper)
     );
 
@@ -522,8 +546,8 @@ function renderEffectSwatches() {
 function renderColorPicker() {
     const cpContainer = $('opColorPicker');
     if (!cpContainer) return;
-    
-    if (!profileData.nexusPlus && !profileData.hasNexusPlus) {
+
+    if (!getIsPlus(profileData)) {
         cpContainer.innerHTML = '';
         return;
     }
@@ -626,7 +650,7 @@ function updatePlusToggleButtons() {
     const onBtn = $('opPlusOnBtnView');
     const offBtn = $('opPlusOffBtnView');
     if (!onBtn || !offBtn) return;
-    const isPlus = !!profileData.nexusPlus;
+    const isPlus = getIsPlus(profileData);
     onBtn.classList.toggle('active', isPlus);
     onBtn.classList.toggle('on', true);
     offBtn.classList.toggle('active', !isPlus);
@@ -759,16 +783,34 @@ document.getElementById('devRequestOverlay')?.addEventListener('click', function
 //    pueda escribirlo en el documento de otro usuario — el botón
 //    aquí solo oculta la opción, no reemplaza esa validación.
 //
-// 6) FIX aplicado en este archivo: renderEffectSwatches() ahora
-//    también filtra por `devOnly`, así que el efecto "Developer
-//    Verificado" (devtype) solo aparece en la lista de swatches
-//    de un usuario con isDeveloper === true — antes cualquier
-//    usuario podía verlo y seleccionarlo. Además, si a alguien le
-//    quitan Nexus+ o el rol developer mientras tenía puesto un
-//    efecto exclusivo, ahora se le resetea a "none" automáticamente
-//    la próxima vez que abre su ficha (protección en frontend;
-//    igual protege el campo `nameEffect` en tus reglas de Firestore
-//    si quieres blindarlo también del lado del servidor).
+// 6) FIX (versión anterior): renderEffectSwatches() ahora también
+//    filtra por `devOnly`, así que el efecto "Developer Verificado"
+//    (devtype) solo aparece en la lista de swatches de un usuario
+//    con isDeveloper === true. Además, si a alguien le quitan
+//    Nexus+ o el rol developer mientras tenía puesto un efecto
+//    exclusivo, se le resetea a "none" automáticamente la próxima
+//    vez que abre su ficha (protección en frontend; igual protege
+//    el campo `nameEffect` en tus reglas de Firestore si quieres
+//    blindarlo también del lado del servidor).
+//
+// 7) FIX (esta versión): se agregó el helper getIsPlus(data), que
+//    revisa tanto `nexusPlus` como `hasNexusPlus` en un solo lugar.
+//    Antes, algunos puntos del archivo (el marco dorado del avatar
+//    y de la tarjeta, el chip "💎 Nexus+", el contador de insignias,
+//    el selector de color y los botones de activar/quitar del panel
+//    admin) solo miraban `nexusPlus`, mientras que otros ya aceptaban
+//    también `hasNexusPlus` — esto causaba que, en documentos donde
+//    solo existía `hasNexusPlus: true`, la UI quedara inconsistente
+//    (por ejemplo, viendo el selector de color pero sin ver los
+//    efectos de nombre exclusivos). Ahora TODO el archivo pasa por
+//    getIsPlus(), así que basta con que exista cualquiera de los dos
+//    campos en `true` para que el usuario reciba todos los beneficios
+//    visuales de forma consistente.
+//
+//    Recomendación a futuro: migrar los documentos que solo tengan
+//    `hasNexusPlus` para que también tengan `nexusPlus`, y luego
+//    simplificar getIsPlus() para que solo revise `nexusPlus`. Así
+//    evitas mantener dos nombres de campo para lo mismo indefinidamente.
 // ============================================================
 
 window.requestNexusPlusEarlyAccess = async function() {
@@ -800,4 +842,3 @@ window.requestNexusPlusEarlyAccess = async function() {
     btn.disabled = false;
     btn.textContent = 'Solicitar';
 };
-
