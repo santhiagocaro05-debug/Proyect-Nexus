@@ -4866,7 +4866,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-}
 
 // NEXUS+ REQUESTS ADMIN LOGIC
 let nexusRequestsBadgeUnsub = null;
@@ -4939,6 +4938,8 @@ window.reviewNexusReq = async function(requestId, approve) {
         toast('Error: ' + result.error, 'error');
     }
 };
+
+} // End of __nexusMain
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', __nexusMain);
