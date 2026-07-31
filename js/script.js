@@ -812,6 +812,7 @@ async function applySavedProductOrder() {
         const usersResult = await window.fb.getAllUsers();
         const users = usersResult.success ? usersResult.data : [];
         const userAvatarMap = {};
+        const userProfileCache = {};
         const rankMap = {};
         const nameEffectMap = {};
         const effectColorMap = {};
@@ -2192,7 +2193,7 @@ function showSaveOrderButton() {
         authBtn.onclick = openLogoutModal;
         if (cf) cf.style.display = 'block';
         if (ltc) ltc.style.display = 'none';
-        if (ff) ff.style.display = 'block';
+        if (ff) ff.style.display = 'none';
         if (ltp) ltp.style.display = 'none';
         if (adminBtn) adminBtn.style.display = currentUser.isAdmin ? 'flex' : 'none';
         const devPanelBtn = $('devPanelBtn');
@@ -4266,7 +4267,6 @@ window.toggleChatPanel = function() {
     }
 };
 
-// Cargar lista de chats del usuario
 async function loadUserChats() {
     if (!currentUser || !window.fb || !window.fb.listenUserChats) return;
     
@@ -4278,68 +4278,79 @@ async function loadUserChats() {
     try {
         userChatsUnsubscribe = window.fb.listenUserChats(currentUser.uid, async (chats) => {
             if (!chats || chats.length === 0) {
-            listView.innerHTML = `
-                <div style="text-align:center;padding:40px 20px;color:var(--text-faint);">
-                    <i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:10px;"></i>
-                    <p style="font-size:.85rem;">No tienes conversaciones aún</p>
-                    <p style="font-size:.75rem;margin-top:4px;">Busca a alguien arriba para empezar</p>
-                </div>
-            `;
-            return;
-        }
-        
-        try {
-            let html = '';
-            let globalUnread = 0;
-            
-            for (const chat of chats) {
-                if (!chat.participantIds) continue;
-                const otherId = chat.participantIds.find(id => id !== currentUser.uid);
-                if (!otherId) continue;
-                
-                const userResult = await window.fb.getUserById(otherId);
-                const userData = userResult.success ? userResult.data : null;
-                
-                if (!userData) continue;
-                
-                const avatarLetter = userData.username ? userData.username.charAt(0).toUpperCase() : '?';
-                const lastMsg = chat.lastMessage || 'Sin mensajes';
-                const lastTime = chat.lastMessageAt ? new Date(chat.lastMessageAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
-                
-                html += `
-                    <div class="chat-list-item" onclick="openChatWith('${otherId}')">
-                        <div class="chat-avatar">${avatarLetter}</div>
-                        <div class="chat-info">
-                            <div class="chat-name">${esc(userData.username)}</div>
-                            <div class="chat-last-msg">${esc(lastMsg)}</div>
-                        </div>
-                        <div class="chat-time">${lastTime}</div>
+                listView.innerHTML = `
+                    <div style="text-align:center;padding:40px 20px;color:var(--text-faint);">
+                        <i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:10px;"></i>
+                        <p style="font-size:.85rem;">No tienes conversaciones aún</p>
+                        <p style="font-size:.75rem;margin-top:4px;">Busca a alguien arriba para empezar</p>
                     </div>
                 `;
-                
-                // Si el ultimo mensaje NO fue mio, lo contamos como no leido
-                if (chat.lastSenderId && chat.lastSenderId !== currentUser.uid) {
-                    globalUnread++;
-                }
+                return;
             }
             
-            chatUnreadCount = globalUnread;
-            const badge = document.getElementById('chatUnread');
-            const panel = document.getElementById('chatPanel');
-            if (chatUnreadCount > 0 && !panel.classList.contains('open')) {
-                badge.style.display = 'flex';
-                badge.textContent = chatUnreadCount > 9 ? '9+' : chatUnreadCount;
-            } else {
-                badge.style.display = 'none';
-                badge.textContent = '0';
-            }
+            try {
+                let html = '';
+                let globalUnread = 0;
+                
+                for (const chat of chats) {
+                    if (!chat.participantIds) continue;
+                    const otherId = chat.participantIds.find(id => id !== currentUser.uid);
+                    if (!otherId) continue;
+                    
+                    // Obtener perfil completo del otro usuario
+                    const userResult = await window.fb.getUserById(otherId);
+                    const userData = userResult.success ? userResult.data : null;
+                    if (!userData) continue;
+                    
+                    const avatarLetter = userData.username ? userData.username.charAt(0).toUpperCase() : '?';
+                    const lastMsg = chat.lastMessage || 'Sin mensajes';
+                    const lastTime = chat.lastMessageAt ? new Date(chat.lastMessageAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+                    
+                    // --- Efecto de nombre y Nexus+ ---
+                    const nameEffect = userData.nameEffect || 'none';
+                    const effectColor = userData.effectColor || '';
+                    const isNexusPlus = !!(userData.nexusPlus || userData.hasNexusPlus);
+                    const gemHTML = isNexusPlus ? `<span style="color:var(--plus-gold-2);font-size:0.7rem;margin-left:4px;" title="Nexus+"><i class="fas fa-gem"></i></span>` : '';
+                    
+                    html += `
+                        <div class="chat-list-item" onclick="openChatWith('${otherId}')">
+                            <div class="chat-avatar">${avatarLetter}</div>
+                            <div class="chat-info">
+                                <div class="chat-name">
+                                    <span class="uname uname-${nameEffect}" ${effectColor ? `style="--uname-color: ${effectColor};"` : ''}>
+                                        ${esc(userData.username)}
+                                    </span>
+                                    ${gemHTML}
+                                </div>
+                                <div class="chat-last-msg">${esc(lastMsg)}</div>
+                            </div>
+                            <div class="chat-time">${lastTime}</div>
+                        </div>
+                    `;
+                    
+                    // Contar no leídos
+                    if (chat.lastSenderId && chat.lastSenderId !== currentUser.uid) {
+                        globalUnread++;
+                    }
+                }
+                
+                chatUnreadCount = globalUnread;
+                const badge = document.getElementById('chatUnread');
+                const panel = document.getElementById('chatPanel');
+                if (chatUnreadCount > 0 && !panel.classList.contains('open')) {
+                    badge.style.display = 'flex';
+                    badge.textContent = chatUnreadCount > 9 ? '9+' : chatUnreadCount;
+                } else {
+                    badge.style.display = 'none';
+                    badge.textContent = '0';
+                }
 
-            listView.innerHTML = html;
-        } catch (e) {
-            console.error("Error al cargar chats:", e);
-            listView.innerHTML = '<div style="text-align:center;padding:20px;color:var(--danger);">Error al cargar chats: ' + e.message + '</div>';
-        }
-    });
+                listView.innerHTML = html;
+            } catch (e) {
+                console.error("Error al cargar chats:", e);
+                listView.innerHTML = '<div style="text-align:center;padding:20px;color:var(--danger);">Error al cargar chats: ' + e.message + '</div>';
+            }
+        });
     } catch (err) {
         console.error("Sync Error listenUserChats:", err);
         listView.innerHTML = '<div style="text-align:center;padding:20px;color:var(--danger);">Error fatal: ' + err.message + '</div>';
@@ -4435,12 +4446,34 @@ function renderChatMessages(messages) {
         const senderName = isSent ? 'Tú' : msg.senderName || 'Usuario';
         const time = new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
         
-        const nexusBadge = msg.senderNexusPlus ? `<span style="color:var(--nexus-gold); font-size:0.75rem; margin-left:4px;" title="Miembro Nexus+"><i class="fas fa-gem"></i></span>` : '';
+        // --- Obtener datos del perfil del remitente ---
+        let nameEffect = 'none';
+        let effectColor = '';
+        let isNexusPlus = false;
+        if (!isSent && msg.senderId) {
+            if (currentChatUser && currentChatUser.id === msg.senderId) {
+                nameEffect = currentChatUser.nameEffect || 'none';
+                effectColor = currentChatUser.effectColor || '';
+                isNexusPlus = !!(currentChatUser.nexusPlus || currentChatUser.hasNexusPlus);
+            } else {
+                nameEffect = 'none';
+                effectColor = '';
+                isNexusPlus = false;
+            }
+        }
+        
+        // ✅ AQUÍ AGREGAS EL FRAGMENTO
+        const senderIsNexusPlus = isSent ? (currentUser.hasNexusPlus || false) : isNexusPlus;
+        const senderGem = senderIsNexusPlus ? `<span class="nexus-gem" style="margin-left:4px;font-size:0.7rem;color:var(--plus-gold-2);"><i class="fas fa-gem"></i></span>` : '';
+        
+        const gemHTML = (!isSent && isNexusPlus) ? `<span class="nexus-gem"><i class="fas fa-gem"></i></span>` : '';
+        const effectClass = isSent ? '' : `uname uname-${nameEffect}`;
+        const colorStyle = (effectColor && !isSent) ? `style="--uname-color: ${effectColor};"` : '';
         
         return `
             <div class="chat-msg ${isSent ? 'sent' : 'received'}">
-                ${!isSent ? `<div class="msg-sender">${esc(senderName)}${nexusBadge}</div>` : ''}
-                ${esc(msg.text)}
+                ${!isSent ? `<div class="msg-sender"><span class="${effectClass}" ${colorStyle}>${esc(senderName)}</span>${gemHTML}</div>` : ''}
+                ${esc(msg.text)} ${senderGem}  <!-- ← Aquí se muestra la gema si eres Nexus+ -->
                 <span class="msg-time">${time}</span>
             </div>
         `;
