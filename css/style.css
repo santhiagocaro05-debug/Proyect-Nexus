@@ -5322,3 +5322,67 @@ img {
        ::before en vez de ::after para el check, o agrega un <span>
        aparte en el HTML en vez de pseudo-elemento. */
 }
+.liquid-dock{
+    position:fixed;
+    left:50%;
+    bottom:20px;
+    transform:translateX(-50%);
+    z-index:9998;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:8px;
+    border-radius:26px;
+    background:rgba(255,255,255,.06);
+    backdrop-filter:blur(24px) saturate(160%);
+    -webkit-backdrop-filter:blur(24px) saturate(160%);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 10px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.15);
+    transition:transform .4s cubic-bezier(.34,1.56,.64,1), bottom .3s ease;
+    animation:dockIn .6s cubic-bezier(.34,1.56,.64,1);
+}
+body.light .liquid-dock{
+    background:rgba(20,25,35,.06);
+    border-color:rgba(10,15,30,.10);
+    box-shadow:0 10px 40px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.4);
+}
+@keyframes dockIn{ from{opacity:0; transform:translateX(-50%) translateY(40px) scale(.85);} to{opacity:1; transform:translateX(-50%) translateY(0) scale(1);} }
+
+.dock-btn{
+    width:46px; height:46px;
+    border-radius:18px;
+    border:none;
+    background:transparent;
+    color:var(--text-dim);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    font-size:1.05rem;
+    position:relative;
+    transition:all .25s cubic-bezier(.34,1.56,.64,1);
+}
+.dock-btn:hover{ background:rgba(255,255,255,.10); color:var(--cyan); transform:translateY(-5px) scale(1.08); }
+.dock-btn:active{ transform:translateY(-1px) scale(.94); }
+.dock-btn.active{ background:var(--cyan-dim); color:var(--cyan); }
+
+.dock-dot{
+    position:absolute; top:6px; right:7px;
+    width:7px; height:7px; border-radius:50%;
+    background:var(--danger);
+    box-shadow:0 0 6px var(--danger);
+}
+
+.dock-sep{ width:1px; height:24px; background:rgba(255,255,255,.14); margin:0 2px; }
+
+.dock-profile{
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,.16);
+    overflow:hidden;
+    font-weight:700; font-size:.85rem;
+    background:var(--cyan-dim); color:var(--cyan);
+}
+.dock-profile img{ width:100%; height:100%; object-fit:cover; }
+
+@media (max-width:480px){
+    .liquid-dock{ bottom:14px; gap:2px; padding:6px; }
+    .dock-btn{ width:42px; height:42px; }
+}
