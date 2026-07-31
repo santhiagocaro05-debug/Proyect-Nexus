@@ -4865,15 +4865,15 @@ img {
 }
 
 .uname-gradient {
-    background: linear-gradient(135deg, var(--cyan), var(--amber));
+    background: linear-gradient(135deg, var(--uname-color, var(--cyan)), var(--amber));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
 }
 
 .uname-glow {
-    color: #fff;
-    text-shadow: 0 0 6px var(--cyan), 0 0 14px var(--cyan), 0 0 22px rgba(79,216,255,.4);
+    color: var(--uname-color, #fff);
+    text-shadow: 0 0 6px var(--uname-color, var(--cyan)), 0 0 14px var(--uname-color, var(--cyan)), 0 0 22px rgba(79,216,255,.4);
 }
 
 .uname-rainbow {
@@ -4942,11 +4942,11 @@ img {
     color: var(--text);
 }
 .uname-neon {
-    color: var(--cyan);
+    color: var(--uname-color, var(--cyan));
     text-shadow:
-        0 0 4px var(--cyan),
-        0 0 10px rgba(79,216,255,.6),
-        0 0 20px rgba(79,216,255,.35);
+        0 0 4px var(--uname-color, var(--cyan)),
+        0 0 10px var(--uname-color, rgba(79,216,255,.6)),
+        0 0 20px var(--uname-color, rgba(79,216,255,.35));
     animation: unameNeonPulse 2.2s ease-in-out infinite;
 }
 @keyframes unameNeonPulse {
@@ -4954,7 +4954,7 @@ img {
     50% { opacity: .75; }
 }
 .uname-hologram {
-    background: linear-gradient(100deg, var(--cyan), #fff, var(--cyan));
+    background: linear-gradient(100deg, var(--uname-color, var(--cyan)), #fff, var(--uname-color, var(--cyan)));
     background-size: 200% auto;
     -webkit-background-clip: text; background-clip: text; color: transparent;
     animation: unameHologram 3s linear infinite;
@@ -4969,20 +4969,289 @@ img {
     filter: drop-shadow(0 0 6px rgba(255,179,71,.35));
 }
 .uname-nexus-cosmic {
-    background: linear-gradient(135deg, #b026ff, #4fd8ff, #b026ff);
+    background: linear-gradient(135deg, var(--uname-color, #b026ff), #4fd8ff, var(--uname-color, #b026ff));
     background-size: 200% auto;
     -webkit-background-clip: text; background-clip: text; color: transparent;
     animation: unameHologram 3s linear infinite;
     filter: drop-shadow(0 0 8px rgba(176,38,255,.5));
 }
 .uname-nexus-fire {
-    background: linear-gradient(0deg, #ff4d4d, #ffb347);
+    background: linear-gradient(0deg, var(--uname-color, #ff4d4d), #ffb347);
     -webkit-background-clip: text; background-clip: text; color: transparent;
     filter: drop-shadow(0 2px 4px rgba(255,77,77,.6));
 }
 .uname-nexus-diamond {
+    color: var(--uname-color, #fff);
+    text-shadow: 0 0 4px var(--uname-color, #4fd8ff), 0 0 10px var(--uname-color, #4fd8ff), 0 0 20px #fff;
+}
+
+/* ============================================================
+   NUEVOS EFECTOS PREMIUM NEXUS+
+   ============================================================ */
+
+/* 🌊 Onda Plasma — degradado fluido animado */
+.uname-nexus-plasma {
+    background: linear-gradient(90deg,
+        var(--uname-color, #b026ff),
+        #4fd8ff,
+        var(--uname-color, #b026ff),
+        #ff6b9d,
+        var(--uname-color, #b026ff));
+    background-size: 400% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: unamePlasmaFlow 4s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px rgba(176,38,255,.3));
+}
+@keyframes unamePlasmaFlow {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ⚡ Eléctrico — destello pulsante estilo rayo */
+.uname-nexus-electric {
+    color: var(--uname-color, #4fd8ff);
+    text-shadow:
+        0 0 4px var(--uname-color, #4fd8ff),
+        0 0 11px var(--uname-color, #4fd8ff),
+        0 0 19px var(--uname-color, #4fd8ff),
+        0 0 40px var(--uname-color, #4fd8ff),
+        0 0 2px #fff;
+    animation: unameElectricPulse 1.5s ease-in-out infinite;
+}
+@keyframes unameElectricPulse {
+    0%, 100% {
+        text-shadow:
+            0 0 4px var(--uname-color, #4fd8ff),
+            0 0 11px var(--uname-color, #4fd8ff),
+            0 0 19px var(--uname-color, #4fd8ff),
+            0 0 40px var(--uname-color, #4fd8ff),
+            0 0 2px #fff;
+        opacity: 1;
+    }
+    30% {
+        text-shadow:
+            0 0 2px var(--uname-color, #4fd8ff),
+            0 0 6px var(--uname-color, #4fd8ff),
+            0 0 1px #fff;
+        opacity: .85;
+    }
+    50% {
+        text-shadow:
+            0 0 6px var(--uname-color, #4fd8ff),
+            0 0 14px var(--uname-color, #4fd8ff),
+            0 0 28px var(--uname-color, #4fd8ff),
+            0 0 55px var(--uname-color, #4fd8ff),
+            0 0 3px #fff;
+        opacity: 1;
+    }
+    70% {
+        text-shadow:
+            0 0 3px var(--uname-color, #4fd8ff),
+            0 0 8px var(--uname-color, #4fd8ff),
+            0 0 1px #fff;
+        opacity: .9;
+    }
+}
+
+/* 🔮 Cristal — reflejo brillante que pasa por encima */
+.uname-nexus-crystal {
+    position: relative;
+    color: var(--uname-color, #e0e8ff);
+    text-shadow: 0 1px 2px rgba(0,0,0,.4), 0 0 8px rgba(79,216,255,.2);
+    background: linear-gradient(
+        120deg,
+        transparent 0%,
+        transparent 30%,
+        rgba(255,255,255,.35) 45%,
+        rgba(255,255,255,.55) 50%,
+        rgba(255,255,255,.35) 55%,
+        transparent 70%,
+        transparent 100%);
+    background-size: 250% 100%;
+    -webkit-background-clip: text; background-clip: text;
+    animation: unameCrystalShine 3.5s ease-in-out infinite;
+}
+@keyframes unameCrystalShine {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* 🌌 Aurora — aurora boreal suave */
+.uname-nexus-aurora {
+    background: linear-gradient(90deg,
+        var(--uname-color, #3ddc97),
+        #4fd8ff,
+        #c084fc,
+        var(--uname-color, #3ddc97));
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: unameAuroraShift 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 5px rgba(61,220,151,.25));
+}
+@keyframes unameAuroraShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 💜 Glitch — efecto cyberpunk */
+.uname-nexus-glitch {
+    position: relative;
+    color: var(--uname-color, #fff);
+    animation: unameGlitchSkew 4s infinite linear alternate-reverse;
+    text-shadow:
+        0.05em 0 0 rgba(255,0,0,.75),
+        -0.025em -0.05em 0 rgba(0,255,0,.75),
+        0.025em 0.05em 0 rgba(0,0,255,.75);
+}
+@keyframes unameGlitchSkew {
+    0%   { transform: skew(0deg); }
+    2%   { transform: skew(-1deg); }
+    4%   { transform: skew(0.8deg); }
+    6%   { transform: skew(0deg); }
+    20%  { transform: skew(0deg); }
+    22%  { transform: skew(0.5deg); text-shadow: 0.08em 0 0 rgba(255,0,0,.75), -0.03em -0.04em 0 rgba(0,255,0,.75), 0.03em 0.04em 0 rgba(0,0,255,.75); }
+    24%  { transform: skew(0deg); }
+    50%  { transform: skew(0deg); }
+    52%  { transform: skew(-0.5deg); }
+    54%  { transform: skew(0.4deg); text-shadow: -0.05em 0 0 rgba(255,0,0,.75), 0.025em 0.03em 0 rgba(0,255,0,.75), -0.025em -0.03em 0 rgba(0,0,255,.75); }
+    56%  { transform: skew(0deg); }
+    100% { transform: skew(0deg); }
+}
+
+/* ✨ Stardust — partículas doradas brillantes */
+.uname-nexus-stardust {
+    background: linear-gradient(90deg,
+        var(--uname-color, #ffb347) 0%,
+        #fff 15%,
+        var(--uname-color, #ffc107) 30%,
+        #fff 45%,
+        var(--uname-color, #ffb347) 60%,
+        #fff 75%,
+        var(--uname-color, #ffc107) 100%);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: unameStardustFlow 3s linear infinite;
+    filter: drop-shadow(0 0 4px rgba(255,179,71,.4));
+}
+@keyframes unameStardustFlow {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+/* ============================================================
+   COLOR PICKER PARA EFECTOS
+   ============================================================ */
+.effect-color-section {
+    margin-top: 18px;
+    padding: 18px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+.effect-color-section .section-title {
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.effect-color-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+.color-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform .2s, border-color .2s, box-shadow .2s;
+    position: relative;
+}
+.color-dot:hover {
+    transform: scale(1.15);
+    box-shadow: 0 0 10px rgba(255,255,255,.15);
+}
+.color-dot.selected {
+    border-color: #fff;
+    box-shadow: 0 0 12px rgba(255,255,255,.3), inset 0 0 0 2px var(--bg);
+    transform: scale(1.1);
+}
+.color-dot.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: .6rem;
+    font-weight: 900;
     color: #fff;
-    text-shadow: 0 0 4px #4fd8ff, 0 0 10px #4fd8ff, 0 0 20px #fff;
+    text-shadow: 0 1px 3px rgba(0,0,0,.6);
+}
+.color-dot-reset {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px dashed var(--text-dim);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    font-size: .65rem;
+    color: var(--text-dim);
+    transition: transform .2s, border-color .2s;
+    background: transparent;
+}
+.color-dot-reset:hover {
+    transform: scale(1.15);
+    border-color: var(--text);
+    color: var(--text);
+}
+.color-dot-reset.selected {
+    border-color: var(--cyan);
+    color: var(--cyan);
+}
+.custom-color-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 4px;
+}
+.custom-color-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    overflow: hidden;
+    transition: border-color .2s;
+}
+.custom-color-input::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+.custom-color-input::-webkit-color-swatch {
+    border: none;
+    border-radius: 50%;
+}
+.custom-color-input::-moz-color-swatch {
+    border: none;
+    border-radius: 50%;
+}
+.custom-color-input:hover {
+    border-color: var(--cyan);
+}
+.custom-color-input.selected {
+    border-color: #fff;
+    box-shadow: 0 0 12px rgba(255,255,255,.3);
 }
 /* ============================================================
    EFECTO: Developer Verificado (escribiéndose, estilo terminal)
