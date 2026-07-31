@@ -5515,3 +5515,33 @@ body.light .liquid-dock{
 .liquid-dock .icon-btn#adminBtn:active {
     transform: scale(0.92);
 }
+/* ============================================================
+   BOTÓN DEV (dentro del dock)
+   ============================================================ */
+.liquid-dock .icon-btn#devPanelBtn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    display: none; /* JS lo mostrará si es developer */
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-size: 1rem;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.liquid-dock .icon-btn#devPanelBtn:hover {
+    background: var(--cyan-dim);
+    border-color: var(--cyan);
+    color: var(--cyan);
+    transform: scale(1.08) rotate(4deg);
+    box-shadow: 0 0 20px rgba(79, 216, 255, 0.3);
+}
+
+.liquid-dock .icon-btn#devPanelBtn:active {
+    transform: scale(0.92);
+}
