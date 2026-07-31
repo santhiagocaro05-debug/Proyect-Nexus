@@ -3508,6 +3508,205 @@ window.createNewProduct = async function() {
 };
 
 // ============================================================
+// PANEL DE DESARROLLADOR - GUARDAR PRODUCTO
+// ============================================================
+
+let pendingDevProductImage = null;
+
+window.handleDevProductImage = function(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      let w = img.width, h = img.height;
+      if (w > 800 || h > 800) {
+        const ratio = Math.min(800 / w, 800 / h);
+        w = Math.round(w * ratio); h = Math.round(h * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      pendingDevProductImage = canvas.toDataURL('image/jpeg', 0.9);
+      document.getElementById('dpPreview').src = pendingDevProductImage;
+      document.getElementById('dpPreview').style.display = 'block';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.saveDevProduct = async function() {
+  if (!currentUser) { toast('Inicia sesión primero', 'error'); return; }
+  if (!currentUser.isDeveloper) { toast('No tienes permisos de desarrollador', 'error'); return; }
+
+  const editId = document.getElementById('dpEditId').value;
+  const name = document.getElementById('dpName').value.trim();
+  const price = document.getElementById('dpPrice').value.trim();
+  const emoji = document.getElementById('dpEmoji').value.trim() || '📦';
+  const customId = document.getElementById('dpId').value.trim();
+  const customColor = document.getElementById('dpColor').value.trim();
+  const shortDesc = document.getElementById('dpShortDesc').value.trim();
+  const desc = document.getElementById('dpDesc').value.trim();
+  const feats = document.getElementById('dpFeats').value.split('\n').map(f => f.trim()).filter(Boolean);
+  const dl = document.getElementById('dpDl').value.trim();
+
+  // Categorías seleccionadas
+  const selectedChips = Array.from(document.querySelectorAll('#dpCatChips .cat-chip.selected')).map(c => c.dataset.val);
+  const cat = selectedChips.length > 0 ? selectedChips.join(',') : 'free';
+
+  if (!name || !price || !shortDesc) {
+    toast('Completa nombre, precio y descripción corta', 'error');
+    return;
+  }
+
+  const isFree = price === '$0' || price === '0';
+  const productData = {
+    name,
+    cat,
+    price,
+    emoji,
+    color: customColor || '#4fd8ff',
+    shortDesc,
+    desc,
+    feats,
+    dl,
+    free: isFree,
+    authorId: currentUser.uid,   // importante: para saber quién lo publicó
+    authorName: currentUser.username,
+    downloads: '0',
+    commentsCount: '0',
+  };
+
+  if (pendingDevProductImage) {
+    productData.image = pendingDevProductImage;
+  }
+
+  try {
+    let result;
+    if (editId) {
+      // Editar producto existente (solo si es el dueño)
+      result = await window.fb.updateProduct(editId, productData, currentUser.uid);
+    } else {
+      // Crear nuevo producto
+      result = await window.fb.addProduct(productData, currentUser.uid);
+    }
+
+    if (result.success) {
+      toast(editId ? '✅ Producto actualizado' : '✅ Producto publicado');
+      cancelEditDevProduct();
+      await loadProductsFromFirebase();
+      await loadMyDevProducts(); // si existe
+    } else {
+      toast('❌ Error: ' + (result.error || 'desconocido'), 'error');
+    }
+  } catch (e) {
+    toast('❌ Error al guardar: ' + e.message, 'error');
+  }
+};
+
+window.cancelEditDevProduct = function() {
+  document.getElementById('dpEditId').value = '';
+  document.getElementById('dpFormTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Nuevo producto';
+  document.getElementById('dpSubmitBtnText').textContent = 'Publicar producto';
+  document.getElementById('dpCancelEditBtn').style.display = 'none';
+
+  document.getElementById('dpName').value = '';
+  document.getElementById('dpPrice').value = '';
+  document.getElementById('dpEmoji').value = '';
+  document.getElementById('dpId').value = '';
+  document.getElementById('dpShortDesc').value = '';
+  document.getElementById('dpDesc').value = '';
+  document.getElementById('dpFeats').value = '';
+  document.getElementById('dpDl').value = '';
+  document.getElementById('dpColor').value = '';
+
+  document.querySelectorAll('#dpCatChips .cat-chip').forEach(c => c.classList.remove('selected'));
+  pendingDevProductImage = null;
+  document.getElementById('dpPreview').style.display = 'none';
+};
+
+// Cargar mis productos (para mostrarlos en el panel dev)
+window.loadMyDevProducts = async function() {
+  if (!currentUser) return;
+  const list = document.getElementById('devMyProductsList');
+  if (!list) return;
+
+  const result = await window.fb.getProducts();
+  if (!result.success) { list.innerHTML = '<div style="color:var(--text-dim);text-align:center;">Error al cargar productos</div>'; return; }
+
+  const myProducts = result.data.filter(p => p.authorId === currentUser.uid);
+  if (myProducts.length === 0) {
+    list.innerHTML = '<div style="color:var(--text-faint);text-align:center;padding:20px;">Aún no has publicado ningún producto.</div>';
+    return;
+  }
+
+  list.innerHTML = myProducts.map(p => `
+    <div style="background:var(--panel-strong);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+      <span style="font-size:1.8rem;">${p.emoji || '📦'}</span>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:.92rem;">${esc(p.name)}</div>
+        <div style="font-size:.72rem;color:var(--text-dim);">${p.price} · ${Array.isArray(p.cat) ? p.cat.join(', ') : p.cat}</div>
+      </div>
+      <button onclick="editDevProduct('${p.id}')" class="btn btn-ghost btn-sm"><i class="fas fa-edit"></i></button>
+      <button onclick="deleteDevProduct('${p.id}')" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+    </div>
+  `).join('');
+};
+
+window.editDevProduct = async function(productId) {
+  const result = await window.fb.getProducts();
+  if (!result.success) { toast('Error al obtener productos', 'error'); return; }
+  const p = result.data.find(x => x.id === productId);
+  if (!p) { toast('Producto no encontrado', 'error'); return; }
+  if (p.authorId !== currentUser.uid) { toast('No puedes editar este producto', 'error'); return; }
+
+  document.getElementById('dpEditId').value = p.id;
+  document.getElementById('dpFormTitle').innerHTML = '<i class="fas fa-edit"></i> Editar producto';
+  document.getElementById('dpSubmitBtnText').textContent = 'Guardar cambios';
+  document.getElementById('dpCancelEditBtn').style.display = 'inline-flex';
+
+  document.getElementById('dpName').value = p.name || '';
+  document.getElementById('dpPrice').value = p.price || '';
+  document.getElementById('dpEmoji').value = p.emoji || '';
+  document.getElementById('dpId').value = p.id || '';
+  document.getElementById('dpShortDesc').value = p.shortDesc || '';
+  document.getElementById('dpDesc').value = p.desc || '';
+  document.getElementById('dpFeats').value = (p.feats || []).join('\n');
+  document.getElementById('dpDl').value = p.dl || '';
+  document.getElementById('dpColor').value = p.color || '';
+
+  document.querySelectorAll('#dpCatChips .cat-chip').forEach(c => c.classList.remove('selected'));
+  if (p.cat) {
+    let cats = Array.isArray(p.cat) ? p.cat : p.cat.split(',').map(s=>s.trim());
+    cats.forEach(c => {
+      const chip = document.querySelector(`#dpCatChips .cat-chip[data-val="${c}"]`);
+      if (chip) chip.classList.add('selected');
+    });
+  }
+
+  if (p.image) {
+    document.getElementById('dpPreview').src = p.image;
+    document.getElementById('dpPreview').style.display = 'block';
+  } else {
+    document.getElementById('dpPreview').style.display = 'none';
+  }
+  document.getElementById('devPanelOverlay').scrollIntoView({behavior: 'smooth'});
+};
+
+window.deleteDevProduct = async function(productId) {
+  if (!confirm('¿Seguro que quieres eliminar este producto?')) return;
+  const result = await window.fb.deleteProduct(productId, currentUser.uid);
+  if (result.success) {
+    toast('Producto eliminado');
+    loadMyDevProducts();
+    loadProductsFromFirebase();
+  } else {
+    toast('❌ Error: ' + result.error, 'error');
+  }
+};
+
+// ============================================================
 // RESEÑAS Y NOTIFICACIONES EN TIEMPO REAL
 // ============================================================
 let currentReviewsUnsubscribe = null;
