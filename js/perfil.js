@@ -1,8 +1,5 @@
 // ============================================================
 // PERFIL.JS — Dashboard de perfil / Ficha de Operador
-//
-// Requiere que index.html apunte el botón de perfil aquí en vez
-// de abrir el overlay. Ver instrucciones al final de este archivo.
 // ============================================================
 
 // ===== APLICAR TEMA GUARDADO =====
@@ -20,20 +17,16 @@ const esc = t => {
 };
 
 // ============================================================
-// HELPER: getIsPlus()
-// ------------------------------------------------------------
-// Fuente única de verdad para saber si un perfil es Nexus+.
-// Históricamente el campo se guardó en Firestore unas veces como
-// `nexusPlus` y otras como `hasNexusPlus`, así que este helper
-// acepta cualquiera de los dos para no dejar swatches, badges o
-// controles de admin desincronizados entre sí.
-//
-// Recomendado a mediano plazo: correr una migración que escriba
-// `nexusPlus` en todos los docs que solo tengan `hasNexusPlus`, y
-// una vez migrado, eliminar la referencia a `hasNexusPlus` de este
-// helper. Mientras tanto, todo el archivo debe llamar a esta
-// función en vez de leer profileData.nexusPlus directamente.
+// FORMATO DE BIOGRAFÍA (negrita, cursiva, saltos)
 // ============================================================
+function formatBio(text) {
+    if (!text) return '';
+    return esc(text)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+}
+
 function getIsPlus(data) {
     return !!(data && (data.nexusPlus || data.hasNexusPlus));
 }
@@ -45,6 +38,21 @@ let profileData = null;    // doc completo de users/{viewUid}
 let authIsAdmin = false;   // si el usuario logueado es admin (para controles sobre OTROS perfiles)
 let currentPlusPlan = 'monthly'; // plan seleccionado dentro del modal Nexus+
 
+// ============================================================
+// TEMAS DE PERFIL (para la portada)
+// ============================================================
+const PROFILE_THEMES = [
+    { id: 'default',  label: 'Nexus',    grad: 'linear-gradient(135deg, var(--bg-2), var(--panel-strong))' },
+    { id: 'cyan',     label: 'Cian',     grad: 'linear-gradient(135deg, rgba(79,216,255,.18), var(--panel-strong))' },
+    { id: 'sunset',   label: 'Atardecer',grad: 'linear-gradient(135deg, rgba(255,93,106,.16), rgba(255,179,71,.12))' },
+    { id: 'violet',   label: 'Violeta',  grad: 'linear-gradient(135deg, rgba(185,140,255,.18), var(--panel-strong))' },
+    { id: 'matrix',   label: 'Matrix',   grad: 'linear-gradient(135deg, rgba(61,220,151,.16), var(--panel-strong))' },
+    { id: 'plus',     label: 'Nexus+ Gold', grad: 'linear-gradient(135deg, rgba(255,233,184,.16), rgba(185,140,255,.14))', plusOnly: true }
+];
+
+// ============================================================
+// EFECTOS DE NOMBRE
+// ============================================================
 const NAME_EFFECTS = [
     { id: 'none', label: 'Sin efecto' },
     { id: 'gradient', label: 'Degradado' },
@@ -53,6 +61,9 @@ const NAME_EFFECTS = [
     { id: 'shimmer', label: 'Destello' },
     { id: 'neon', label: 'Neón' },
     { id: 'hologram', label: 'Holograma' },
+    { id: 'typewriter', label: '<i class="fas fa-keyboard"></i> Máquina de escribir' },
+    { id: 'wave', label: '<i class="fas fa-water"></i> Onda' },
+    { id: 'pulse', label: '<i class="fas fa-heart-pulse"></i> Pulso' },
     { id: 'devtype', label: '<i class="fas fa-terminal"></i> Verificado', devOnly: true },
     { id: 'plusgold', label: '<i class="fas fa-gem"></i> Gold Plus', plusOnly: true },
     { id: 'nexus-cosmic', label: '<i class="fas fa-meteor"></i> Cósmico', plusOnly: true },
@@ -63,7 +74,9 @@ const NAME_EFFECTS = [
     { id: 'nexus-crystal', label: '<i class="fas fa-cube"></i> Cristal', plusOnly: true },
     { id: 'nexus-aurora', label: '<i class="fas fa-star-and-crescent"></i> Aurora', plusOnly: true },
     { id: 'nexus-glitch', label: '<i class="fas fa-bug"></i> Glitch', plusOnly: true },
-    { id: 'nexus-stardust', label: '<i class="fas fa-sparkles"></i> Stardust', plusOnly: true }
+    { id: 'nexus-stardust', label: '<i class="fas fa-sparkles"></i> Stardust', plusOnly: true },
+    { id: 'nexus-royal', label: '<i class="fas fa-crown"></i> Realeza', plusOnly: true },
+    { id: 'nexus-void', label: '<i class="fas fa-circle-notch"></i> Vacío', plusOnly: true }
 ];
 
 const RANK_DISPLAY = {
@@ -73,8 +86,7 @@ const RANK_DISPLAY = {
     member: { label: 'Member', bg: 'var(--panel-strong)', color: 'var(--text-dim)' }
 };
 
-// Precios de los planes Nexus+ — se usan tanto para el texto del modal
-// como para armar los links de pago con el monto ya cargado.
+// Precios de los planes Nexus+
 const PLUS_PLANS = {
     monthly: { amount: '4.99', label: 'mensual' },
     yearly: { amount: '39.99', label: 'anual' }
@@ -155,11 +167,22 @@ async function loadProfile() {
     if (isOwnProfile) {
         $('opTabAjustesBtn').style.display = 'inline-block';
         renderEffectSwatches();
+        renderThemeSwatches();
 
         $('opTabDevBtn').style.display = 'inline-block';
         await checkDevStatus();
 
         setupOwnEditControls();
+
+        // Cargar valores de redes en inputs
+        if (document.getElementById('opDiscordInput')) $('opDiscordInput').value = profileData.discord || '';
+        if (document.getElementById('opTwitterInput')) $('opTwitterInput').value = profileData.twitter || '';
+        if (document.getElementById('opInstagramInput')) $('opInstagramInput').value = profileData.instagram || '';
+        if (document.getElementById('opYoutubeInput')) $('opYoutubeInput').value = profileData.youtube || '';
+        if (document.getElementById('opTiktokInput')) $('opTiktokInput').value = profileData.tiktok || '';
+        if (document.getElementById('opGithubInput')) $('opGithubInput').value = profileData.github || '';
+        if (document.getElementById('opTwitchInput')) $('opTwitchInput').value = profileData.twitch || '';
+        if (document.getElementById('opWebsiteInput')) $('opWebsiteInput').value = profileData.website || '';
     } else {
         await checkAdminPlusControl();
     }
@@ -183,9 +206,14 @@ function renderIdentity() {
     if (profileData.banner) {
         bannerEl.style.background = `url(${profileData.banner}) center/cover no-repeat`;
     } else {
-        bannerEl.style.background = `linear-gradient(135deg, var(--bg-2), ${profileData.accentColor || 'var(--panel-strong)'})`;
+        const themeDef = PROFILE_THEMES.find(t => t.id === (profileData.profileTheme || 'default')) || PROFILE_THEMES[0];
+        if (profileData.accentColor) {
+            bannerEl.style.background = `linear-gradient(135deg, var(--bg-2), ${profileData.accentColor})`;
+        } else {
+            bannerEl.style.background = themeDef.grad;
+        }
     }
-    bannerEl.appendChild(editBtn); // conservar el botón encima del banner
+    bannerEl.appendChild(editBtn);
 
     // Nombre con efecto
     const nameSpan = $('opNameSpan');
@@ -197,11 +225,20 @@ function renderIdentity() {
         nameSpan.style.removeProperty('--uname-color');
     }
 
-    // Pin Nexus+ junto al nombre
+    // Pin Nexus+
     $('opPlusPin').style.display = isPlus ? 'inline-flex' : 'none';
-
-    // Tarjeta con marco dorado si es suscriptor
     $('opCard').classList.toggle('is-plus', isPlus);
+
+    // ===== NUEVO: Insignia de verificación — Nexus+ o Developer aprobado =====
+    const isVerified = isPlus || !!profileData.isDeveloper;
+    const vb = $('opVerifiedBadge');
+    if (vb) {
+        vb.style.display = isVerified ? 'inline-flex' : 'none';
+        vb.classList.toggle('dev', !!profileData.isDeveloper && !isPlus);
+        vb.title = profileData.isDeveloper
+            ? 'Cuenta verificada por Proyect Nexus · Desarrollador'
+            : 'Cuenta verificada por Proyect Nexus';
+    }
 
     // Meta line
     $('opUidShort').textContent = 'OP-' + viewUid.substring(0, 6).toUpperCase();
@@ -217,13 +254,13 @@ function renderIdentity() {
     badge.style.background = rankInfo.bg;
     badge.style.color = rankInfo.color;
 
-    // Bio (header)
-    $('opBio').textContent = profileData.bio || 'Sin descripción aún';
+    // Bio (con formato)
+    $('opBio').innerHTML = profileData.bio ? formatBio(profileData.bio) : 'Sin descripción aún';
 
-    // Banner de invitación a Nexus+ — solo en tu propio perfil y si aún no eres suscriptor
+    // Banner de invitación a Nexus+
     $('opPlusBanner').style.display = (isOwnProfile && !isPlus) ? 'flex' : 'none';
 
-    // Controles de edición (solo dueño)
+    // Controles de edición
     if (isOwnProfile) {
         $('opAvatarEditBtn').style.display = 'flex';
         $('opBannerEditBtn').style.display = 'flex';
@@ -233,7 +270,8 @@ function renderIdentity() {
 function renderGeneral() {
     const isPlus = getIsPlus(profileData);
 
-    $('opBioReadonly').textContent = profileData.bio || 'Sin descripción aún';
+    // Bio con formato
+    $('opBioReadonly').innerHTML = profileData.bio ? formatBio(profileData.bio) : 'Sin descripción aún';
 
     const badgesRow = $('opBadgesRow');
     badgesRow.innerHTML = '';
@@ -251,6 +289,9 @@ function renderGeneral() {
         $('opGeneralView').style.display = 'none';
         $('opGeneralEdit').style.display = 'block';
         $('opBioInput').value = profileData.bio && profileData.bio !== 'Sin descripción aún' ? profileData.bio : '';
+        // Actualizar contador
+        const counter = $('opBioCount');
+        if (counter) counter.textContent = `${$('opBioInput').value.length} / 300`;
         $('opAccentColor').value = profileData.accentColor || '#F2B544';
     }
 }
@@ -264,29 +305,38 @@ function renderRedes() {
     view.innerHTML = '';
     let any = false;
 
-    if (profileData.discord) {
+    const socials = [
+        { key: 'discord', icon: 'fab fa-discord', color: '#5865F2', label: 'Discord', copy: true },
+        { key: 'twitter', icon: 'fab fa-twitter', color: '#1DA1F2', label: 'Twitter / X' },
+        { key: 'instagram', icon: 'fab fa-instagram', color: '#E1306C', label: 'Instagram' },
+        { key: 'youtube', icon: 'fab fa-youtube', color: '#FF0000', label: 'YouTube' },
+        { key: 'tiktok', icon: 'fab fa-tiktok', color: '#e0e0e0', label: 'TikTok' },
+        { key: 'github', icon: 'fab fa-github', color: '#c9c9c9', label: 'GitHub' },
+        { key: 'twitch', icon: 'fab fa-twitch', color: '#9146FF', label: 'Twitch' },
+        { key: 'website', icon: 'fas fa-globe', color: 'var(--cyan)', label: 'Sitio web' }
+    ];
+
+    socials.forEach(s => {
+        const value = profileData[s.key];
+        if (!value) return;
         any = true;
-        view.innerHTML += `<div onclick="navigator.clipboard.writeText('${esc(profileData.discord)}').then(()=>toast('Discord copiado: ${esc(profileData.discord)}'))" style="cursor:pointer;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 18px;">
-            <i class="fab fa-discord" style="color:#5865F2;font-size:1.1rem;"></i>
-            <div><div style="font-size:.72rem;color:var(--text-faint);">Discord</div><div style="font-size:.85rem;font-weight:600;">${esc(profileData.discord)}</div></div>
-        </div>`;
-    }
-    if (profileData.twitter) {
-        any = true;
-        const link = profileData.twitter.startsWith('http') ? profileData.twitter : `https://twitter.com/${profileData.twitter.replace('@','')}`;
-        view.innerHTML += `<a href="${esc(link)}" target="_blank" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 18px;">
-            <i class="fab fa-twitter" style="color:#1DA1F2;font-size:1.1rem;"></i>
-            <div><div style="font-size:.72rem;color:var(--text-faint);">Twitter</div><div style="font-size:.85rem;font-weight:600;">${esc(profileData.twitter)}</div></div>
-        </a>`;
-    }
-    if (profileData.instagram) {
-        any = true;
-        const link = profileData.instagram.startsWith('http') ? profileData.instagram : `https://instagram.com/${profileData.instagram.replace('@','')}`;
-        view.innerHTML += `<a href="${esc(link)}" target="_blank" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 18px;">
-            <i class="fab fa-instagram" style="color:#E1306C;font-size:1.1rem;"></i>
-            <div><div style="font-size:.72rem;color:var(--text-faint);">Instagram</div><div style="font-size:.85rem;font-weight:600;">${esc(profileData.instagram)}</div></div>
-        </a>`;
-    }
+
+        let content = '';
+        if (s.copy) {
+            content = `<div onclick="navigator.clipboard.writeText('${esc(value)}').then(()=>toast('${esc(s.label)} copiado: ${esc(value)}'))" style="cursor:pointer;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 18px;width:100%;box-sizing:border-box;">
+                <i class="${s.icon}" style="color:${s.color};font-size:1.1rem;"></i>
+                <div><div style="font-size:.72rem;color:var(--text-faint);">${esc(s.label)}</div><div style="font-size:.85rem;font-weight:600;">${esc(value)}</div></div>
+            </div>`;
+        } else {
+            const link = value.startsWith('http') ? value : `https://${s.key === 'twitter' ? 'twitter.com' : s.key === 'instagram' ? 'instagram.com' : s.key === 'youtube' ? 'youtube.com' : s.key === 'tiktok' ? 'tiktok.com' : s.key === 'twitch' ? 'twitch.tv' : 'github.com'}/${value.replace('@','')}`;
+            content = `<a href="${esc(link)}" target="_blank" style="text-decoration:none;color:inherit;display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 18px;width:100%;box-sizing:border-box;">
+                <i class="${s.icon}" style="color:${s.color};font-size:1.1rem;"></i>
+                <div><div style="font-size:.72rem;color:var(--text-faint);">${esc(s.label)}</div><div style="font-size:.85rem;font-weight:600;">${esc(value)}</div></div>
+            </a>`;
+        }
+        view.innerHTML += content;
+    });
+
     if (!any && !isOwnProfile) {
         view.innerHTML = '<div class="op-empty" style="width:100%;"><i class="fas fa-link-slash"></i>Sin redes sociales enlazadas</div>';
     }
@@ -296,6 +346,11 @@ function renderRedes() {
         $('opDiscordInput').value = profileData.discord || '';
         $('opTwitterInput').value = profileData.twitter || '';
         $('opInstagramInput').value = profileData.instagram || '';
+        $('opYoutubeInput').value = profileData.youtube || '';
+        $('opTiktokInput').value = profileData.tiktok || '';
+        $('opGithubInput').value = profileData.github || '';
+        $('opTwitchInput').value = profileData.twitch || '';
+        $('opWebsiteInput').value = profileData.website || '';
     }
 }
 
@@ -355,7 +410,7 @@ function setupTabs() {
 }
 
 function renderXpAndBadges() {
-    if (!window.fb.xpForLevel) return; // firebase-init.js no expone estas funciones aún
+    if (!window.fb.xpForLevel) return;
 
     const xp = profileData.xp || 0;
     const level = profileData.level || window.fb.levelFromXp(xp);
@@ -385,12 +440,56 @@ function renderXpAndBadges() {
 }
 
 // ============================================================
+// SELECTOR DE TEMAS DE PERFIL (pestaña Ajustes)
+// ============================================================
+
+function renderThemeSwatches() {
+    const container = $('opThemeSwatches');
+    if (!container) return;
+    const isPlus = getIsPlus(profileData);
+    const current = profileData.profileTheme || 'default';
+    const available = PROFILE_THEMES.filter(t => !t.plusOnly || isPlus);
+
+    container.innerHTML = available.map(t => `
+        <div class="theme-swatch ${t.id === current ? 'selected' : ''}" data-theme="${t.id}"
+             style="height:52px;border-radius:12px;background:${t.grad};border:2px solid ${t.id === current ? 'var(--cyan)' : 'var(--border)'};cursor:pointer;display:flex;align-items:flex-end;padding:6px;transition:all .2s;position:relative;">
+            <span style="font-size:.66rem;font-weight:700;background:rgba(5,7,12,.6);padding:2px 6px;border-radius:6px;color:var(--text);">${t.label}</span>
+        </div>
+    `).join('');
+
+    container.querySelectorAll('.theme-swatch').forEach(el => {
+        el.onclick = async () => {
+            const theme = el.dataset.theme;
+            const result = await window.fb.saveUserProfile(viewUid, { profileTheme: theme });
+            if (result.success) {
+                profileData.profileTheme = theme;
+                renderThemeSwatches();
+                renderIdentity();
+                toast('Tema de portada actualizado');
+            } else {
+                toast('Error: ' + result.error, 'error');
+            }
+        };
+    });
+}
+
+
+// ============================================================
 // EDICIÓN (solo dueño del perfil)
 // ============================================================
 
 function setupOwnEditControls() {
     $('opAvatarEditBtn').onclick = () => $('opAvatarInput').click();
     $('opBannerEditBtn').onclick = () => $('opBannerInput').click();
+
+    // Contador de caracteres para la biografía
+    document.addEventListener('input', (e) => {
+        if (e.target && e.target.id === 'opBioInput') {
+            const count = e.target.value.length;
+            const counter = $('opBioCount');
+            if (counter) counter.textContent = `${count} / 300`;
+        }
+    });
 
     $('opAvatarInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -499,12 +598,25 @@ window.saveOpRedes = async function() {
     const discord = $('opDiscordInput').value.trim();
     const twitter = $('opTwitterInput').value.trim();
     const instagram = $('opInstagramInput').value.trim();
+    const youtube = $('opYoutubeInput').value.trim();
+    const tiktok = $('opTiktokInput').value.trim();
+    const github = $('opGithubInput').value.trim();
+    const twitch = $('opTwitchInput').value.trim();
+    const website = $('opWebsiteInput').value.trim();
 
-    const result = await window.fb.saveUserProfile(viewUid, { discord, twitter, instagram });
+    const result = await window.fb.saveUserProfile(viewUid, {
+        discord, twitter, instagram, youtube, tiktok, github, twitch, website
+    });
+
     if (result.success) {
         profileData.discord = discord;
         profileData.twitter = twitter;
         profileData.instagram = instagram;
+        profileData.youtube = youtube;
+        profileData.tiktok = tiktok;
+        profileData.github = github;
+        profileData.twitch = twitch;
+        profileData.website = website;
         renderRedes();
         toast('Redes sociales actualizadas');
     } else {
@@ -520,20 +632,12 @@ window.saveOpRedes = async function() {
 function renderEffectSwatches() {
     const container = $('opEffectSwatches');
     const current = profileData.nameEffect || 'none';
-    // Los efectos marcados como plusOnly (ej. el oro de Nexus+) solo se
-    // ofrecen a quien ya es suscriptor, y los marcados como devOnly (el
-    // efecto "Developer Verificado") solo se ofrecen a quien tiene
-    // isDeveloper === true, para que ambos sean beneficios reales y no
-    // cualquiera pueda ponerse el efecto exclusivo de otro tier.
     const isPlus = getIsPlus(profileData);
     const available = NAME_EFFECTS.filter(fx =>
         (!fx.plusOnly || isPlus) &&
         (!fx.devOnly  || profileData.isDeveloper)
     );
 
-    // Si el usuario tenía puesto un efecto exclusivo y luego perdió el
-    // beneficio (le quitaron Nexus+ o el rol de developer), lo regresamos
-    // a "none" para que no se quede con un efecto que ya no le corresponde.
     const stillHasCurrent = available.some(fx => fx.id === current);
     if (!stillHasCurrent && current !== 'none') {
         profileData.nameEffect = 'none';
@@ -619,8 +723,8 @@ window.selectEffectColor = async function(color) {
     const result = await window.fb.saveUserProfile(viewUid, { effectColor: color });
     if (result.success) {
         profileData.effectColor = color;
-        renderEffectSwatches(); // Re-renderiza las cajas con el color
-        renderIdentity(); // Actualiza el banner principal
+        renderEffectSwatches();
+        renderIdentity();
         toast(color ? 'Color base actualizado' : 'Color por defecto restaurado');
     } else {
         toast('Error: ' + result.error, 'error');
@@ -645,8 +749,6 @@ window.selectPlusPlan = function(plan) {
     $('planMonthly').classList.toggle('selected', plan === 'monthly');
     $('planYearly').classList.toggle('selected', plan === 'yearly');
 
-    // Actualiza los links de pago con el monto del plan elegido, para que
-    // la persona no tenga que escribirlo a mano en PayPal / Dólar App.
     const amount = PLUS_PLANS[plan].amount;
     const ppLink = $('plusPpLink');
     const daLink = $('plusDaLink');
@@ -654,10 +756,6 @@ window.selectPlusPlan = function(plan) {
     if (daLink) daLink.href = `https://dollarapp.net/pagar/157team?monto=${amount}`;
 };
 
-// Control manual para que un admin active/quite Nexus+ en OTRO perfil.
-// La verificación real de permisos ocurre siempre en el backend (reglas
-// de Firestore / función), esto solo evita mostrar el botón a quien no
-// debería verlo.
 async function checkAdminPlusControl() {
     const section = $('opAdminPlusSectionView');
     section.style.display = 'none';
@@ -702,7 +800,7 @@ window.setOpNexusPlus = async function(value) {
 
 
 // ============================================================
-// SOLICITUD DEVELOPER (mismo flujo del paso 2, adaptado a esta página)
+// SOLICITUD DEVELOPER
 // ============================================================
 
 async function checkDevStatus() {
