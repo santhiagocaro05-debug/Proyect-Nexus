@@ -249,9 +249,6 @@
                 <button class="icon-btn" id="devPanelBtn" title="Panel de Desarrollador" style="display:none;">
                     <i class="fas fa-code"></i>
                 </button>
-                <button class="btn" id="authBtn" style="background: linear-gradient(135deg, var(--cyan), var(--amber)); color: #04121a; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 700; box-shadow: 0 4px 15px var(--cyan-dim); transition: transform 0.2s, box-shadow 0.2s;">
-                    <i class="fas fa-user-astronaut"></i> <span id="authText">Iniciar Sesión</span>
-                </button>
                 <button class="hamburger" id="hamburger" aria-label="Menú">
                     <span class="hbar"></span>
                     <span class="hbar"></span>
@@ -1754,7 +1751,6 @@
     </div>
 </div>
 
-<!-- Reemplaza el <button id="chatFab"> por este dock -->
 <nav id="liquidDock" class="liquid-dock">
     <button class="dock-btn" id="dockHomeBtn" title="Inicio">
         <i class="fas fa-house"></i>
@@ -1766,9 +1762,14 @@
         <i class="fas fa-comment-dots"></i>
         <span id="dockChatDot" class="dock-dot" style="display:none;"></span>
     </button>
+
     <div class="dock-sep"></div>
     <button class="avatar-btn" id="profileNavBtn" title="Mi Perfil" style="display:none;background:var(--panel);border:1px solid var(--border);color:var(--text-dim);width:36px;height:36px;border-radius:50%;overflow:hidden;padding:0;position:relative;">
         <div id="profileNavAvatar" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;background:var(--cyan-dim);color:var(--cyan);">?</div>
+    </button>
+    <!-- 🔐 NUEVO BOTÓN DE LOGIN -->
+    <button class="btn" id="authBtn" style="background: linear-gradient(135deg, var(--cyan), var(--amber)); color: #04121a; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 700; box-shadow: 0 4px 15px var(--cyan-dim); transition: transform 0.2s, box-shadow 0.2s;">
+        <i class="fas fa-user-astronaut"></i> <span id="authText">Iniciar Sesión</span>
     </button>
 </nav>
 
