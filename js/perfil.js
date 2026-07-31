@@ -34,8 +34,11 @@ const NAME_EFFECTS = [
     { id: 'shimmer', label: 'Destello' },
     { id: 'neon', label: 'Neón' },
     { id: 'hologram', label: 'Holograma' },
-    { id: 'plusgold', label: 'Oro Nexus+', plusOnly: true },
-    { id: 'devtype', label: 'Developer Verificado', devOnly: true }
+    { id: 'devtype', label: '<i class="fas fa-terminal"></i> Verificado', devOnly: true },
+    { id: 'plusgold', label: '<i class="fas fa-gem"></i> Gold Plus', plusOnly: true },
+    { id: 'nexus-cosmic', label: '<i class="fas fa-meteor"></i> Cósmico', plusOnly: true },
+    { id: 'nexus-fire', label: '<i class="fas fa-fire"></i> Fuego', plusOnly: true },
+    { id: 'nexus-diamond', label: '<i class="fas fa-gem"></i> Diamante', plusOnly: true }
 ];
 
 const RANK_DISPLAY = {
@@ -357,6 +360,17 @@ function setupOwnEditControls() {
 }
 
 function resizeImage(file, maxW, maxH, square, callback) {
+    if (file.type === 'image/gif' && currentUser && currentUser.hasNexusPlus) {
+        if (file.size > 1024 * 1024) {
+            toast('El GIF debe ser menor a 1MB para proteger el rendimiento', 'error');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = e => callback(e.target.result);
+        reader.readAsDataURL(file);
+        return;
+    }
+
     const reader = new FileReader();
     reader.onload = function(e) {
         const img = new Image();
@@ -682,3 +696,33 @@ document.getElementById('devRequestOverlay')?.addEventListener('click', function
 //    igual protege el campo `nameEffect` en tus reglas de Firestore
 //    si quieres blindarlo también del lado del servidor).
 // ============================================================
+
+window.requestNexusPlusEarlyAccess = async function() {
+    if (!currentUser) {
+        toast('Inicia sesión para pedir acceso', 'error');
+        return;
+    }
+    const email = document.getElementById('nexusPlusEarlyEmail').value.trim();
+    if (!email || !email.includes('@')) {
+        toast('Por favor ingresa un correo válido', 'error');
+        return;
+    }
+    const btn = document.getElementById('nexusPlusEarlyBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    
+    try {
+        const result = await window.fb.requestNexusPlusAccess(currentUser.uid, email, currentUser.username);
+        if (result.success) {
+            toast('Solicitud enviada correctamente', 'success');
+            document.getElementById('nexusPlusEarlyEmail').value = '';
+        } else {
+            toast('Error: ' + result.error, 'error');
+        }
+    } catch (e) {
+        toast('Error al solicitar', 'error');
+    }
+    btn.disabled = false;
+    btn.textContent = 'Solicitar';
+};
+
