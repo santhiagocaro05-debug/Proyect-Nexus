@@ -205,7 +205,7 @@ export async function loginUser(email, password) {
         username: user.displayName || userData?.username || email.split('@')[0],
         email: user.email,
         isAdmin: userData?.isAdmin === true,
-        isDeveloper: userData?.isDeveloper === true,   // 👈 AGREGAR
+        isDeveloper: userData?.isDeveloper === true, 
         rank: userData?.rank || 'member'
       }
     };
@@ -462,13 +462,14 @@ export async function getComments() {
 }
 
 // Agregar comentario
-export async function addComment(text, authorId, authorName) {
+export async function addComment(text, authorId, authorName, authorNexusPlus = false) {
   try {
     if (!text || !authorId) return { success: false, error: 'Datos incompletos' };
     const newComment = {
       text: text,
       authorId: authorId,
       author: authorName || 'Anónimo',
+      authorNexusPlus: authorNexusPlus,
       date: new Date().toISOString(),
       likes: [],
       dislikes: [],
@@ -1110,12 +1111,13 @@ export async function getOrCreateChat(uid1, uid2) {
 }
 
 // Enviar mensaje en un chat
-export async function sendChatMessage(chatId, senderId, senderName, text, image = null) {
+export async function sendChatMessage(chatId, senderId, senderName, text, image = null, senderNexusPlus = false) {
   try {
     const messagesRef = collection(db, "chats", chatId, "messages");
     const msgData = {
       senderId,
       senderName,
+      senderNexusPlus,
       text,
       timestamp: Date.now()
     };
@@ -1235,6 +1237,65 @@ export async function getUserById(uid) {
       return { success: true, data: { id: userDoc.id, ...userDoc.data() } };
     }
     return { success: false, error: "Usuario no encontrado" };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// ============================================================
+// NEXUS+ SOLICITUDES DE ACCESO ANTICIPADO
+// ============================================================
+export async function requestNexusPlusAccess(userId, email, username) {
+  try {
+    const q = query(collection(db, "nexusPlusRequests"), where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      return { success: false, error: "Ya tienes una solicitud en proceso" };
+    }
+    await addDoc(collection(db, "nexusPlusRequests"), {
+      userId,
+      email,
+      username,
+      status: "pending",
+      requestedAt: new Date().toISOString()
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+export function listenNexusPlusRequests(callback) {
+  const q = query(collection(db, "nexusPlusRequests"), orderBy("requestedAt", "desc"));
+  return onSnapshot(q, (snapshot) => {
+    const requests = [];
+    snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
+    callback(requests);
+  });
+}
+
+export async function reviewNexusPlusRequest(requestId, approve, adminUid) {
+  try {
+    if (!(await isUserAdmin(adminUid))) return { success: false, error: "No autorizado" };
+
+    const reqSnap = await getDoc(doc(db, "nexusPlusRequests", requestId));
+    if (!reqSnap.exists()) return { success: false, error: "Solicitud no encontrada" };
+    const data = reqSnap.data();
+
+    await updateDoc(doc(db, "nexusPlusRequests", requestId), {
+      status: approve ? "approved" : "rejected",
+      reviewedAt: new Date().toISOString(),
+      reviewedBy: adminUid
+    });
+
+    if (approve) {
+      await updateDoc(doc(db, "users", data.userId), {
+        hasNexusPlus: true,
+        updatedAt: new Date().toISOString()
+      });
+    }
+
+    return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
   }
