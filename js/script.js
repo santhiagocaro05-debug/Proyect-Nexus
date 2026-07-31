@@ -2225,10 +2225,6 @@ function showSaveOrderButton() {
 
 
         pnb.onclick = () => { location.href = 'perfil.html'; };
-        authText.textContent = currentUser.username;
-        authBtn.title = 'Cerrar sesión';
-        authBtn.className = 'btn btn-ghost btn-sm';
-        authBtn.onclick = openLogoutModal;
         if (cf) cf.style.display = 'block';
         if (ltc) ltc.style.display = 'none';
         if (ff) ff.style.display = 'none';
@@ -2252,6 +2248,7 @@ function showSaveOrderButton() {
         pna.textContent = '?';
         pna.style.background = 'var(--cyan-dim)';
         pna.style.color = 'var(--cyan)';
+        authBtn.innerHTML = `<i class="fas fa-user-astronaut"></i> <span id="authText">Iniciar Sesión</span>`;
         authText.textContent = 'Login';
         authBtn.title = 'Iniciar sesión';
         authBtn.className = 'btn btn-solid btn-sm';
