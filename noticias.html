@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="css/style.css?v=2" />
 
   <style>
-    /* ===== ESTILOS PROPIOS DE NOTICIAS ===== */
+    /* ===== ESTILOS PROPIOS DE NOTICIAS (sin dependencias externas) ===== */
     :root {
       --bg-2: #0b0d14;
       --panel: #141821;
@@ -87,7 +87,7 @@
     .news-search i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-faint); }
 
     .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; margin-top: 20px; }
-    .news-grid:empty { display: none; } /* oculta el grid vacío */
+    .news-grid:empty { display: none; }
 
     .news-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: transform .2s, box-shadow .2s; cursor: pointer; }
     .news-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.3); }
@@ -218,9 +218,8 @@
         <a href="index.html#team">Equipo</a>
       </nav>
       <div class="nav-end">
-        <button class="icon-btn" id="themeBtn" title="Tema"><i class="fas fa-moon" id="themeIcon"></i></button>
         <a href="contributors.html" class="icon-btn" title="Contribuidores"><i class="fas fa-users"></i></a>
-        <button class="icon-btn" id="langBtn" title="Idioma"><i class="fas fa-globe"></i> <span id="langLabel">ES</span></button>
+        
         <button class="hamburger" id="hamburger" aria-label="Menú">
           <span class="hbar"></span>
           <span class="hbar"></span>
@@ -364,664 +363,669 @@
   </footer>
 
   <!-- ============================================================
-  SCRIPT PRINCIPAL (módulo) - VERSIÓN CORREGIDA
+  SCRIPT PRINCIPAL (módulo) - CON CORRECCIÓN DE ÍNDICE
   ============================================================ -->
   <script type="module">
-    // Importar firebase-config (esto expone window.fb)
-    import '/js/firebase-init.js';
+    // Importar el cargador de Firebase (asigna window.fb)
+    import './js/firebase-init.js';
 
-    // Esperar a que window.fb esté listo
     function init() {
-      if (!window.fb) {
-        console.warn('window.fb no disponible, reintentando...');
-        setTimeout(init, 500);
-        return;
-      }
-      console.log('✅ window.fb disponible, iniciando noticias');
-
-      // ============================================================
-      // SCRIPT DE NOTICIAS
-      // ============================================================
-      (function() {
-        'use strict';
-
-        let currentUser = null;
-        let allNews = [];
-        let currentFilter = 'all';
-        let currentSearch = '';
-        let currentNewsId = null;
-        let commentsUnsubscribe = null;
-
-        const $ = id => document.getElementById(id);
-        const grid = $('newsGrid');
-        const featuredGrid = $('featuredGrid');
-        const empty = $('newsEmpty');
-        const searchInput = $('searchInput');
-        const adminPanel = $('adminNewsPanel');
-        const form = $('newsForm');
-        const titleInput = $('newsTitle');
-        const contentInput = $('newsContent');
-        const categorySelect = $('newsCategory');
-        const pinnedSelect = $('newsPinned');
-        const imageFile = $('newsImageFile');
-        const imagePreview = $('imagePreview');
-        const imageDrop = $('imageDrop');
-
-        // ============================================================
-        // AUTENTICACIÓN
-        // ============================================================
-        if (window.fb && window.fb.onAuthChange) {
-          window.fb.onAuthChange(async (user) => {
-            currentUser = user;
-            if (user && user.isAdmin) adminPanel.style.display = 'block';
-            else adminPanel.style.display = 'none';
-            if (currentNewsId) loadNewsDetail(currentNewsId);
-            loadNews();
-          });
-        } else {
-          const stored = JSON.parse(localStorage.getItem('jv_user') || 'null');
-          if (stored) {
-            currentUser = stored;
-            if (stored.isAdmin) adminPanel.style.display = 'block';
-          }
-          loadNews();
-        }
-
-        // ============================================================
-        // FUNCIONES DE FIRESTORE (extendemos window.fb)
-        // ============================================================
-        if (!window.fb) window.fb = {};
-
-        // Añadir métodos si no existen
-        if (!window.fb.addNews) {
-          window.fb.addNews = async function(data) {
-            try {
-              const docRef = await window.fb.addDoc(window.fb.collection(window.fb.db, "news"), {
-                ...data,
-                createdAt: new Date().toISOString(),
-                likes: [],
-                dislikes: [],
-                commentCount: 0,
-                reactions: {}
-              });
-              return { success: true, id: docRef.id };
-            } catch (e) { return { success: false, error: e.message }; }
-          };
-        }
-        if (!window.fb.getNews) {
-          window.fb.getNews = async function() {
-            try {
-              const q = window.fb.query(window.fb.collection(window.fb.db, "news"), window.fb.orderBy("createdAt", "desc"));
-              const snap = await window.fb.getDocs(q);
-              const news = [];
-              snap.forEach(d => news.push({ id: d.id, ...d.data() }));
-              return { success: true, data: news };
-            } catch (e) { return { success: false, error: e.message }; }
-          };
-        }
-        if (!window.fb.deleteNews) {
-          window.fb.deleteNews = async function(id, userId) {
-            try {
-              const snap = await window.fb.getDoc(window.fb.doc(window.fb.db, "news", id));
-              if (!snap.exists()) return { success: false, error: "No existe" };
-              if (snap.data().authorId !== userId && !(await window.fb.isUserAdmin(userId))) {
-                return { success: false, error: "No autorizado" };
-              }
-              await window.fb.deleteDoc(window.fb.doc(window.fb.db, "news", id));
-              return { success: true };
-            } catch (e) { return { success: false, error: e.message }; }
-          };
-        }
-        if (!window.fb.addNewsComment) {
-          window.fb.addNewsComment = async function(newsId, userId, username, text, avatar) {
-            try {
-              const docRef = await window.fb.addDoc(window.fb.collection(window.fb.db, "newsComments"), {
-                newsId, userId, username, avatar: avatar || '', text: text.trim(),
-                createdAt: new Date().toISOString(),
-                likes: [], dislikes: [], replies: []
-              });
-              await window.fb.updateDoc(window.fb.doc(window.fb.db, "news", newsId), {
-                commentCount: window.fb.increment(1)
-              });
-              return { success: true, id: docRef.id };
-            } catch (e) { return { success: false, error: e.message }; }
-          };
-        }
-        if (!window.fb.getNewsComments) {
-          window.fb.getNewsComments = async function(newsId) {
-            try {
-              const q = window.fb.query(window.fb.collection(window.fb.db, "newsComments"),
-                window.fb.where("newsId", "==", newsId), window.fb.orderBy("createdAt", "asc"));
-              const snap = await window.fb.getDocs(q);
-              const comments = [];
-              snap.forEach(d => comments.push({ id: d.id, ...d.data() }));
-              return { success: true, data: comments };
-            } catch (e) { return { success: false, error: e.message }; }
-          };
-        }
-        if (!window.fb.listenNewsComments) {
-          window.fb.listenNewsComments = function(newsId, callback) {
-            const q = window.fb.query(window.fb.collection(window.fb.db, "newsComments"),
-              window.fb.where("newsId", "==", newsId), window.fb.orderBy("createdAt", "asc"));
-            return window.fb.onSnapshot(q, (snapshot) => {
-              const comments = [];
-              snapshot.forEach(d => comments.push({ id: d.id, ...d.data() }));
-              callback(comments);
-            });
-          };
-        }
-        if (!window.fb.addNewsReply) {
-          window.fb.addNewsReply = async function(commentId, userId, username, text, avatar) {
-            try {
-              const commentRef = window.fb.doc(window.fb.db, "newsComments", commentId);
-              const snap = await window.fb.getDoc(commentRef);
-              if (!snap.exists()) return { success: false, error: "Comentario no encontrado" };
-              const data = snap.data();
-              const replies = data.replies || [];
-              replies.push({
-                id: Date.now().toString() + Math.random().toString(36).substr(2, 4),
-                userId, username, avatar: avatar || '', text: text.trim(),
-                createdAt: new Date().toISOString()
-              });
-              await window.fb.updateDoc(commentRef, { replies });
-              return { success: true };
-            } catch (e) { return { success: false, error: e.message }; }
-          };
-        }
-        if (!window.fb.toggleNewsReaction) {
-          window.fb.toggleNewsReaction = async function(newsId, userId, emoji) {
-            try {
-              const ref = window.fb.doc(window.fb.db, "news", newsId);
-              const snap = await window.fb.getDoc(ref);
-              if (!snap.exists()) return { success: false, error: "Noticia no encontrada" };
-              const data = snap.data();
-              const reactions = data.reactions || {};
-              for (const e in reactions) {
-                if (reactions[e].includes(userId)) {
-                  reactions[e] = reactions[e].filter(id => id !== userId);
-                  if (reactions[e].length === 0) delete reactions[e];
-                }
-              }
-              if (emoji) {
-                if (!reactions[emoji]) reactions[emoji] = [];
-                if (!reactions[emoji].includes(userId)) reactions[emoji].push(userId);
-              }
-              await window.fb.updateDoc(ref, { reactions });
-              return { success: true };
-            } catch (e) { return { success: false, error: e.message }; }
-          };
-        }
-        if (!window.fb.likeNewsComment) {
-          window.fb.likeNewsComment = async function(commentId, userId, field) {
-            try {
-              const ref = window.fb.doc(window.fb.db, "newsComments", commentId);
-              const snap = await window.fb.getDoc(ref);
-              if (!snap.exists()) return { success: false, error: "Comentario no encontrado" };
-              const data = snap.data();
-              const likes = data.likes || [];
-              const dislikes = data.dislikes || [];
-              const isLike = field === 'likes';
-              const arr = isLike ? likes : dislikes;
-              const otherArr = isLike ? dislikes : likes;
-              const update = {};
-              if (arr.includes(userId)) {
-                update[field] = arr.filter(id => id !== userId);
-              } else {
-                update[field] = [...arr, userId];
-                update[isLike ? 'dislikes' : 'likes'] = otherArr.filter(id => id !== userId);
-              }
-              await window.fb.updateDoc(ref, update);
-              return { success: true };
-            } catch (e) { return { success: false, error: e.message }; }
-          };
-        }
-
-        // ============================================================
-        // CARGAR Y RENDERIZAR NOTICIAS (CORREGIDO)
-        // ============================================================
-        async function loadNews() {
-          if (!window.fb || !window.fb.getNews) return;
-          const result = await window.fb.getNews();
-          if (!result.success) { toast('Error al cargar noticias', 'error'); return; }
-          allNews = result.data;
-          renderNews();
-        }
-
-        function renderNews() {
-          let filtered = allNews;
-          if (currentFilter !== 'all') {
-            filtered = filtered.filter(n => n.category === currentFilter);
-          }
-          if (currentSearch.trim()) {
-            const s = currentSearch.toLowerCase().trim();
-            filtered = filtered.filter(n =>
-              n.title.toLowerCase().includes(s) ||
-              n.content.toLowerCase().includes(s)
-            );
-          }
-
-          const pinned = filtered.filter(n => n.pinned === true);
-          const rest = filtered.filter(n => n.pinned !== true);
-
-          if (filtered.length === 0) {
-            grid.style.display = 'none';
-            empty.style.display = 'block';
-            featuredGrid.innerHTML = '';
-            $('featuredSection').style.display = 'none';
-          } else {
-            grid.style.display = 'grid';
-            empty.style.display = 'none';
-            grid.innerHTML = [...pinned, ...rest].map(n => createNewsCard(n)).join('');
-
-            // Destacadas (top 3 por reacciones totales)
-            const sorted = [...allNews].sort((a, b) => {
-              const aLikes = (a.reactions ? Object.values(a.reactions).reduce((acc, arr) => acc + arr.length, 0) : 0);
-              const bLikes = (b.reactions ? Object.values(b.reactions).reduce((acc, arr) => acc + arr.length, 0) : 0);
-              return bLikes - aLikes;
-            });
-            const featured = sorted.slice(0, 3);
-            if (featured.length > 0) {
-              featuredGrid.innerHTML = featured.map(n => createNewsCard(n)).join('');
-              $('featuredSection').style.display = 'block';
-            } else {
-              $('featuredSection').style.display = 'none';
-            }
-          }
-        }
-
-        // createNewsCard sin parámetro isFeatured (no usado)
-        function createNewsCard(news) {
-          const reactions = news.reactions || {};
-          const totalLikes = Object.values(reactions).reduce((acc, arr) => acc + arr.length, 0);
-          const isPinned = news.pinned === true;
-          const image = news.image || '';
-          const categoryColors = {
-            nexus: 'var(--cyan)',
-            discord: '#5865F2',
-            gaming: '#8b5cf6',
-            apps: '#3ddc97',
-            comunidad: 'var(--amber)'
-          };
-          const catColor = categoryColors[news.category] || 'var(--text-dim)';
-          const date = new Date(news.createdAt).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' });
-          return `
-            <div class="news-card" onclick="openNewsDetail('${news.id}')">
-              <div class="card-img">
-                ${image ? `<img src="${image}" alt="${news.title}" loading="lazy" />` : `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:3rem;"><i class="fas fa-image"></i></div>`}
-                ${isPinned ? `<div class="pinned-badge"><i class="fas fa-thumbtack"></i> Fijada</div>` : ''}
-              </div>
-              <div class="card-body">
-                <span class="category" style="background:${catColor}22; color:${catColor};">${news.category}</span>
-                <h3>${esc(news.title)}</h3>
-                <p>${esc(news.content.substring(0, 120))}${news.content.length > 120 ? '...' : ''}</p>
-              </div>
-              <div class="card-footer">
-                <span><i class="fas fa-user"></i> ${esc(news.authorName || 'Admin')}</span>
-                <span>${date}</span>
-                <div class="stats">
-                  <span><i class="fas fa-heart" style="color:var(--danger);"></i> ${totalLikes}</span>
-                  <span><i class="fas fa-comment"></i> ${news.commentCount || 0}</span>
-                </div>
-              </div>
-            </div>
-          `;
-        }
-
-        // ============================================================
-        // DETALLE DE NOTICIA
-        // ============================================================
-        window.openNewsDetail = async function(id) {
-          currentNewsId = id;
-          const overlay = $('newsDetailOverlay');
-          overlay.classList.add('open');
-          document.body.style.overflow = 'hidden';
-
-          let news = allNews.find(n => n.id === id);
-          if (!news) {
-            const result = await window.fb.getNews();
-            if (result.success) {
-              allNews = result.data;
-              news = allNews.find(n => n.id === id);
-            }
-          }
-          if (!news) { toast('Noticia no encontrada', 'error'); return; }
-
-          const container = $('newsDetailContent');
-          const reactions = news.reactions || {};
-          const totalLikes = Object.values(reactions).reduce((acc, arr) => acc + arr.length, 0);
-          const image = news.image || '';
-          const date = new Date(news.createdAt).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
-          container.innerHTML = `
-            ${image ? `<img src="${image}" class="detail-img" alt="${news.title}" />` : ''}
-            <div class="detail-title">${esc(news.title)}</div>
-            <div class="detail-meta">
-              <span><i class="fas fa-user"></i> ${esc(news.authorName || 'Admin')}</span>
-              <span><i class="fas fa-calendar"></i> ${date}</span>
-              <span><i class="fas fa-tag"></i> ${esc(news.category)}</span>
-              <span><i class="fas fa-heart" style="color:var(--danger);"></i> ${totalLikes} likes</span>
-              <span><i class="fas fa-comment"></i> ${news.commentCount || 0} comentarios</span>
-            </div>
-            <div class="detail-content">${esc(news.content)}</div>
-          `;
-
-          // Reacciones
-          const reactionContainer = $('detailReactions');
-          const EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '😡'];
-          let reactionHTML = '';
-          const userReaction = currentUser ? Object.keys(reactions).find(emoji => reactions[emoji].includes(currentUser.uid)) : null;
-          EMOJIS.forEach(emoji => {
-            const count = reactions[emoji] ? reactions[emoji].length : 0;
-            const active = userReaction === emoji;
-            reactionHTML += `
-              <button class="reaction-btn ${active ? 'active' : ''}" data-emoji="${emoji}" onclick="toggleReaction('${id}', '${emoji}')">
-                ${emoji} <span class="count">${count}</span>
-              </button>
-            `;
-          });
-          reactionContainer.innerHTML = reactionHTML;
-
-          // Comentarios
-          loadComments(id);
-
-          const commentForm = $('detailCommentForm');
-          const loginMsg = $('detailLoginMsg');
-          if (currentUser) {
-            commentForm.style.display = 'flex';
-            loginMsg.style.display = 'none';
-          } else {
-            commentForm.style.display = 'none';
-            loginMsg.style.display = 'block';
-          }
-
-          $('detailCommentBtn').onclick = () => submitComment(id);
-          $('detailCommentInput').onkeydown = (e) => { if (e.key === 'Enter') submitComment(id); };
-        };
-
-        window.closeNewsDetail = function() {
-          if (commentsUnsubscribe) {
-            commentsUnsubscribe();
-            commentsUnsubscribe = null;
-          }
-          $('newsDetailOverlay').classList.remove('open');
-          document.body.style.overflow = '';
-          currentNewsId = null;
-        };
-
-        // ============================================================
-        // REACCIONES
-        // ============================================================
-        window.toggleReaction = async function(newsId, emoji) {
-          if (!currentUser) { toast('Inicia sesión para reaccionar', 'error'); return; }
-          const result = await window.fb.toggleNewsReaction(newsId, currentUser.uid, emoji);
-          if (result.success) {
-            const news = allNews.find(n => n.id === newsId);
-            if (news) {
-              const snap = await window.fb.getDoc(window.fb.doc(window.fb.db, "news", newsId));
-              if (snap.exists()) {
-                const updated = snap.data();
-                news.reactions = updated.reactions || {};
-                Object.assign(news, updated);
-                renderNews();
-                openNewsDetail(newsId);
-              }
-            }
-          } else {
-            toast(result.error || 'Error al reaccionar', 'error');
-          }
-        };
-
-        // ============================================================
-        // COMENTARIOS Y RESPUESTAS
-        // ============================================================
-        async function loadComments(newsId) {
-          if (commentsUnsubscribe) {
-            commentsUnsubscribe();
-            commentsUnsubscribe = null;
-          }
-          if (!window.fb.listenNewsComments) return;
-          commentsUnsubscribe = window.fb.listenNewsComments(newsId, (comments) => {
-            renderComments(comments);
-          });
-        }
-
-        function renderComments(comments) {
-          const list = $('detailCommentsList');
-          if (!comments || comments.length === 0) {
-            list.innerHTML = '<div style="text-align:center;color:var(--text-faint);padding:20px;">Sé el primero en comentar.</div>';
+        if (!window.fb) {
+            console.warn('⏳ Esperando a window.fb...');
+            setTimeout(init, 400);
             return;
-          }
+        }
+        console.log('✅ window.fb disponible, iniciando noticias');
 
-          const userIds = comments.map(c => c.userId).filter(id => id);
-          Promise.all(userIds.map(id => window.fb.getUserProfile(id))).then(results => {
-            const userMap = {};
-            results.forEach((r, idx) => {
-              if (r.success) userMap[userIds[idx]] = r.data;
-            });
+        // ============================================================
+        // SCRIPT DE NOTICIAS
+        // ============================================================
+        (function() {
+            'use strict';
 
-            let html = '';
-            comments.forEach(comment => {
-              const user = userMap[comment.userId] || {};
-              const nameEffect = user.nameEffect || 'none';
-              const effectColor = user.effectColor || '';
-              const isNexusPlus = !!(user.nexusPlus || user.hasNexusPlus);
-              const avatar = comment.avatar || user.avatar || '';
-              const gemHTML = isNexusPlus ? `<span style="color:var(--plus-gold-2);font-size:0.7rem;margin-left:4px;" title="Nexus+"><i class="fas fa-gem"></i></span>` : '';
+            let currentUser = null;
+            let allNews = [];
+            let currentFilter = 'all';
+            let currentSearch = '';
+            let currentNewsId = null;
+            let commentsUnsubscribe = null;
 
-              const likeCount = (comment.likes || []).length;
-              const dislikeCount = (comment.dislikes || []).length;
-              const isLiked = currentUser && (comment.likes || []).includes(currentUser.uid);
-              const isDisliked = currentUser && (comment.dislikes || []).includes(currentUser.uid);
+            const $ = id => document.getElementById(id);
+            const grid = $('newsGrid');
+            const featuredGrid = $('featuredGrid');
+            const empty = $('newsEmpty');
+            const searchInput = $('searchInput');
+            const adminPanel = $('adminNewsPanel');
+            const form = $('newsForm');
+            const titleInput = $('newsTitle');
+            const contentInput = $('newsContent');
+            const categorySelect = $('newsCategory');
+            const pinnedSelect = $('newsPinned');
+            const imageFile = $('newsImageFile');
+            const imagePreview = $('imagePreview');
+            const imageDrop = $('imageDrop');
 
-              html += `
-                <div class="comment-item" id="comment-${comment.id}">
-                  <div class="comment-head">
-                    <div class="c-avatar">${avatar ? `<img src="${avatar}" />` : comment.username?.[0]?.toUpperCase() || '?'}</div>
-                    <span class="c-author uname uname-${nameEffect}" style="${effectColor ? `--uname-color:${effectColor};` : ''}">${esc(comment.username)}${gemHTML}</span>
-                    <span class="c-date">${new Date(comment.createdAt).toLocaleString()}</span>
-                  </div>
-                  <div class="comment-text">${esc(comment.text)}</div>
-                  <div class="comment-actions">
-                    <button class="${isLiked ? 'liked' : ''}" onclick="likeComment('${comment.id}', 'likes')"><i class="fas fa-thumbs-up"></i> ${likeCount}</button>
-                    <button class="${isDisliked ? 'liked' : ''}" onclick="likeComment('${comment.id}', 'dislikes')"><i class="fas fa-thumbs-down"></i> ${dislikeCount}</button>
-                    <button onclick="toggleReplyForm('${comment.id}')"><i class="fas fa-reply"></i> Responder</button>
-                  </div>
-                  <div class="replies" id="replies-${comment.id}">
-                    ${(comment.replies || []).map(r => {
-                      const rUser = userMap[r.userId] || {};
-                      const rNameEffect = rUser.nameEffect || 'none';
-                      const rEffectColor = rUser.effectColor || '';
-                      const rIsNexusPlus = !!(rUser.nexusPlus || rUser.hasNexusPlus);
-                      const rAvatar = r.avatar || rUser.avatar || '';
-                      const rGem = rIsNexusPlus ? `<span style="color:var(--plus-gold-2);font-size:0.65rem;margin-left:4px;" title="Nexus+"><i class="fas fa-gem"></i></span>` : '';
-                      return `
-                        <div class="reply-item">
-                          <div class="reply-head">
-                            <div class="r-avatar">${rAvatar ? `<img src="${rAvatar}" />` : r.username?.[0]?.toUpperCase() || '?'}</div>
-                            <span class="r-author uname uname-${rNameEffect}" style="${rEffectColor ? `--uname-color:${rEffectColor};` : ''}">${esc(r.username)}${rGem}</span>
-                            <span class="r-date">${new Date(r.createdAt).toLocaleString()}</span>
-                          </div>
-                          <div class="reply-text">${esc(r.text)}</div>
+            // ============================================================
+            // AUTENTICACIÓN
+            // ============================================================
+            if (window.fb && window.fb.onAuthChange) {
+                window.fb.onAuthChange(async (user) => {
+                    currentUser = user;
+                    if (user && user.isAdmin) adminPanel.style.display = 'block';
+                    else adminPanel.style.display = 'none';
+                    if (currentNewsId) loadNewsDetail(currentNewsId);
+                    loadNews();
+                });
+            } else {
+                const stored = JSON.parse(localStorage.getItem('jv_user') || 'null');
+                if (stored) {
+                    currentUser = stored;
+                    if (stored.isAdmin) adminPanel.style.display = 'block';
+                }
+                loadNews();
+            }
+
+            // ============================================================
+            // FUNCIONES DE FIRESTORE (extendemos window.fb)
+            // ============================================================
+            if (!window.fb) window.fb = {};
+
+            // Añadir métodos si no existen (versión sin orderBy para evitar índice)
+            if (!window.fb.addNews) {
+                window.fb.addNews = async function(data) {
+                    try {
+                        const docRef = await window.fb.addDoc(window.fb.collection(window.fb.db, "news"), {
+                            ...data,
+                            createdAt: new Date().toISOString(),
+                            reactions: {},
+                            commentCount: 0,
+                            updatedAt: new Date().toISOString()
+                        });
+                        return { success: true, id: docRef.id };
+                    } catch (e) { return { success: false, error: e.message }; }
+                };
+            }
+            if (!window.fb.getNews) {
+                window.fb.getNews = async function() {
+                    try {
+                        const q = window.fb.query(window.fb.collection(window.fb.db, "news"), window.fb.orderBy("createdAt", "desc"));
+                        const snap = await window.fb.getDocs(q);
+                        const news = [];
+                        snap.forEach(d => news.push({ id: d.id, ...d.data() }));
+                        return { success: true, data: news };
+                    } catch (e) { return { success: false, error: e.message }; }
+                };
+            }
+            if (!window.fb.deleteNews) {
+                window.fb.deleteNews = async function(id, userId) {
+                    try {
+                        const snap = await window.fb.getDoc(window.fb.doc(window.fb.db, "news", id));
+                        if (!snap.exists()) return { success: false, error: "No existe" };
+                        if (snap.data().authorId !== userId && !(await window.fb.isUserAdmin(userId))) {
+                            return { success: false, error: "No autorizado" };
+                        }
+                        await window.fb.deleteDoc(window.fb.doc(window.fb.db, "news", id));
+                        return { success: true };
+                    } catch (e) { return { success: false, error: e.message }; }
+                };
+            }
+            if (!window.fb.addNewsComment) {
+                window.fb.addNewsComment = async function(newsId, userId, username, text, avatar) {
+                    try {
+                        const docRef = await window.fb.addDoc(window.fb.collection(window.fb.db, "newsComments"), {
+                            newsId, userId, username, avatar: avatar || '', text: text.trim(),
+                            createdAt: new Date().toISOString(),
+                            likes: [], dislikes: [], replies: []
+                        });
+                        await window.fb.updateDoc(window.fb.doc(window.fb.db, "news", newsId), {
+                            commentCount: window.fb.increment(1)
+                        });
+                        return { success: true, id: docRef.id };
+                    } catch (e) { return { success: false, error: e.message }; }
+                };
+            }
+            if (!window.fb.getNewsComments) {
+                window.fb.getNewsComments = async function(newsId) {
+                    try {
+                        const q = window.fb.query(window.fb.collection(window.fb.db, "newsComments"),
+                            window.fb.where("newsId", "==", newsId));
+                        const snap = await window.fb.getDocs(q);
+                        const comments = [];
+                        snap.forEach(d => comments.push({ id: d.id, ...d.data() }));
+                        comments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                        return { success: true, data: comments };
+                    } catch (e) { return { success: false, error: e.message }; }
+                };
+            }
+            // ========== LISTENNEWSCOMMENTS SIN ORDERBY (EVITA ÍNDICE) ==========
+            if (!window.fb.listenNewsComments) {
+                window.fb.listenNewsComments = function(newsId, callback) {
+                    const q = window.fb.query(window.fb.collection(window.fb.db, "newsComments"),
+                        window.fb.where("newsId", "==", newsId));
+                    return window.fb.onSnapshot(q, (snapshot) => {
+                        const comments = [];
+                        snapshot.forEach(d => comments.push({ id: d.id, ...d.data() }));
+                        // Ordenar en el cliente para evitar índice
+                        comments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                        callback(comments);
+                    });
+                };
+            }
+            if (!window.fb.addNewsReply) {
+                window.fb.addNewsReply = async function(commentId, userId, username, text, avatar) {
+                    try {
+                        const commentRef = window.fb.doc(window.fb.db, "newsComments", commentId);
+                        const snap = await window.fb.getDoc(commentRef);
+                        if (!snap.exists()) return { success: false, error: "Comentario no encontrado" };
+                        const data = snap.data();
+                        const replies = data.replies || [];
+                        replies.push({
+                            id: Date.now().toString() + Math.random().toString(36).substr(2, 4),
+                            userId, username, avatar: avatar || '', text: text.trim(),
+                            createdAt: new Date().toISOString()
+                        });
+                        await window.fb.updateDoc(commentRef, { replies });
+                        return { success: true };
+                    } catch (e) { return { success: false, error: e.message }; }
+                };
+            }
+            if (!window.fb.toggleNewsReaction) {
+                window.fb.toggleNewsReaction = async function(newsId, userId, emoji) {
+                    try {
+                        const ref = window.fb.doc(window.fb.db, "news", newsId);
+                        const snap = await window.fb.getDoc(ref);
+                        if (!snap.exists()) return { success: false, error: "Noticia no encontrada" };
+                        const data = snap.data();
+                        const reactions = data.reactions || {};
+                        for (const e in reactions) {
+                            if (reactions[e].includes(userId)) {
+                                reactions[e] = reactions[e].filter(id => id !== userId);
+                                if (reactions[e].length === 0) delete reactions[e];
+                            }
+                        }
+                        if (emoji) {
+                            if (!reactions[emoji]) reactions[emoji] = [];
+                            if (!reactions[emoji].includes(userId)) reactions[emoji].push(userId);
+                        }
+                        await window.fb.updateDoc(ref, { reactions });
+                        return { success: true };
+                    } catch (e) { return { success: false, error: e.message }; }
+                };
+            }
+            if (!window.fb.likeNewsComment) {
+                window.fb.likeNewsComment = async function(commentId, userId, field) {
+                    try {
+                        const ref = window.fb.doc(window.fb.db, "newsComments", commentId);
+                        const snap = await window.fb.getDoc(ref);
+                        if (!snap.exists()) return { success: false, error: "Comentario no encontrado" };
+                        const data = snap.data();
+                        const likes = data.likes || [];
+                        const dislikes = data.dislikes || [];
+                        const isLike = field === 'likes';
+                        const arr = isLike ? likes : dislikes;
+                        const otherArr = isLike ? dislikes : likes;
+                        const update = {};
+                        if (arr.includes(userId)) {
+                            update[field] = arr.filter(id => id !== userId);
+                        } else {
+                            update[field] = [...arr, userId];
+                            update[isLike ? 'dislikes' : 'likes'] = otherArr.filter(id => id !== userId);
+                        }
+                        await window.fb.updateDoc(ref, update);
+                        return { success: true };
+                    } catch (e) { return { success: false, error: e.message }; }
+                };
+            }
+
+            // ============================================================
+            // CARGAR Y RENDERIZAR NOTICIAS
+            // ============================================================
+            async function loadNews() {
+                if (!window.fb || !window.fb.getNews) return;
+                const result = await window.fb.getNews();
+                if (!result.success) { toast('Error al cargar noticias', 'error'); return; }
+                allNews = result.data;
+                renderNews();
+            }
+
+            function renderNews() {
+                let filtered = allNews;
+                if (currentFilter !== 'all') {
+                    filtered = filtered.filter(n => n.category === currentFilter);
+                }
+                if (currentSearch.trim()) {
+                    const s = currentSearch.toLowerCase().trim();
+                    filtered = filtered.filter(n =>
+                        n.title.toLowerCase().includes(s) ||
+                        n.content.toLowerCase().includes(s)
+                    );
+                }
+
+                const pinned = filtered.filter(n => n.pinned === true);
+                const rest = filtered.filter(n => n.pinned !== true);
+
+                if (filtered.length === 0) {
+                    grid.style.display = 'none';
+                    empty.style.display = 'block';
+                    featuredGrid.innerHTML = '';
+                    $('featuredSection').style.display = 'none';
+                } else {
+                    grid.style.display = 'grid';
+                    empty.style.display = 'none';
+                    grid.innerHTML = [...pinned, ...rest].map(n => createNewsCard(n)).join('');
+
+                    const sorted = [...allNews].sort((a, b) => {
+                        const aLikes = (a.reactions ? Object.values(a.reactions).reduce((acc, arr) => acc + arr.length, 0) : 0);
+                        const bLikes = (b.reactions ? Object.values(b.reactions).reduce((acc, arr) => acc + arr.length, 0) : 0);
+                        return bLikes - aLikes;
+                    });
+                    const featured = sorted.slice(0, 3);
+                    if (featured.length > 0) {
+                        featuredGrid.innerHTML = featured.map(n => createNewsCard(n)).join('');
+                        $('featuredSection').style.display = 'block';
+                    } else {
+                        $('featuredSection').style.display = 'none';
+                    }
+                }
+            }
+
+            function createNewsCard(news) {
+                const reactions = news.reactions || {};
+                const totalLikes = Object.values(reactions).reduce((acc, arr) => acc + arr.length, 0);
+                const isPinned = news.pinned === true;
+                const image = news.image || '';
+                const categoryColors = {
+                    nexus: 'var(--cyan)',
+                    discord: '#5865F2',
+                    gaming: '#8b5cf6',
+                    apps: '#3ddc97',
+                    comunidad: 'var(--amber)'
+                };
+                const catColor = categoryColors[news.category] || 'var(--text-dim)';
+                const date = new Date(news.createdAt).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' });
+                return `
+                    <div class="news-card" onclick="openNewsDetail('${news.id}')">
+                        <div class="card-img">
+                            ${image ? `<img src="${image}" alt="${news.title}" loading="lazy" />` : `<div style="height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:3rem;"><i class="fas fa-image"></i></div>`}
+                            ${isPinned ? `<div class="pinned-badge"><i class="fas fa-thumbtack"></i> Fijada</div>` : ''}
                         </div>
-                      `;
-                    }).join('')}
-                  </div>
-                  <div class="reply-form" id="replyForm-${comment.id}" style="display:none;">
-                    <input type="text" id="replyInput-${comment.id}" placeholder="Escribe una respuesta..." />
-                    <button onclick="submitReply('${comment.id}')"><i class="fas fa-paper-plane"></i></button>
-                  </div>
-                </div>
-              `;
+                        <div class="card-body">
+                            <span class="category" style="background:${catColor}22; color:${catColor};">${news.category}</span>
+                            <h3>${esc(news.title)}</h3>
+                            <p>${esc(news.content.substring(0, 120))}${news.content.length > 120 ? '...' : ''}</p>
+                        </div>
+                        <div class="card-footer">
+                            <span><i class="fas fa-user"></i> ${esc(news.authorName || 'Admin')}</span>
+                            <span>${date}</span>
+                            <div class="stats">
+                                <span><i class="fas fa-heart" style="color:var(--danger);"></i> ${totalLikes}</span>
+                                <span><i class="fas fa-comment"></i> ${news.commentCount || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // ============================================================
+            // DETALLE DE NOTICIA
+            // ============================================================
+            window.openNewsDetail = async function(id) {
+                currentNewsId = id;
+                const overlay = $('newsDetailOverlay');
+                overlay.classList.add('open');
+                document.body.style.overflow = 'hidden';
+
+                let news = allNews.find(n => n.id === id);
+                if (!news) {
+                    const result = await window.fb.getNews();
+                    if (result.success) {
+                        allNews = result.data;
+                        news = allNews.find(n => n.id === id);
+                    }
+                }
+                if (!news) { toast('Noticia no encontrada', 'error'); return; }
+
+                const container = $('newsDetailContent');
+                const reactions = news.reactions || {};
+                const totalLikes = Object.values(reactions).reduce((acc, arr) => acc + arr.length, 0);
+                const image = news.image || '';
+                const date = new Date(news.createdAt).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+                container.innerHTML = `
+                    ${image ? `<img src="${image}" class="detail-img" alt="${news.title}" />` : ''}
+                    <div class="detail-title">${esc(news.title)}</div>
+                    <div class="detail-meta">
+                        <span><i class="fas fa-user"></i> ${esc(news.authorName || 'Admin')}</span>
+                        <span><i class="fas fa-calendar"></i> ${date}</span>
+                        <span><i class="fas fa-tag"></i> ${esc(news.category)}</span>
+                        <span><i class="fas fa-heart" style="color:var(--danger);"></i> ${totalLikes} likes</span>
+                        <span><i class="fas fa-comment"></i> ${news.commentCount || 0} comentarios</span>
+                    </div>
+                    <div class="detail-content">${esc(news.content)}</div>
+                `;
+
+                // Reacciones
+                const reactionContainer = $('detailReactions');
+                const EMOJIS = ['👍', '❤️', '😂', '😮', '😢', '😡'];
+                let reactionHTML = '';
+                const userReaction = currentUser ? Object.keys(reactions).find(emoji => reactions[emoji].includes(currentUser.uid)) : null;
+                EMOJIS.forEach(emoji => {
+                    const count = reactions[emoji] ? reactions[emoji].length : 0;
+                    const active = userReaction === emoji;
+                    reactionHTML += `
+                        <button class="reaction-btn ${active ? 'active' : ''}" data-emoji="${emoji}" onclick="toggleReaction('${id}', '${emoji}')">
+                            ${emoji} <span class="count">${count}</span>
+                        </button>
+                    `;
+                });
+                reactionContainer.innerHTML = reactionHTML;
+
+                // Comentarios
+                loadComments(id);
+
+                const commentForm = $('detailCommentForm');
+                const loginMsg = $('detailLoginMsg');
+                if (currentUser) {
+                    commentForm.style.display = 'flex';
+                    loginMsg.style.display = 'none';
+                } else {
+                    commentForm.style.display = 'none';
+                    loginMsg.style.display = 'block';
+                }
+
+                $('detailCommentBtn').onclick = () => submitComment(id);
+                $('detailCommentInput').onkeydown = (e) => { if (e.key === 'Enter') submitComment(id); };
+            };
+
+            window.closeNewsDetail = function() {
+                if (commentsUnsubscribe) {
+                    commentsUnsubscribe();
+                    commentsUnsubscribe = null;
+                }
+                $('newsDetailOverlay').classList.remove('open');
+                document.body.style.overflow = '';
+                currentNewsId = null;
+            };
+
+            // ============================================================
+            // REACCIONES
+            // ============================================================
+            window.toggleReaction = async function(newsId, emoji) {
+                if (!currentUser) { toast('Inicia sesión para reaccionar', 'error'); return; }
+                const result = await window.fb.toggleNewsReaction(newsId, currentUser.uid, emoji);
+                if (result.success) {
+                    const news = allNews.find(n => n.id === newsId);
+                    if (news) {
+                        const snap = await window.fb.getDoc(window.fb.doc(window.fb.db, "news", newsId));
+                        if (snap.exists()) {
+                            const updated = snap.data();
+                            news.reactions = updated.reactions || {};
+                            Object.assign(news, updated);
+                            renderNews();
+                            openNewsDetail(newsId);
+                        }
+                    }
+                } else {
+                    toast(result.error || 'Error al reaccionar', 'error');
+                }
+            };
+
+            // ============================================================
+            // COMENTARIOS Y RESPUESTAS
+            // ============================================================
+            async function loadComments(newsId) {
+                if (commentsUnsubscribe) {
+                    commentsUnsubscribe();
+                    commentsUnsubscribe = null;
+                }
+                if (!window.fb.listenNewsComments) return;
+                commentsUnsubscribe = window.fb.listenNewsComments(newsId, (comments) => {
+                    renderComments(comments);
+                });
+            }
+
+            function renderComments(comments) {
+                const list = $('detailCommentsList');
+                if (!comments || comments.length === 0) {
+                    list.innerHTML = '<div style="text-align:center;color:var(--text-faint);padding:20px;">Sé el primero en comentar.</div>';
+                    return;
+                }
+
+                const userIds = comments.map(c => c.userId).filter(id => id);
+                Promise.all(userIds.map(id => window.fb.getUserProfile(id))).then(results => {
+                    const userMap = {};
+                    results.forEach((r, idx) => {
+                        if (r.success) userMap[userIds[idx]] = r.data;
+                    });
+
+                    let html = '';
+                    comments.forEach(comment => {
+                        const user = userMap[comment.userId] || {};
+                        const nameEffect = user.nameEffect || 'none';
+                        const effectColor = user.effectColor || '';
+                        const isNexusPlus = !!(user.nexusPlus || user.hasNexusPlus);
+                        const avatar = comment.avatar || user.avatar || '';
+                        const gemHTML = isNexusPlus ? `<span style="color:var(--plus-gold-2);font-size:0.7rem;margin-left:4px;" title="Nexus+"><i class="fas fa-gem"></i></span>` : '';
+
+                        const likeCount = (comment.likes || []).length;
+                        const dislikeCount = (comment.dislikes || []).length;
+                        const isLiked = currentUser && (comment.likes || []).includes(currentUser.uid);
+                        const isDisliked = currentUser && (comment.dislikes || []).includes(currentUser.uid);
+
+                        html += `
+                            <div class="comment-item" id="comment-${comment.id}">
+                                <div class="comment-head">
+                                    <div class="c-avatar">${avatar ? `<img src="${avatar}" />` : comment.username?.[0]?.toUpperCase() || '?'}</div>
+                                    <span class="c-author uname uname-${nameEffect}" style="${effectColor ? `--uname-color:${effectColor};` : ''}">${esc(comment.username)}${gemHTML}</span>
+                                    <span class="c-date">${new Date(comment.createdAt).toLocaleString()}</span>
+                                </div>
+                                <div class="comment-text">${esc(comment.text)}</div>
+                                <div class="comment-actions">
+                                    <button class="${isLiked ? 'liked' : ''}" onclick="likeComment('${comment.id}', 'likes')"><i class="fas fa-thumbs-up"></i> ${likeCount}</button>
+                                    <button class="${isDisliked ? 'liked' : ''}" onclick="likeComment('${comment.id}', 'dislikes')"><i class="fas fa-thumbs-down"></i> ${dislikeCount}</button>
+                                    <button onclick="toggleReplyForm('${comment.id}')"><i class="fas fa-reply"></i> Responder</button>
+                                </div>
+                                <div class="replies" id="replies-${comment.id}">
+                                    ${(comment.replies || []).map(r => {
+                                        const rUser = userMap[r.userId] || {};
+                                        const rNameEffect = rUser.nameEffect || 'none';
+                                        const rEffectColor = rUser.effectColor || '';
+                                        const rIsNexusPlus = !!(rUser.nexusPlus || rUser.hasNexusPlus);
+                                        const rAvatar = r.avatar || rUser.avatar || '';
+                                        const rGem = rIsNexusPlus ? `<span style="color:var(--plus-gold-2);font-size:0.65rem;margin-left:4px;" title="Nexus+"><i class="fas fa-gem"></i></span>` : '';
+                                        return `
+                                            <div class="reply-item">
+                                                <div class="reply-head">
+                                                    <div class="r-avatar">${rAvatar ? `<img src="${rAvatar}" />` : r.username?.[0]?.toUpperCase() || '?'}</div>
+                                                    <span class="r-author uname uname-${rNameEffect}" style="${rEffectColor ? `--uname-color:${rEffectColor};` : ''}">${esc(r.username)}${rGem}</span>
+                                                    <span class="r-date">${new Date(r.createdAt).toLocaleString()}</span>
+                                                </div>
+                                                <div class="reply-text">${esc(r.text)}</div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                                <div class="reply-form" id="replyForm-${comment.id}" style="display:none;">
+                                    <input type="text" id="replyInput-${comment.id}" placeholder="Escribe una respuesta..." />
+                                    <button onclick="submitReply('${comment.id}')"><i class="fas fa-paper-plane"></i></button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    list.innerHTML = html;
+                }).catch(() => {
+                    list.innerHTML = comments.map(c => `<div class="comment-item">...</div>`).join('');
+                });
+            }
+
+            window.likeComment = async function(commentId, type) {
+                if (!currentUser) { toast('Inicia sesión', 'error'); return; }
+                const result = await window.fb.likeNewsComment(commentId, currentUser.uid, type);
+                if (result.success) {
+                    // El listener actualizará
+                } else {
+                    toast(result.error || 'Error', 'error');
+                }
+            };
+
+            window.toggleReplyForm = function(commentId) {
+                const form = document.getElementById(`replyForm-${commentId}`);
+                if (form) form.style.display = form.style.display === 'none' ? 'flex' : 'none';
+            };
+
+            window.submitReply = async function(commentId) {
+                if (!currentUser) { toast('Inicia sesión', 'error'); return; }
+                const input = document.getElementById(`replyInput-${commentId}`);
+                const text = input.value.trim();
+                if (!text) return;
+                let avatar = '';
+                const prof = await window.fb.getUserProfile(currentUser.uid);
+                if (prof.success) avatar = prof.data.avatar || '';
+                const result = await window.fb.addNewsReply(commentId, currentUser.uid, currentUser.username, text, avatar);
+                if (result.success) {
+                    input.value = '';
+                } else {
+                    toast(result.error || 'Error al responder', 'error');
+                }
+            };
+
+            async function submitComment(newsId) {
+                if (!currentUser) { toast('Inicia sesión para comentar', 'error'); return; }
+                const input = $('detailCommentInput');
+                const text = input.value.trim();
+                if (!text) return;
+                let avatar = '';
+                const prof = await window.fb.getUserProfile(currentUser.uid);
+                if (prof.success) avatar = prof.data.avatar || '';
+                const result = await window.fb.addNewsComment(newsId, currentUser.uid, currentUser.username, text, avatar);
+                if (result.success) {
+                    input.value = '';
+                } else {
+                    toast(result.error || 'Error al comentar', 'error');
+                }
+            }
+
+            // ============================================================
+            // SUBIR IMAGEN (admin)
+            // ============================================================
+            imageDrop.addEventListener('click', () => imageFile.click());
+            imageDrop.addEventListener('dragover', (e) => { e.preventDefault(); imageDrop.style.borderColor = 'var(--cyan)'; });
+            imageDrop.addEventListener('dragleave', () => { imageDrop.style.borderColor = 'var(--border)'; });
+            imageDrop.addEventListener('drop', (e) => {
+                e.preventDefault();
+                imageDrop.style.borderColor = 'var(--border)';
+                if (e.dataTransfer.files.length) {
+                    imageFile.files = e.dataTransfer.files;
+                    handleImageFile(e.dataTransfer.files[0]);
+                }
             });
-            list.innerHTML = html;
-          }).catch(() => {
-            list.innerHTML = comments.map(c => `<div class="comment-item">...</div>`).join('');
-          });
-        }
+            imageFile.addEventListener('change', (e) => {
+                if (e.target.files.length) handleImageFile(e.target.files[0]);
+            });
 
-        window.likeComment = async function(commentId, type) {
-          if (!currentUser) { toast('Inicia sesión', 'error'); return; }
-          const result = await window.fb.likeNewsComment(commentId, currentUser.uid, type);
-          if (result.success) {
-            // El listener actualizará
-          } else {
-            toast(result.error || 'Error', 'error');
-          }
-        };
+            function handleImageFile(file) {
+                if (!file) return;
+                if (!file.type.startsWith('image/')) { toast('Solo imágenes', 'error'); return; }
+                if (file.size > 5 * 1024 * 1024) { toast('Máx 5MB', 'error'); return; }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    imageDrop.querySelector('p').textContent = 'Imagen lista';
+                };
+                reader.readAsDataURL(file);
+            }
 
-        window.toggleReplyForm = function(commentId) {
-          const form = document.getElementById(`replyForm-${commentId}`);
-          if (form) form.style.display = form.style.display === 'none' ? 'flex' : 'none';
-        };
+            // ============================================================
+            // CREAR NOTICIA
+            // ============================================================
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!currentUser || !currentUser.isAdmin) { toast('No autorizado', 'error'); return; }
+                const title = titleInput.value.trim();
+                const content = contentInput.value.trim();
+                const category = categorySelect.value;
+                const pinned = pinnedSelect.value === 'true';
+                const image = imagePreview.src && imagePreview.style.display !== 'none' ? imagePreview.src : '';
 
-        window.submitReply = async function(commentId) {
-          if (!currentUser) { toast('Inicia sesión', 'error'); return; }
-          const input = document.getElementById(`replyInput-${commentId}`);
-          const text = input.value.trim();
-          if (!text) return;
-          let avatar = '';
-          const prof = await window.fb.getUserProfile(currentUser.uid);
-          if (prof.success) avatar = prof.data.avatar || '';
-          const result = await window.fb.addNewsReply(commentId, currentUser.uid, currentUser.username, text, avatar);
-          if (result.success) {
-            input.value = '';
-          } else {
-            toast(result.error || 'Error al responder', 'error');
-          }
-        };
+                if (!title || !content) { toast('Completa título y contenido', 'error'); return; }
 
-        async function submitComment(newsId) {
-          if (!currentUser) { toast('Inicia sesión para comentar', 'error'); return; }
-          const input = $('detailCommentInput');
-          const text = input.value.trim();
-          if (!text) return;
-          let avatar = '';
-          const prof = await window.fb.getUserProfile(currentUser.uid);
-          if (prof.success) avatar = prof.data.avatar || '';
-          const result = await window.fb.addNewsComment(newsId, currentUser.uid, currentUser.username, text, avatar);
-          if (result.success) {
-            input.value = '';
-          } else {
-            toast(result.error || 'Error al comentar', 'error');
-          }
-        }
+                const data = {
+                    title, content, category, pinned, image,
+                    authorId: currentUser.uid,
+                    authorName: currentUser.username || 'Admin',
+                };
 
-        // ============================================================
-        // SUBIR IMAGEN (admin)
-        // ============================================================
-        imageDrop.addEventListener('click', () => imageFile.click());
-        imageDrop.addEventListener('dragover', (e) => { e.preventDefault(); imageDrop.style.borderColor = 'var(--cyan)'; });
-        imageDrop.addEventListener('dragleave', () => { imageDrop.style.borderColor = 'var(--border)'; });
-        imageDrop.addEventListener('drop', (e) => {
-          e.preventDefault();
-          imageDrop.style.borderColor = 'var(--border)';
-          if (e.dataTransfer.files.length) {
-            imageFile.files = e.dataTransfer.files;
-            handleImageFile(e.dataTransfer.files[0]);
-          }
-        });
-        imageFile.addEventListener('change', (e) => {
-          if (e.target.files.length) handleImageFile(e.target.files[0]);
-        });
+                const result = await window.fb.addNews(data);
+                if (result.success) {
+                    toast('Noticia publicada ✅');
+                    form.reset();
+                    imagePreview.style.display = 'none';
+                    imagePreview.src = '';
+                    imageDrop.querySelector('p').textContent = 'Haz clic o arrastra una imagen';
+                    loadNews();
+                } else {
+                    toast('Error: ' + result.error, 'error');
+                }
+            });
 
-        function handleImageFile(file) {
-          if (!file) return;
-          if (!file.type.startsWith('image/')) { toast('Solo imágenes', 'error'); return; }
-          if (file.size > 5 * 1024 * 1024) { toast('Máx 5MB', 'error'); return; }
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            imagePreview.src = e.target.result;
-            imagePreview.style.display = 'block';
-            imageDrop.querySelector('p').textContent = 'Imagen lista';
-          };
-          reader.readAsDataURL(file);
-        }
+            // ============================================================
+            // FILTROS Y BÚSQUEDA
+            // ============================================================
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.cat;
+                    renderNews();
+                });
+            });
 
-        // ============================================================
-        // CREAR NOTICIA
-        // ============================================================
-        form.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          if (!currentUser || !currentUser.isAdmin) { toast('No autorizado', 'error'); return; }
-          const title = titleInput.value.trim();
-          const content = contentInput.value.trim();
-          const category = categorySelect.value;
-          const pinned = pinnedSelect.value === 'true';
-          const image = imagePreview.src && imagePreview.style.display !== 'none' ? imagePreview.src : '';
+            searchInput.addEventListener('input', (e) => {
+                currentSearch = e.target.value;
+                renderNews();
+            });
 
-          if (!title || !content) { toast('Completa título y contenido', 'error'); return; }
+            // ============================================================
+            // UTILITY
+            // ============================================================
+            function esc(t) {
+                const d = document.createElement('div');
+                d.textContent = t == null ? '' : String(t);
+                return d.innerHTML;
+            }
 
-          const data = {
-            title, content, category, pinned, image,
-            authorId: currentUser.uid,
-            authorName: currentUser.username || 'Admin',
-          };
+            function toast(msg, type = 'success') {
+                const t = document.createElement('div');
+                t.className = `toast ${type === 'error' ? 'err' : 'ok'}`;
+                t.innerHTML = `<i class="fas fa-${type === 'error' ? 'circle-exclamation' : 'circle-check'}"></i> ${esc(msg)}`;
+                document.body.appendChild(t);
+                setTimeout(() => {
+                    t.style.opacity = '0';
+                    t.style.transform = 'translateX(40px)';
+                    t.style.transition = 'all .3s';
+                    setTimeout(() => t.remove(), 350);
+                }, 3000);
+            }
 
-          const result = await window.fb.addNews(data);
-          if (result.success) {
-            toast('Noticia publicada ✅');
-            form.reset();
-            imagePreview.style.display = 'none';
-            imagePreview.src = '';
-            imageDrop.querySelector('p').textContent = 'Haz clic o arrastra una imagen';
+            // ============================================================
+            // INICIO
+            // ============================================================
             loadNews();
-          } else {
-            toast('Error: ' + result.error, 'error');
-          }
-        });
 
-        // ============================================================
-        // FILTROS Y BÚSQUEDA
-        // ============================================================
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.dataset.cat;
-            renderNews();
-          });
-        });
+            // Cerrar modal al hacer clic fuera
+            document.getElementById('newsDetailOverlay').addEventListener('click', function(e) {
+                if (e.target === this) closeNewsDetail();
+            });
 
-        searchInput.addEventListener('input', (e) => {
-          currentSearch = e.target.value;
-          renderNews();
-        });
-
-        // ============================================================
-        // UTILITY
-        // ============================================================
-        function esc(t) {
-          const d = document.createElement('div');
-          d.textContent = t == null ? '' : String(t);
-          return d.innerHTML;
-        }
-
-        function toast(msg, type = 'success') {
-          const t = document.createElement('div');
-          t.className = `toast ${type === 'error' ? 'err' : 'ok'}`;
-          t.innerHTML = `<i class="fas fa-${type === 'error' ? 'circle-exclamation' : 'circle-check'}"></i> ${esc(msg)}`;
-          document.body.appendChild(t);
-          setTimeout(() => {
-            t.style.opacity = '0';
-            t.style.transform = 'translateX(40px)';
-            t.style.transition = 'all .3s';
-            setTimeout(() => t.remove(), 350);
-          }, 3000);
-        }
-
-        // ============================================================
-        // INICIO
-        // ============================================================
-        loadNews();
-
-        // Cerrar modal al hacer clic fuera
-        document.getElementById('newsDetailOverlay').addEventListener('click', function(e) {
-          if (e.target === this) closeNewsDetail();
-        });
-
-      })();
+        })();
     }
 
-    init();
+    // ===== Espera a que Firebase esté listo =====
+    if (window.fbReady) {
+        init();
+    } else {
+        window.addEventListener('fb-ready', init);
+    }
   </script>
 
 </body>
