@@ -2157,6 +2157,7 @@ function showSaveOrderButton() {
                     // desde ningún login), y refresca el botón del panel developer
 
                     currentUser.isDeveloper = !!prof.isDeveloper;
+                    currentUser.hasNexusPlus = !!prof.nexusPlus || !!prof.hasNexusPlus;
                     const devBtn = document.getElementById('devPanelBtn');
                     if (devBtn) {
                         devBtn.style.display = (currentUser.isDeveloper && !currentUser.isAdmin) ? 'flex' : 'none';
