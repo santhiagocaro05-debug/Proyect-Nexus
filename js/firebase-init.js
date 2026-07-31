@@ -63,7 +63,10 @@
             getDeveloperRequests,
             listenDeveloperRequests,
             reviewDeveloperRequest,
-            isUserDeveloper
+            isUserDeveloper,
+            requestNexusPlusAccess,
+            listenNexusPlusRequests,
+            reviewNexusPlusRequest
         } = await import('./firebase-config.js');
 
         window.fb = {
@@ -81,7 +84,8 @@
             getProductOrder, addAppUpdate, getAppUpdates, deleteAppUpdate,
             updateAppUpdate, requestDeveloperStatus, getMyDeveloperRequestStatus,
             getDeveloperRequests, listenDeveloperRequests, reviewDeveloperRequest,
-            isUserDeveloper
+            isUserDeveloper, requestNexusPlusAccess, listenNexusPlusRequests,
+            reviewNexusPlusRequest
         };
 
         window.fbReady = true;
