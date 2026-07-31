@@ -2177,6 +2177,12 @@ function showSaveOrderButton() {
     const av = $('userAvatar');
 
     if (currentUser) {
+
+        authBtn.innerHTML = `<i class="fas fa-right-from-bracket"></i>`;
+        authBtn.title = currentUser.username;  // nombre en tooltip
+        authBtn.className = 'btn btn-ghost btn-sm';
+        authBtn.onclick = openLogoutModal;
+
         pnb.style.display = 'flex';
         (async () => {
             try {
@@ -2217,17 +2223,8 @@ function showSaveOrderButton() {
 
         })();
 
-        authBtn.innerHTML = `<i class="fas fa-user"></i>`;
-        authBtn.title = currentUser.username;  // nombre en tooltip
-        authBtn.className = 'btn btn-ghost btn-sm';
-        authBtn.onclick = openLogoutModal;
-
 
         pnb.onclick = () => { location.href = 'perfil.html'; };
-        authText.textContent = currentUser.username;
-        authBtn.title = 'Cerrar sesión';
-        authBtn.className = 'btn btn-ghost btn-sm';
-        authBtn.onclick = openLogoutModal;
         if (cf) cf.style.display = 'block';
         if (ltc) ltc.style.display = 'none';
         if (ff) ff.style.display = 'none';
