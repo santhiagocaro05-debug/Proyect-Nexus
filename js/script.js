@@ -4403,13 +4403,10 @@ window.openChatWith = async function(userId) {
     if (!currentUser) { openAuthModal(); return; }
     if (userId === currentUser.uid) { toast('No puedes chatear contigo mismo', 'error'); return; }
     
-    // Obtener datos del usuario
     const userResult = await window.fb.getUserById(userId);
     if (!userResult.success) { toast('Usuario no encontrado', 'error'); return; }
     
     currentChatUser = userResult.data;
-    
-    // Obtener o crear chat
     const chatResult = await window.fb.getOrCreateChat(currentUser.uid, userId);
     if (!chatResult.success) { toast('Error al abrir chat', 'error'); return; }
     
@@ -4418,15 +4415,14 @@ window.openChatWith = async function(userId) {
     document.getElementById('chatListView').style.display = 'none';
     document.getElementById('chatSearchResults').style.display = 'none';
     document.getElementById('chatActiveView').style.display = 'flex';
+    
+    // ✅ CORREGIDO: El badge no es necesario aquí, así que lo omitimos
     document.getElementById('chatHeaderTitle').innerHTML = `
         <i class="fas fa-user" style="color:var(--cyan);"></i>
         <span style="font-weight:700;font-family:var(--font-display);">${esc(currentChatUser.username)}</span>
     `;
     
-    // Limpiar mensajes anteriores
     if (chatMessagesUnsubscribe) chatMessagesUnsubscribe();
-    
-    // Escuchar mensajes en tiempo real
     if (window.fb.listenChatMessages) {
         chatMessagesUnsubscribe = window.fb.listenChatMessages(chatId, (messages) => {
             renderChatMessages(messages);
@@ -4517,10 +4513,14 @@ window.showChatList = function() {
     document.getElementById('chatActiveView').style.display = 'none';
     document.getElementById('chatListView').style.display = 'block';
     document.getElementById('chatBackBtn').style.display = 'none';
+    
+    // ✅ CORREGIDO: Ahora incluye el badge de nuevo
     document.getElementById('chatHeaderTitle').innerHTML = `
         <i class="fas fa-comments" style="color:var(--cyan);"></i>
         <span style="font-weight:700;font-family:var(--font-display);">Mensajes</span>
+        <span id="chatUnread" style="display:none;background:var(--danger);color:#fff;font-size:0.6rem;font-weight:700;padding:2px 8px;border-radius:20px;min-width:20px;text-align:center;">0</span>
     `;
+    
     loadUserChats();
 };
 function injectProductAnimStyles() {
