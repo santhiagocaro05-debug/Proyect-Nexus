@@ -776,721 +776,659 @@
     ============================================================ -->
     <script src="js/script.js?v=3"></script>
 
-   <script>
-    // ============================================================
-    // SERVIDORES - LÓGICA COMPLETA (CON IMAGEN EN BASE64 Y EFECTOS)
-    // VERSIÓN CON LOGS Y MENSAJES EN STATUS
-    // ============================================================
+    <script>
+        // ============================================================
+        // SERVIDORES - LÓGICA COMPLETA (CON IMAGEN EN BASE64 Y EFECTOS)
+        // ============================================================
 
-    const $ = id => document.getElementById(id);
-    const esc = t => { const d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d
-            .innerHTML; };
+        const $ = id => document.getElementById(id);
+        const esc = t => { const d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d
+                .innerHTML; };
 
-    // --- Estado ---
-    let currentUser = null;
-    let servers = [];
-    let currentCategory = 'all';
-    let currentSearch = '';
-    let currentTagFilter = '';
-    let pendingImageFile = null;
-    let userEffectsCache = {}; // { uid: { nameEffect, effectColor, isPlus } }
+        // --- Estado ---
+        let currentUser = null;
+        let servers = [];
+        let currentCategory = 'all';
+        let currentSearch = '';
+        let currentTagFilter = '';
+        let pendingImageFile = null;
+        let userEffectsCache = {}; // { uid: { nameEffect, effectColor, isPlus } }
 
-    // --- Referencias DOM ---
-    const grid = $('serversGrid');
-    const searchInput = $('serverSearchInput');
-    const categoryFilters = document.querySelectorAll('.cat-chip-filter');
-    const popularTagsContainer = $('popularTagsContainer');
+        // --- Referencias DOM ---
+        const grid = $('serversGrid');
+        const searchInput = $('serverSearchInput');
+        const categoryFilters = document.querySelectorAll('.cat-chip-filter');
+        const popularTagsContainer = $('popularTagsContainer');
 
-    // --- Funciones de Firebase (se usarán después de que window.fb esté listo) ---
+        // --- Funciones de Firebase (se usarán después de que window.fb esté listo) ---
 
-    // Obtener servidores
-    async function getServers() {
-        if (!window.fb || !window.fb.getServers) {
-            try {
-                const { getDocs, collection, query, orderBy } = window.fb;
-                const q = query(collection(window.fb.db, "servers"), orderBy("createdAt", "desc"));
-                const snap = await getDocs(q);
-                const list = [];
-                snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
-                return { success: true, data: list };
-            } catch (e) {
-                return { success: false, error: e.message };
-            }
-        }
-        return await window.fb.getServers();
-    }
-
-    // Agregar servidor
-    async function addServer(data) {
-        if (!window.fb || !window.fb.addServer) {
-            try {
-                const { addDoc, collection } = window.fb;
-                const docRef = await addDoc(collection(window.fb.db, "servers"), data);
-                return { success: true, id: docRef.id };
-            } catch (e) {
-                return { success: false, error: e.message };
-            }
-        }
-        return await window.fb.addServer(data);
-    }
-
-    // Actualizar like/dislike
-    async function updateServer(serverId, field, userId, operation) {
-        if (!window.fb || !window.fb.updateServer) {
-            try {
-                const { doc, updateDoc, arrayUnion, arrayRemove } = window.fb;
-                const ref = doc(window.fb.db, "servers", serverId);
-                if (operation === 'arrayUnion') {
-                    await updateDoc(ref, { [field]: arrayUnion(userId) });
-                } else {
-                    await updateDoc(ref, { [field]: arrayRemove(userId) });
+        // Obtener servidores
+        async function getServers() {
+            if (!window.fb || !window.fb.getServers) {
+                // Fallback: si no existe la función, intentar leer de Firestore directamente
+                try {
+                    const { getDocs, collection, query, orderBy } = window.fb;
+                    const q = query(collection(window.fb.db, "servers"), orderBy("createdAt", "desc"));
+                    const snap = await getDocs(q);
+                    const list = [];
+                    snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                    return { success: true, data: list };
+                } catch (e) {
+                    return { success: false, error: e.message };
                 }
-                return { success: true };
-            } catch (e) {
-                return { success: false, error: e.message };
             }
+            return await window.fb.getServers();
         }
-        return await window.fb.updateServer(serverId, field, userId, operation);
-    }
 
-    // Eliminar servidor (solo autor)
-    async function deleteServer(serverId, userId) {
-        if (!window.fb || !window.fb.deleteServer) {
-            try {
-                const { doc, getDoc, deleteDoc } = window.fb;
-                const snap = await getDoc(doc(window.fb.db, "servers", serverId));
-                if (!snap.exists()) return { success: false, error: "No existe" };
-                if (snap.data().authorId !== userId) return { success: false, error: "No autorizado" };
-                await deleteDoc(doc(window.fb.db, "servers", serverId));
-                return { success: true };
-            } catch (e) {
-                return { success: false, error: e.message };
+        // Agregar servidor
+        async function addServer(data) {
+            if (!window.fb || !window.fb.addServer) {
+                try {
+                    const { addDoc, collection } = window.fb;
+                    const docRef = await addDoc(collection(window.fb.db, "servers"), data);
+                    return { success: true, id: docRef.id };
+                } catch (e) {
+                    return { success: false, error: e.message };
+                }
             }
-        }
-        return await window.fb.deleteServer(serverId, userId);
-    }
-
-    // --- Carga de efectos de usuarios ---
-    async function loadUserEffects() {
-        if (!window.fb || !window.fb.getAllUsers) return;
-        const result = await window.fb.getAllUsers();
-        if (!result.success) return;
-        const map = {};
-        result.data.forEach(u => {
-            const isPlus = !!(u.nexusPlus || u.hasNexusPlus);
-            let fx = u.nameEffect || 'none';
-            if ((fx === 'plusgold' || fx.startsWith('nexus-')) && !isPlus) fx = 'none';
-            else if (fx === 'devtype' && !u.isDeveloper) fx = 'none';
-            map[u.id] = { nameEffect: fx, effectColor: u.effectColor || '', isPlus };
-        });
-        userEffectsCache = map;
-    }
-
-    // --- Renderizado ---
-
-    function renderServers() {
-        let filtered = servers;
-
-        if (currentCategory !== 'all') {
-            filtered = filtered.filter(s => s.category === currentCategory);
+            return await window.fb.addServer(data);
         }
 
-        if (currentSearch.trim()) {
-            const q = currentSearch.trim().toLowerCase();
-            filtered = filtered.filter(s =>
-                s.name.toLowerCase().includes(q) ||
-                s.description.toLowerCase().includes(q) ||
-                (s.tags && s.tags.some(t => t.toLowerCase().includes(q)))
-            );
+        // Actualizar like/dislike
+        async function updateServer(serverId, field, userId, operation) {
+            if (!window.fb || !window.fb.updateServer) {
+                try {
+                    const { doc, updateDoc, arrayUnion, arrayRemove } = window.fb;
+                    const ref = doc(window.fb.db, "servers", serverId);
+                    if (operation === 'arrayUnion') {
+                        await updateDoc(ref, { [field]: arrayUnion(userId) });
+                    } else {
+                        await updateDoc(ref, { [field]: arrayRemove(userId) });
+                    }
+                    return { success: true };
+                } catch (e) {
+                    return { success: false, error: e.message };
+                }
+            }
+            return await window.fb.updateServer(serverId, field, userId, operation);
         }
 
-        if (currentTagFilter) {
-            filtered = filtered.filter(s => s.tags && s.tags.some(t => t === currentTagFilter));
+        // Eliminar servidor (solo autor)
+        async function deleteServer(serverId, userId) {
+            if (!window.fb || !window.fb.deleteServer) {
+                try {
+                    const { doc, getDoc, deleteDoc } = window.fb;
+                    const snap = await getDoc(doc(window.fb.db, "servers", serverId));
+                    if (!snap.exists()) return { success: false, error: "No existe" };
+                    if (snap.data().authorId !== userId) return { success: false, error: "No autorizado" };
+                    await deleteDoc(doc(window.fb.db, "servers", serverId));
+                    return { success: true };
+                } catch (e) {
+                    return { success: false, error: e.message };
+                }
+            }
+            return await window.fb.deleteServer(serverId, userId);
         }
 
-        if (filtered.length === 0) {
-            grid.innerHTML = `
-                <div class="servers-empty">
-                    <i class="fas fa-inbox"></i>
-                    <p>No hay servidores que coincidan con tu búsqueda</p>
-                    <p style="font-size:0.8rem;margin-top:4px;">¿Quieres ser el primero en subir el tuyo?</p>
-                    <button class="btn btn-ghost btn-sm" onclick="openUploadModal()" style="margin-top:12px;">
-                        <i class="fas fa-plus"></i> Subir servidor
-                    </button>
-                </div>
-            `;
-            return;
+        // --- Carga de efectos de usuarios ---
+        async function loadUserEffects() {
+            if (!window.fb || !window.fb.getAllUsers) return;
+            const result = await window.fb.getAllUsers();
+            if (!result.success) return;
+            const map = {};
+            result.data.forEach(u => {
+                const isPlus = !!(u.nexusPlus || u.hasNexusPlus);
+                let fx = u.nameEffect || 'none';
+                if ((fx === 'plusgold' || fx.startsWith('nexus-')) && !isPlus) fx = 'none';
+                else if (fx === 'devtype' && !u.isDeveloper) fx = 'none';
+                map[u.id] = { nameEffect: fx, effectColor: u.effectColor || '', isPlus };
+            });
+            userEffectsCache = map;
         }
 
-        grid.innerHTML = filtered.map(s => {
-            const isLiked = currentUser && (s.likes || []).includes(currentUser.uid);
-            const isDisliked = currentUser && (s.dislikes || []).includes(currentUser.uid);
-            const isAuthor = currentUser && s.authorId === currentUser.uid;
-            const imageHtml = s.image ?
-                `<img src="${esc(s.image)}" alt="${esc(s.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder><i class=fas fa-server></i><span>Sin imagen</span></div>'">` :
-                `<div class="placeholder"><i class="fas fa-server"></i><span>Sin imagen</span></div>`;
+        // --- Renderizado ---
 
-            const tagsHtml = (s.tags || []).map(t => `<span class="server-tag">${esc(t)}</span>`).join('');
+        function renderServers() {
+            let filtered = servers;
 
-            const inviteLink = s.inviteLink && s.inviteLink.startsWith('http') ? s.inviteLink : '#';
-            const inviteDisabled = !s.inviteLink || !s.inviteLink.startsWith('http');
+            // Filtro por categoría
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(s => s.category === currentCategory);
+            }
 
-            const fx = userEffectsCache[s.authorId] || { nameEffect: 'none', effectColor: '', isPlus: false };
-            const colorStyle = fx.effectColor ? ` style="--uname-color:${esc(fx.effectColor)}"` : '';
-            const gem = fx.isPlus ? ` <span style="color:var(--plus-gold-2,#ffb347);"><i class="fas fa-gem"></i></span>` : '';
-            const authorNameHtml =
-                `<span class="uname uname-${fx.nameEffect}"${colorStyle}>${esc(s.authorName || 'Anónimo')}</span>${gem}`;
+            // Filtro por búsqueda
+            if (currentSearch.trim()) {
+                const q = currentSearch.trim().toLowerCase();
+                filtered = filtered.filter(s =>
+                    s.name.toLowerCase().includes(q) ||
+                    s.description.toLowerCase().includes(q) ||
+                    (s.tags && s.tags.some(t => t.toLowerCase().includes(q)))
+                );
+            }
 
-            return `
-                <div class="server-card">
-                    <div class="server-thumb">${imageHtml}</div>
-                    <div class="server-body">
-                        <div class="server-title">
-                            ${esc(s.name)}
-                            ${isAuthor ? '<span class="badge-verified">TUYO</span>' : ''}
-                        </div>
-                        <div class="server-meta">
-                            <span>
-                                <i class="fas fa-user"></i>
-                                ${authorNameHtml}
-                            </span>
-                            <span><i class="fas fa-calendar-alt"></i> ${new Date(s.createdAt).toLocaleDateString()}</span>
-                            <span><i class="fas fa-tag"></i> ${esc(s.category || 'otros')}</span>
-                        </div>
-                        <div class="server-desc">${esc(s.description)}</div>
-                        <div class="server-tags">${tagsHtml}</div>
-                        <div class="server-actions">
-                            <div class="server-reactions">
-                                <button class="reaction-btn ${isLiked ? 'liked' : ''}" data-id="${s.id}" data-type="like">
-                                    <i class="fas fa-thumbs-up"></i> ${(s.likes || []).length}
-                                </button>
-                                <button class="reaction-btn ${isDisliked ? 'disliked' : ''}" data-id="${s.id}" data-type="dislike">
-                                    <i class="fas fa-thumbs-down"></i> ${(s.dislikes || []).length}
-                                </button>
-                                ${isAuthor ? `
-                                    <button class="reaction-btn" data-id="${s.id}" data-type="delete" style="color:var(--danger);">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                ` : ''}
+            // Filtro por tag (desde popular tags)
+            if (currentTagFilter) {
+                filtered = filtered.filter(s => s.tags && s.tags.some(t => t === currentTagFilter));
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="servers-empty">
+                        <i class="fas fa-inbox"></i>
+                        <p>No hay servidores que coincidan con tu búsqueda</p>
+                        <p style="font-size:0.8rem;margin-top:4px;">¿Quieres ser el primero en subir el tuyo?</p>
+                        <button class="btn btn-ghost btn-sm" onclick="openUploadModal()" style="margin-top:12px;">
+                            <i class="fas fa-plus"></i> Subir servidor
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(s => {
+                const isLiked = currentUser && (s.likes || []).includes(currentUser.uid);
+                const isDisliked = currentUser && (s.dislikes || []).includes(currentUser.uid);
+                const isAuthor = currentUser && s.authorId === currentUser.uid;
+                const imageHtml = s.image ?
+                    `<img src="${esc(s.image)}" alt="${esc(s.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder><i class=fas fa-server></i><span>Sin imagen</span></div>'">` :
+                    `<div class="placeholder"><i class="fas fa-server"></i><span>Sin imagen</span></div>`;
+
+                const tagsHtml = (s.tags || []).map(t => `<span class="server-tag">${esc(t)}</span>`).join('');
+
+                const inviteLink = s.inviteLink && s.inviteLink.startsWith('http') ? s.inviteLink : '#';
+                const inviteDisabled = !s.inviteLink || !s.inviteLink.startsWith('http');
+
+                // --- Nombre de autor con efectos ---
+                const fx = userEffectsCache[s.authorId] || { nameEffect: 'none', effectColor: '', isPlus: false };
+                const colorStyle = fx.effectColor ? ` style="--uname-color:${esc(fx.effectColor)}"` : '';
+                const gem = fx.isPlus ? ` <span style="color:var(--plus-gold-2,#ffb347);"><i class="fas fa-gem"></i></span>` : '';
+                const authorNameHtml =
+                    `<span class="uname uname-${fx.nameEffect}"${colorStyle}>${esc(s.authorName || 'Anónimo')}</span>${gem}`;
+
+                return `
+                    <div class="server-card">
+                        <div class="server-thumb">${imageHtml}</div>
+                        <div class="server-body">
+                            <div class="server-title">
+                                ${esc(s.name)}
+                                ${isAuthor ? '<span class="badge-verified">TUYO</span>' : ''}
                             </div>
-                            <a href="${inviteLink}" target="_blank" class="server-invite-btn ${inviteDisabled ? 'disabled' : ''}" ${inviteDisabled ? 'tabindex="-1"' : ''}>
-                                <i class="fab fa-discord"></i> Invitar
-                            </a>
+                            <div class="server-meta">
+                                <span>
+                                    <i class="fas fa-user"></i>
+                                    ${authorNameHtml}
+                                </span>
+                                <span><i class="fas fa-calendar-alt"></i> ${new Date(s.createdAt).toLocaleDateString()}</span>
+                                <span><i class="fas fa-tag"></i> ${esc(s.category || 'otros')}</span>
+                            </div>
+                            <div class="server-desc">${esc(s.description)}</div>
+                            <div class="server-tags">${tagsHtml}</div>
+                            <div class="server-actions">
+                                <div class="server-reactions">
+                                    <button class="reaction-btn ${isLiked ? 'liked' : ''}" data-id="${s.id}" data-type="like">
+                                        <i class="fas fa-thumbs-up"></i> ${(s.likes || []).length}
+                                    </button>
+                                    <button class="reaction-btn ${isDisliked ? 'disliked' : ''}" data-id="${s.id}" data-type="dislike">
+                                        <i class="fas fa-thumbs-down"></i> ${(s.dislikes || []).length}
+                                    </button>
+                                    ${isAuthor ? `
+                                        <button class="reaction-btn" data-id="${s.id}" data-type="delete" style="color:var(--danger);">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                                <a href="${inviteLink}" target="_blank" class="server-invite-btn ${inviteDisabled ? 'disabled' : ''}" ${inviteDisabled ? 'tabindex="-1"' : ''}>
+                                    <i class="fab fa-discord"></i> Invitar
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
-        }).join('');
+                `;
+            }).join('');
 
-        grid.querySelectorAll('.reaction-btn[data-type="like"], .reaction-btn[data-type="dislike"]').forEach(btn => {
-            btn.onclick = () => handleReaction(btn.dataset.id, btn.dataset.type);
-        });
-        grid.querySelectorAll('.reaction-btn[data-type="delete"]').forEach(btn => {
-            btn.onclick = () => handleDelete(btn.dataset.id);
-        });
-    }
-
-    // --- Manejadores de reacciones y eliminación ---
-
-    async function handleReaction(serverId, type) {
-        if (!currentUser) {
-            toast('Inicia sesión para reaccionar', 'error');
-            return;
+            // Event listeners para reacciones
+            grid.querySelectorAll('.reaction-btn[data-type="like"], .reaction-btn[data-type="dislike"]').forEach(btn => {
+                btn.onclick = () => handleReaction(btn.dataset.id, btn.dataset.type);
+            });
+            grid.querySelectorAll('.reaction-btn[data-type="delete"]').forEach(btn => {
+                btn.onclick = () => handleDelete(btn.dataset.id);
+            });
         }
-        const server = servers.find(s => s.id === serverId);
-        if (!server) return;
 
-        const field = type === 'like' ? 'likes' : 'dislikes';
-        const otherField = type === 'like' ? 'dislikes' : 'likes';
-        const arr = server[field] || [];
-        const otherArr = server[otherField] || [];
+        // --- Manejadores de reacciones y eliminación ---
 
-        let operation;
-        if (arr.includes(currentUser.uid)) {
-            operation = 'arrayRemove';
-        } else {
-            if (otherArr.includes(currentUser.uid)) {
-                await updateServer(serverId, otherField, currentUser.uid, 'arrayRemove');
-                server[otherField] = server[otherField]?.filter(id => id !== currentUser.uid) || [];
+        async function handleReaction(serverId, type) {
+            if (!currentUser) {
+                toast('Inicia sesión para reaccionar', 'error');
+                return;
             }
-            operation = 'arrayUnion';
-        }
+            const server = servers.find(s => s.id === serverId);
+            if (!server) return;
 
-        const result = await updateServer(serverId, field, currentUser.uid, operation);
-        if (result.success) {
-            if (operation === 'arrayUnion') {
-                if (!server[field]) server[field] = [];
-                server[field].push(currentUser.uid);
+            const field = type === 'like' ? 'likes' : 'dislikes';
+            const otherField = type === 'like' ? 'dislikes' : 'likes';
+            const arr = server[field] || [];
+            const otherArr = server[otherField] || [];
+
+            let operation;
+            if (arr.includes(currentUser.uid)) {
+                operation = 'arrayRemove';
             } else {
-                server[field] = server[field]?.filter(id => id !== currentUser.uid) || [];
+                // Si ya tiene reacción opuesta, eliminarla primero
+                if (otherArr.includes(currentUser.uid)) {
+                    await updateServer(serverId, otherField, currentUser.uid, 'arrayRemove');
+                    server[otherField] = server[otherField]?.filter(id => id !== currentUser.uid) || [];
+                }
+                operation = 'arrayUnion';
             }
-            renderServers();
-        } else {
-            toast('Error al actualizar: ' + result.error, 'error');
-        }
-    }
 
-    async function handleDelete(serverId) {
-        if (!currentUser) return;
-        if (!confirm('¿Seguro que quieres eliminar este servidor?')) return;
-        const result = await deleteServer(serverId, currentUser.uid);
-        if (result.success) {
-            servers = servers.filter(s => s.id !== serverId);
-            renderServers();
-            toast('Servidor eliminado');
-            updatePopularTags();
-        } else {
-            toast('Error: ' + result.error, 'error');
-        }
-    }
-
-    // --- Tags populares ---
-
-    function updatePopularTags() {
-        const tagCount = {};
-        servers.forEach(s => {
-            (s.tags || []).forEach(t => {
-                tagCount[t] = (tagCount[t] || 0) + 1;
-            });
-        });
-        const sorted = Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, 8);
-        if (sorted.length === 0) {
-            popularTagsContainer.innerHTML = `<span class="label"><i class="fas fa-hashtag"></i> Tags populares</span><span style="color:var(--text-faint);font-size:0.8rem;">Sin tags aún</span>`;
-            return;
-        }
-        let html = `<span class="label"><i class="fas fa-hashtag"></i> Tags populares</span>`;
-        sorted.forEach(([tag, count]) => {
-            const active = currentTagFilter === tag ? 'active' : '';
-            html += `<span class="tag-pop ${active}" data-tag="${esc(tag)}">${esc(tag)} (${count})</span>`;
-        });
-        popularTagsContainer.innerHTML = html;
-
-        popularTagsContainer.querySelectorAll('.tag-pop').forEach(el => {
-            el.onclick = () => {
-                const tag = el.dataset.tag;
-                if (currentTagFilter === tag) {
-                    currentTagFilter = '';
-                    el.classList.remove('active');
+            const result = await updateServer(serverId, field, currentUser.uid, operation);
+            if (result.success) {
+                // Actualizar localmente
+                if (operation === 'arrayUnion') {
+                    if (!server[field]) server[field] = [];
+                    server[field].push(currentUser.uid);
                 } else {
-                    currentTagFilter = tag;
-                    popularTagsContainer.querySelectorAll('.tag-pop').forEach(e => e.classList.remove('active'));
-                    el.classList.add('active');
+                    server[field] = server[field]?.filter(id => id !== currentUser.uid) || [];
                 }
                 renderServers();
-            };
-        });
-    }
-
-    // --- Carga inicial ---
-
-    async function loadServers() {
-        const result = await getServers();
-        if (!result.success) {
-            grid.innerHTML = `<div class="servers-empty"><i class="fas fa-exclamation-triangle"></i><p>Error al cargar: ${result.error}</p></div>`;
-            return;
-        }
-        servers = result.data || [];
-        await loadUserEffects();
-        renderServers();
-        updatePopularTags();
-    }
-
-    // --- Autenticación ---
-
-    function initAuth() {
-        if (window.fb && window.fb.onAuthChange) {
-            window.fb.onAuthChange((user) => {
-                currentUser = user;
-                renderServers();
-            });
-        } else {
-            const stored = JSON.parse(localStorage.getItem('jv_user') || 'null');
-            if (stored) currentUser = stored;
-            loadServers();
-        }
-    }
-
-    // --- Modal de subida ---
-
-    function openUploadModal() {
-        if (!currentUser) {
-            toast('Inicia sesión para subir un servidor', 'error');
-            return;
-        }
-        $('uploadOverlay').classList.add('open');
-        document.body.style.overflow = 'hidden';
-        resetUploadForm();
-    }
-
-    function resetUploadForm() {
-        $('serverNameInput').value = '';
-        $('serverDescInput').value = '';
-        $('serverCategoryInput').value = 'juegos';
-        $('serverInviteInput').value = '';
-        $('tagsContainer').innerHTML = '';
-        $('tagInput').value = '';
-        $('imagePreview').style.display = 'none';
-        $('imagePreview').src = '';
-        $('serverImageInput').value = '';
-        $('uploadStatus').textContent = '';
-        $('uploadStatus').className = 'status-msg';
-        pendingImageFile = null;
-    }
-
-    // ============================================================
-    // NUEVA SECCIÓN DE EVENTOS DE IMAGEN CON LOGS Y MENSAJES
-    // ============================================================
-
-    // --- Dropzone imagen ---
-    const dropzone = $('imageDropzone');
-    const fileInput = $('serverImageInput');
-
-    dropzone.addEventListener('click', () => {
-        console.log('🖱️ Click en dropzone');
-        fileInput.click();
-    });
-
-    dropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropzone.style.borderColor = 'var(--cyan)';
-    });
-    dropzone.addEventListener('dragleave', () => {
-        dropzone.style.borderColor = '';
-    });
-    dropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropzone.style.borderColor = '';
-        if (e.dataTransfer.files.length) {
-            console.log('📂 Archivo soltado:', e.dataTransfer.files[0].name);
-            handleImageFile(e.dataTransfer.files[0]);
-        }
-    });
-
-    // Evento change del input file
-    fileInput.addEventListener('change', (e) => {
-        console.log('🔄 Evento change disparado');
-        if (e.target.files.length) {
-            const file = e.target.files[0];
-            console.log('📂 Archivo seleccionado:', file.name, 'Tamaño:', (file.size / 1024 / 1024).toFixed(2), 'MB');
-            handleImageFile(file);
-        } else {
-            console.warn('⚠️ No se seleccionó ningún archivo');
-        }
-        // Resetear el input para que pueda seleccionar el mismo archivo de nuevo
-        fileInput.value = '';
-    });
-
-    // --- Función handleImageFile mejorada con logs y mensajes en status ---
-    function handleImageFile(file) {
-        const statusEl = $('uploadStatus');
-
-        if (!file) {
-            console.error('❌ Archivo vacío');
-            statusEl.textContent = 'Error: archivo vacío.';
-            statusEl.className = 'status-msg error';
-            return;
-        }
-
-        // Mostrar mensaje de inicio
-        statusEl.textContent = '⏳ Procesando imagen...';
-        statusEl.className = 'status-msg info';
-        console.log('📸 Procesando imagen:', file.name, 'Tamaño original:', (file.size / 1024 / 1024).toFixed(2), 'MB');
-
-        // 1. Validar tamaño (máximo 10 MB)
-        if (file.size > 10 * 1024 * 1024) {
-            const msg = `La imagen es demasiado grande (${(file.size / 1024 / 1024).toFixed(1)} MB). Máximo 10 MB.`;
-            statusEl.textContent = '❌ ' + msg;
-            statusEl.className = 'status-msg error';
-            toast(msg, 'error');
-            console.error('❌ ' + msg);
-            return;
-        }
-
-        // 2. Validar tipo MIME (si no empieza con image/, intentamos cargarla igual)
-        if (!file.type.startsWith('image/')) {
-            const msg = 'El archivo no parece ser una imagen (tipo MIME: ' + file.type + '). Intenta con otro formato.';
-            statusEl.textContent = '❌ ' + msg;
-            statusEl.className = 'status-msg error';
-            toast(msg, 'error');
-            console.warn('⚠️ ' + msg);
-            // No retornamos, intentamos cargar de todas formas
-        }
-
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            console.log('✅ Archivo leído correctamente');
-            const img = new Image();
-
-            img.onload = function() {
-                console.log('🖼️ Imagen cargada en memoria:', img.width, 'x', img.height);
-                let w = img.width,
-                    h = img.height;
-                const maxW = 900,
-                    maxH = 500;
-                if (w > maxW || h > maxH) {
-                    const ratio = Math.min(maxW / w, maxH / h);
-                    w = Math.round(w * ratio);
-                    h = Math.round(h * ratio);
-                    console.log(`🔄 Redimensionado a ${w}x${h}`);
-                }
-
-                const canvas = document.createElement('canvas');
-                canvas.width = w;
-                canvas.height = h;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, w, h);
-
-                // Calidad 0.7 para más compresión
-                const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                console.log('📦 Base64 generado, longitud:', dataUrl.length);
-
-                // Calcular tamaño aproximado en KB (más preciso)
-                const approxKB = Math.round((dataUrl.length * 3) / 4 / 1024);
-                console.log(`📊 Tamaño comprimido aproximado: ${approxKB} KB`);
-
-                // Aumentamos el límite a 1.2 MB (1200 KB)
-                if (approxKB > 1200) {
-                    const msg = `La imagen comprimida pesa ~${approxKB} KB, que supera el límite de 1200 KB. Prueba con otra imagen más simple.`;
-                    statusEl.textContent = '❌ ' + msg;
-                    statusEl.className = 'status-msg error';
-                    toast(msg, 'error');
-                    console.error('❌ ' + msg);
-                    return;
-                }
-
-                // Guardar dataURL y mostrar vista previa
-                pendingImageFile = dataUrl;
-                const preview = $('imagePreview');
-                preview.src = dataUrl;
-                preview.style.display = 'block';
-
-                const successMsg = `✅ Imagen lista (${approxKB} KB)`;
-                statusEl.textContent = successMsg;
-                statusEl.className = 'status-msg success';
-                toast(successMsg, 'success');
-                console.log('✅ Imagen guardada en pendingImageFile');
-            };
-
-            img.onerror = function(err) {
-                const msg = 'Error al decodificar la imagen. El archivo puede estar corrupto o no ser una imagen válida.';
-                statusEl.textContent = '❌ ' + msg;
-                statusEl.className = 'status-msg error';
-                toast(msg, 'error');
-                console.error('❌ Error en img.onload:', err);
-            };
-
-            img.src = e.target.result;
-        };
-
-        reader.onerror = function(err) {
-            const msg = 'Error al leer el archivo. Intenta de nuevo o con otra imagen.';
-            statusEl.textContent = '❌ ' + msg;
-            statusEl.className = 'status-msg error';
-            toast(msg, 'error');
-            console.error('❌ Error en FileReader:', err);
-        };
-
-        reader.readAsDataURL(file);
-    }
-
-    // ============================================================
-    // RESTO DE EVENTOS (tags, envío, etc.)
-    // ============================================================
-
-    // Tags: añadir con Enter
-    const tagInput = $('tagInput');
-    const tagsContainer = $('tagsContainer');
-    tagInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const val = tagInput.value.trim();
-            if (!val) return;
-            const existing = tagsContainer.querySelectorAll('.tag-pill');
-            for (let el of existing) {
-                if (el.dataset.tag === val) return;
+            } else {
+                toast('Error al actualizar: ' + result.error, 'error');
             }
-            addTagPill(val);
-            tagInput.value = '';
-        }
-    });
-
-    function addTagPill(tag) {
-        const pill = document.createElement('span');
-        pill.className = 'tag-pill';
-        pill.dataset.tag = tag;
-        pill.innerHTML = `${esc(tag)} <span class="del-tag"><i class="fas fa-times"></i></span>`;
-        pill.querySelector('.del-tag').addEventListener('click', () => pill.remove());
-        tagsContainer.appendChild(pill);
-    }
-
-    // Envío del formulario (sin Storage)
-    $('uploadForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!currentUser) { toast('Inicia sesión para publicar', 'error'); return; }
-
-        const name = $('serverNameInput').value.trim();
-        const description = $('serverDescInput').value.trim();
-        const category = $('serverCategoryInput').value;
-        const inviteLink = $('serverInviteInput').value.trim();
-        const tags = Array.from(tagsContainer.querySelectorAll('.tag-pill')).map(el => el.dataset.tag);
-
-        if (!name || !description || !inviteLink) {
-            $('uploadStatus').textContent = 'Por favor completa todos los campos obligatorios.';
-            $('uploadStatus').className = 'status-msg error';
-            return;
-        }
-        if (!inviteLink.startsWith('http')) {
-            $('uploadStatus').textContent = 'El enlace de invitación debe ser una URL válida (https://...).';
-            $('uploadStatus').className = 'status-msg error';
-            return;
         }
 
-        const btn = $('submitServerBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
-        $('uploadStatus').textContent = '';
-        $('uploadStatus').className = 'status-msg';
+        async function handleDelete(serverId) {
+            if (!currentUser) return;
+            if (!confirm('¿Seguro que quieres eliminar este servidor?')) return;
+            const result = await deleteServer(serverId, currentUser.uid);
+            if (result.success) {
+                servers = servers.filter(s => s.id !== serverId);
+                renderServers();
+                toast('Servidor eliminado');
+                updatePopularTags();
+            } else {
+                toast('Error: ' + result.error, 'error');
+            }
+        }
 
-        const data = {
-            name,
-            description,
-            category,
-            inviteLink,
-            tags,
-            authorId: currentUser.uid,
-            authorName: currentUser.username || 'Anónimo',
-            createdAt: new Date().toISOString(),
-            likes: [],
-            dislikes: [],
-            image: pendingImageFile || ''
+        // --- Tags populares ---
+
+        function updatePopularTags() {
+            const tagCount = {};
+            servers.forEach(s => {
+                (s.tags || []).forEach(t => {
+                    tagCount[t] = (tagCount[t] || 0) + 1;
+                });
+            });
+            const sorted = Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, 8);
+            if (sorted.length === 0) {
+                popularTagsContainer.innerHTML = `<span class="label"><i class="fas fa-hashtag"></i> Tags populares</span><span style="color:var(--text-faint);font-size:0.8rem;">Sin tags aún</span>`;
+                return;
+            }
+            let html = `<span class="label"><i class="fas fa-hashtag"></i> Tags populares</span>`;
+            sorted.forEach(([tag, count]) => {
+                const active = currentTagFilter === tag ? 'active' : '';
+                html += `<span class="tag-pop ${active}" data-tag="${esc(tag)}">${esc(tag)} (${count})</span>`;
+            });
+            popularTagsContainer.innerHTML = html;
+
+            popularTagsContainer.querySelectorAll('.tag-pop').forEach(el => {
+                el.onclick = () => {
+                    const tag = el.dataset.tag;
+                    if (currentTagFilter === tag) {
+                        currentTagFilter = '';
+                        el.classList.remove('active');
+                    } else {
+                        currentTagFilter = tag;
+                        popularTagsContainer.querySelectorAll('.tag-pop').forEach(e => e.classList.remove('active'));
+                        el.classList.add('active');
+                    }
+                    renderServers();
+                };
+            });
+        }
+
+        // --- Carga inicial ---
+
+        async function loadServers() {
+            const result = await getServers();
+            if (!result.success) {
+                grid.innerHTML = `<div class="servers-empty"><i class="fas fa-exclamation-triangle"></i><p>Error al cargar: ${result.error}</p></div>`;
+                return;
+            }
+            servers = result.data || [];
+            await loadUserEffects();
+            renderServers();
+            updatePopularTags();
+        }
+
+        // --- Autenticación ---
+
+        function initAuth() {
+            if (window.fb && window.fb.onAuthChange) {
+                window.fb.onAuthChange((user) => {
+                    currentUser = user;
+                    renderServers(); // refrescar para mostrar botones de autor
+                });
+            } else {
+                // Fallback: intentar recuperar de localStorage
+                const stored = JSON.parse(localStorage.getItem('jv_user') || 'null');
+                if (stored) currentUser = stored;
+                // Si no hay auth, igual cargamos los servidores
+                loadServers();
+            }
+        }
+
+        // --- Modal de subida ---
+
+        function openUploadModal() {
+            if (!currentUser) {
+                toast('Inicia sesión para subir un servidor', 'error');
+                return;
+            }
+            $('uploadOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            resetUploadForm();
+        }
+
+        function resetUploadForm() {
+            $('serverNameInput').value = '';
+            $('serverDescInput').value = '';
+            $('serverCategoryInput').value = 'juegos';
+            $('serverInviteInput').value = '';
+            $('tagsContainer').innerHTML = '';
+            $('tagInput').value = '';
+            $('imagePreview').style.display = 'none';
+            $('imagePreview').src = '';
+            $('serverImageInput').value = '';
+            $('uploadStatus').textContent = '';
+            $('uploadStatus').className = 'status-msg';
+            pendingImageFile = null; // reiniciamos
+        }
+
+        // --- Eventos del formulario ---
+
+        // Dropzone imagen
+        const dropzone = $('imageDropzone');
+        const fileInput = $('serverImageInput');
+        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault();
+            dropzone.style.borderColor = 'var(--cyan)'; });
+        dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = ''; });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = '';
+            if (e.dataTransfer.files.length) handleImageFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleImageFile(e.target.files[0]);
+        });
+
+        // ============================================================
+        // NUEVA FUNCIÓN handleImageFile CON LOGS Y DIAGNÓSTICO
+        // ============================================================
+        function handleImageFile(file) {
+            console.log('handleImageFile llamado con:', file); // 👈 diagnóstico temporal
+            if (!file) { console.log('No hay file'); return; }
+            if (file.size > 8 * 1024 * 1024) { toast('La imagen es demasiado grande (máx 8MB)', 'error'); return; }
+            if (!file.type.startsWith('image/')) { toast('Solo se permiten imágenes', 'error'); return; }
+
+            const reader = new FileReader();
+
+            reader.onerror = function() {
+                console.error('Error en FileReader:', reader.error);
+                toast('No se pudo leer el archivo: ' + reader.error, 'error');
+            };
+
+            reader.onload = function(e) {
+                console.log('FileReader cargó OK, longitud:', e.target.result.length);
+                const img = new Image();
+
+                img.onerror = function(err) {
+                    console.error('Error al cargar la imagen en <img>:', err);
+                    toast('No se pudo procesar esta imagen (formato no compatible o archivo dañado)', 'error');
+                };
+
+                img.onload = function() {
+                    console.log('Imagen decodificada OK:', img.width, 'x', img.height);
+                    let w = img.width, h = img.height;
+                    const maxW = 900, maxH = 500;
+                    if (w > maxW || h > maxH) {
+                        const ratio = Math.min(maxW / w, maxH / h);
+                        w = Math.round(w * ratio);
+                        h = Math.round(h * ratio);
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+                    let dataUrl;
+                    try {
+                        dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+                    } catch (err) {
+                        console.error('Error al comprimir con canvas:', err);
+                        toast('Error al comprimir la imagen: ' + err.message, 'error');
+                        return;
+                    }
+
+                    const approxBytes = Math.round((dataUrl.length * 3) / 4);
+                    console.log('Tamaño aproximado comprimido:', approxBytes, 'bytes');
+                    if (approxBytes > 700 * 1024) {
+                        toast('La imagen sigue siendo muy pesada después de comprimir, prueba con otra', 'error');
+                        return;
+                    }
+
+                    pendingImageFile = dataUrl;
+                    const preview = $('imagePreview');
+                    preview.src = dataUrl;
+                    preview.style.display = 'block';
+                    toast('Imagen cargada correctamente');
+                };
+
+                img.src = e.target.result;
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // Tags: añadir con Enter
+        const tagInput = $('tagInput');
+        const tagsContainer = $('tagsContainer');
+        tagInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = tagInput.value.trim();
+                if (!val) return;
+                // Evitar duplicados
+                const existing = tagsContainer.querySelectorAll('.tag-pill');
+                for (let el of existing) {
+                    if (el.dataset.tag === val) return;
+                }
+                addTagPill(val);
+                tagInput.value = '';
+            }
+        });
+
+        function addTagPill(tag) {
+            const pill = document.createElement('span');
+            pill.className = 'tag-pill';
+            pill.dataset.tag = tag;
+            pill.innerHTML = `${esc(tag)} <span class="del-tag"><i class="fas fa-times"></i></span>`;
+            pill.querySelector('.del-tag').addEventListener('click', () => pill.remove());
+            tagsContainer.appendChild(pill);
+        }
+
+        // Envío del formulario (simplificado, sin Storage)
+        $('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) { toast('Inicia sesión para publicar', 'error'); return; }
+
+            const name = $('serverNameInput').value.trim();
+            const description = $('serverDescInput').value.trim();
+            const category = $('serverCategoryInput').value;
+            const inviteLink = $('serverInviteInput').value.trim();
+            const tags = Array.from(tagsContainer.querySelectorAll('.tag-pill')).map(el => el.dataset.tag);
+
+            if (!name || !description || !inviteLink) {
+                $('uploadStatus').textContent = 'Por favor completa todos los campos obligatorios.';
+                $('uploadStatus').className = 'status-msg error';
+                return;
+            }
+            if (!inviteLink.startsWith('http')) {
+                $('uploadStatus').textContent = 'El enlace de invitación debe ser una URL válida (https://...).';
+                $('uploadStatus').className = 'status-msg error';
+                return;
+            }
+
+            const btn = $('submitServerBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
+            $('uploadStatus').textContent = '';
+            $('uploadStatus').className = 'status-msg';
+
+            const data = {
+                name,
+                description,
+                category,
+                inviteLink,
+                tags,
+                authorId: currentUser.uid,
+                authorName: currentUser.username || 'Anónimo',
+                createdAt: new Date().toISOString(),
+                likes: [],
+                dislikes: [],
+                image: pendingImageFile || '' // ya es el dataURL base64, o vacío si no subió imagen
+            };
+
+            const result = await addServer(data);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Publicar servidor';
+
+            if (result.success) {
+                toast('¡Servidor publicado correctamente!');
+                $('uploadOverlay').classList.remove('open');
+                document.body.style.overflow = '';
+                await loadServers();
+            } else {
+                $('uploadStatus').textContent = 'Error: ' + result.error;
+                $('uploadStatus').className = 'status-msg error';
+            }
+        });
+
+        // Cerrar modal
+        $('uploadModalClose').onclick = () => {
+            $('uploadOverlay').classList.remove('open');
+            document.body.style.overflow = '';
         };
+        $('uploadOverlay').addEventListener('click', (e) => {
+            if (e.target === $('uploadOverlay')) {
+                $('uploadOverlay').classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        });
 
-        const result = await addServer(data);
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-check"></i> Publicar servidor';
+        // --- Buscador y filtros ---
 
-        if (result.success) {
-            toast('¡Servidor publicado correctamente!');
-            $('uploadOverlay').classList.remove('open');
-            document.body.style.overflow = '';
-            await loadServers();
-        } else {
-            $('uploadStatus').textContent = 'Error: ' + result.error;
-            $('uploadStatus').className = 'status-msg error';
-        }
-    });
-
-    // Cerrar modal
-    $('uploadModalClose').onclick = () => {
-        $('uploadOverlay').classList.remove('open');
-        document.body.style.overflow = '';
-    };
-    $('uploadOverlay').addEventListener('click', (e) => {
-        if (e.target === $('uploadOverlay')) {
-            $('uploadOverlay').classList.remove('open');
-            document.body.style.overflow = '';
-        }
-    });
-
-    // --- Buscador y filtros ---
-    searchInput.addEventListener('input', (e) => {
-        currentSearch = e.target.value;
-        renderServers();
-    });
-
-    categoryFilters.forEach(btn => {
-        btn.addEventListener('click', () => {
-            categoryFilters.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentCategory = btn.dataset.cat;
+        searchInput.addEventListener('input', (e) => {
+            currentSearch = e.target.value;
             renderServers();
         });
-    });
 
-    // --- Botón de subida (abrir modal) ---
-    $('openUploadBtn').addEventListener('click', openUploadModal);
-
-    // --- Inicialización ---
-    function boot() {
-        if (window.fb && window.fb.db) {
-            initAuth();
-            loadServers();
-        } else {
-            setTimeout(boot, 300);
-        }
-    }
-
-    if (window.fbReady) boot();
-    else {
-        window.addEventListener('fb-ready', boot, { once: true });
-        setTimeout(() => {
-            if (!window.fb) {
-                console.warn('Firebase no cargado, usando datos de muestra');
-                servers = [];
+        categoryFilters.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryFilters.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.cat;
                 renderServers();
-                updatePopularTags();
+            });
+        });
+
+        // --- Botón de subida (abrir modal) ---
+        $('openUploadBtn').addEventListener('click', openUploadModal);
+
+        // --- Inicialización ---
+
+        // Esperar a que Firebase esté listo
+        function boot() {
+            if (window.fb && window.fb.db) {
+                initAuth();
+                loadServers();
+            } else {
+                setTimeout(boot, 300);
             }
-        }, 5000);
-    }
-
-    // --- Helpers ---
-    function toast(msg, type = 'success') {
-        const t = document.createElement('div');
-        t.className = `toast ${type === 'error' ? 'err' : 'ok'}`;
-        t.innerHTML = `<i class="fas fa-${type === 'error' ? 'circle-exclamation' : 'circle-check'}"></i> ${esc(msg)}`;
-        document.body.appendChild(t);
-        setTimeout(() => {
-            t.style.opacity = '0';
-            t.style.transform = 'translateX(40px)';
-            t.style.transition = 'all .3s';
-            setTimeout(() => t.remove(), 350);
-        }, 3000);
-    }
-
-    function closeOverlay(id) {
-        const el = document.getElementById(id);
-        if (el) { el.classList.remove('open');
-            document.body.style.overflow = ''; }
-    }
-
-    // --- Anti-tools ---
-    document.addEventListener('contextmenu', (e) => e.preventDefault());
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'F12' ||
-            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) ||
-            (e.ctrlKey && (e.key === 'U' || e.key === 'u')) ||
-            (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j'))) {
-            e.preventDefault();
-            return false;
         }
-    });
 
-    // --- Tema ---
-    (function applyTheme() {
-        const dark = localStorage.getItem('jv_dark') !== 'false';
-        document.body.classList.toggle('light', !dark);
-        const icon = document.getElementById('themeIcon');
-        if (icon) icon.className = dark ? 'fas fa-moon' : 'fas fa-sun';
-    })();
+        if (window.fbReady) boot();
+        else {
+            window.addEventListener('fb-ready', boot, { once: true });
+            setTimeout(() => {
+                if (!window.fb) {
+                    console.warn('Firebase no cargado, usando datos de muestra');
+                    servers = [];
+                    renderServers();
+                    updatePopularTags();
+                }
+            }, 5000);
+        }
 
-    document.getElementById('themeBtn').onclick = () => {
-        const dark = localStorage.getItem('jv_dark') !== 'false';
-        localStorage.setItem('jv_dark', !dark);
-        document.body.classList.toggle('light', dark);
-        const icon = document.getElementById('themeIcon');
-        if (icon) icon.className = dark ? 'fas fa-moon' : 'fas fa-sun';
-    };
+        // --- Helpers reutilizados ---
+        function toast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast ${type === 'error' ? 'err' : 'ok'}`;
+            t.innerHTML = `<i class="fas fa-${type === 'error' ? 'circle-exclamation' : 'circle-check'}"></i> ${esc(msg)}`;
+            document.body.appendChild(t);
+            setTimeout(() => {
+                t.style.opacity = '0';
+                t.style.transform = 'translateX(40px)';
+                t.style.transition = 'all .3s';
+                setTimeout(() => t.remove(), 350);
+            }, 3000);
+        }
 
-    // --- Back to top ---
-    const backBtn = document.getElementById('backToTop');
-    window.addEventListener('scroll', () => {
-        backBtn.style.opacity = window.scrollY > 500 ? '1' : '0';
-        backBtn.style.transform = window.scrollY > 500 ? 'scale(1)' : 'scale(.8)';
-    });
-    backBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+        function closeOverlay(id) {
+            const el = document.getElementById(id);
+            if (el) { el.classList.remove('open');
+                document.body.style.overflow = ''; }
+        }
 
-    console.log('%c🛡️ Servers · Protección activa', 'color:#4fd8ff;font-size:14px;font-weight:bold;');
-</script>
+        // --- Anti-tools (F12, click derecho) ---
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) ||
+                (e.ctrlKey && (e.key === 'U' || e.key === 'u')) ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j'))) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // --- Tema ---
+        (function applyTheme() {
+            const dark = localStorage.getItem('jv_dark') !== 'false';
+            document.body.classList.toggle('light', !dark);
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = dark ? 'fas fa-moon' : 'fas fa-sun';
+        })();
+
+        document.getElementById('themeBtn').onclick = () => {
+            const dark = localStorage.getItem('jv_dark') !== 'false';
+            localStorage.setItem('jv_dark', !dark);
+            document.body.classList.toggle('light', dark);
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = dark ? 'fas fa-moon' : 'fas fa-sun';
+        };
+
+        // --- Back to top ---
+        const backBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            backBtn.style.opacity = window.scrollY > 500 ? '1' : '0';
+            backBtn.style.transform = window.scrollY > 500 ? 'scale(1)' : 'scale(.8)';
+        });
+        backBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        console.log('%c🛡️ Servers · Protección activa', 'color:#4fd8ff;font-size:14px;font-weight:bold;');
+    </script>
 </body>
 </html>
