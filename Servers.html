@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Servidores | Proyect Nexus</title>
+    <meta name="robots" content="noindex, follow" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet"
+    />
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css?v=2" />
+    <link rel="stylesheet" href="css/username-effects.css" />
+
+    <link rel="icon" type="image/x-icon" href="/assets/ico.ico" />
+
+    <script type="module" src="js/firebase-init.js?v=3"></script>
+
+    <style>
+        /* ===== ESTILOS EXCLUSIVOS PARA SERVERS.HTML ===== */
+        :root {
+            --server-card-bg: var(--panel);
+            --server-border: var(--border);
+        }
+
+        .servers-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 20px 110px;
+        }
+
+        /* --- Cabecera --- */
+        .servers-header {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .servers-header h1 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+        .servers-header h1 i {
+            color: var(--cyan);
+            margin-right: 10px;
+        }
+        .servers-header p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            max-width: 560px;
+        }
+
+        /* --- Barra de herramientas (buscador + botón subir) --- */
+        .servers-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+        .servers-search {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        .servers-search input {
+            width: 100%;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 12px 20px 12px 44px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .servers-search input:focus {
+            border-color: var(--cyan);
+        }
+        .servers-search i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-faint);
+        }
+
+        .servers-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* --- Filtros por categoría (chips) --- */
+        .servers-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+        .cat-chip-filter {
+            padding: 6px 16px;
+            border-radius: 30px;
+            background: var(--panel-strong);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .cat-chip-filter:hover {
+            border-color: var(--border-strong);
+            color: var(--text);
+        }
+        .cat-chip-filter.active {
+            background: var(--cyan);
+            color: #04121a;
+            border-color: var(--cyan);
+            box-shadow: 0 4px 12px var(--cyan-dim);
+        }
+
+        /* --- Grid de servidores --- */
+        .servers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 22px;
+        }
+
+        .server-card {
+            background: var(--server-card-bg);
+            border: 1px solid var(--server-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .server-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-strong);
+            box-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.4);
+        }
+
+        .server-thumb {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: var(--bg-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .server-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .server-thumb .placeholder {
+            font-size: 3rem;
+            color: var(--text-faint);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .server-thumb .placeholder i {
+            font-size: 3.6rem;
+        }
+        .server-thumb .placeholder span {
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .server-body {
+            padding: 18px 20px 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .server-title {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .server-title .badge-verified {
+            font-size: 0.55rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            background: var(--cyan);
+            color: #04121a;
+            padding: 2px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+        }
+        .server-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+            font-size: 0.7rem;
+            color: var(--text-faint);
+        }
+        .server-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .server-meta i {
+            font-size: 0.6rem;
+        }
+
+        .server-desc {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            line-height: 1.6;
+            flex: 1;
+            margin-bottom: 14px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .server-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+        .server-tag {
+            background: var(--panel-strong);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2px 12px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-dim);
+        }
+
+        .server-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 4px;
+            border-top: 1px solid var(--border);
+            padding-top: 14px;
+        }
+        .server-reactions {
+            display: flex;
+            gap: 12px;
+        }
+        .reaction-btn {
+            background: none;
+            border: none;
+            color: var(--text-faint);
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .reaction-btn:hover {
+            background: var(--panel-strong);
+            color: var(--text);
+        }
+        .reaction-btn.liked {
+            color: var(--cyan);
+        }
+        .reaction-btn.disliked {
+            color: var(--danger);
+        }
+        .reaction-btn i {
+            font-size: 0.75rem;
+        }
+
+        .server-invite-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #5865F2;
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-family: inherit;
+            cursor: pointer;
+        }
+        .server-invite-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 4px 16px rgba(88, 101, 242, 0.35);
+        }
+        .server-invite-btn.disabled {
+            background: var(--panel-strong);
+            color: var(--text-faint);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* --- Formulario de subida (modal) --- */
+        .upload-overlay .modal {
+            max-width: 560px;
+        }
+        .upload-form .field-group {
+            margin-bottom: 16px;
+        }
+        .upload-form .field-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-faint);
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            display: block;
+            margin-bottom: 6px;
+        }
+        .upload-form .dropzone {
+            padding: 24px;
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            background: var(--panel-strong);
+        }
+        .upload-form .dropzone:hover {
+            border-color: var(--cyan);
+        }
+        .upload-form .dropzone i {
+            font-size: 2rem;
+            color: var(--text-faint);
+            display: block;
+            margin-bottom: 8px;
+        }
+        .upload-form .dropzone p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+        .upload-form .dropzone small {
+            font-size: 0.7rem;
+            color: var(--text-faint);
+        }
+        .upload-form .preview-img {
+            max-height: 200px;
+            border-radius: 12px;
+            margin-top: 12px;
+            border: 1px solid var(--border);
+            display: none;
+            width: 100%;
+            object-fit: cover;
+        }
+        .upload-form .tags-input-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--panel-strong);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            min-height: 44px;
+            align-items: center;
+        }
+        .upload-form .tag-pill {
+            background: var(--cyan-dim);
+            color: var(--cyan);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .upload-form .tag-pill .del-tag {
+            cursor: pointer;
+            font-size: 0.6rem;
+            color: var(--text-faint);
+            transition: color 0.2s;
+        }
+        .upload-form .tag-pill .del-tag:hover {
+            color: var(--danger);
+        }
+        .upload-form .tag-input {
+            flex: 1;
+            min-width: 80px;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        /* --- Estado vacío --- */
+        .servers-empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-faint);
+        }
+        .servers-empty i {
+            font-size: 2.6rem;
+            display: block;
+            margin-bottom: 14px;
+            color: var(--text-faint);
+        }
+
+        /* --- Tags populares (flotante) --- */
+        .popular-tags {
+            margin-bottom: 28px;
+        }
+        .popular-tags .label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-faint);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-right: 12px;
+        }
+        .popular-tags .tag-pop {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 30px;
+            background: var(--panel-strong);
+            border: 1px solid var(--border);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0 4px 6px 0;
+        }
+        .popular-tags .tag-pop:hover {
+            border-color: var(--border-strong);
+            color: var(--text);
+        }
+        .popular-tags .tag-pop.active {
+            background: var(--cyan);
+            color: #04121a;
+            border-color: var(--cyan);
+            box-shadow: 0 4px 12px var(--cyan-dim);
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 640px) {
+            .servers-header h1 {
+                font-size: 1.5rem;
+            }
+            .servers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+         HEADER (sin menú hamburguesa, sin traducción)
+    ============================================================ -->
+    <header id="mainHeader">
+        <div class="wrap nav">
+            <a href="index.html" class="logo">
+                <div style="display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0;">
+                    <img src="assets/vvv.png" alt="Proyect Nexus" style="width:36px;height:36px;border-radius:11px;object-fit:cover;box-shadow:0 0 20px var(--cyan-dim);transition:transform .3s,box-shadow .3s;">
+                    <span class="logo-name">Proyect <span>Nexus</span></span>
+                </div>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">Inicio</a>
+                <a href="index.html#products">Productos</a>
+                <a href="tienda.html">Tienda</a>
+                <a href="noticias.html">Noticias</a>
+                <a href="index.html#comments">Comentarios</a>
+                <a href="index.html#foro">Foro</a>
+                <a href="index.html#features">Características</a>
+                <a href="index.html#team">Equipo</a>
+            </nav>
+            <div class="nav-end">
+                <button class="icon-btn" id="themeBtn" title="Tema"><i class="fas fa-moon" id="themeIcon"></i></button>
+                <a href="contributors.html" class="icon-btn" title="Contribuidores" style="text-decoration:none;"><i class="fas fa-users"></i></a>
+                <!-- Eliminado el botón de idioma -->
+            </div>
+        </div>
+    </header>
+
+    <!-- ============================================================
+         CONTENIDO PRINCIPAL
+    ============================================================ -->
+    <main>
+        <div class="servers-wrap">
+
+            <!-- Cabecera -->
+            <div class="servers-header">
+                <h1><i class="fas fa-server"></i> Servidores de Discord</h1>
+                <p>Descubre y comparte servidores de Discord de toda la comunidad. Encuentra tu próxima comunidad favorita o promociona la tuya.</p>
+            </div>
+
+            <!-- Barra de herramientas -->
+            <div class="servers-toolbar">
+                <div class="servers-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="serverSearchInput" placeholder="Buscar por nombre, descripción o tags..." />
+                </div>
+                <div class="servers-actions">
+                    <button class="btn btn-solid" id="openUploadBtn"><i class="fas fa-plus"></i> Subir servidor</button>
+                </div>
+            </div>
+
+            <!-- Tags populares (se llenan dinámicamente) -->
+            <div class="popular-tags" id="popularTagsContainer">
+                <span class="label"><i class="fas fa-hashtag"></i> Tags populares</span>
+                <span style="color:var(--text-faint);font-size:0.8rem;">Cargando...</span>
+            </div>
+
+            <!-- Filtros por categoría -->
+            <div class="servers-categories" id="categoryFilters">
+                <button class="cat-chip-filter active" data-cat="all">Todos</button>
+                <button class="cat-chip-filter" data-cat="juegos">🎮 Juegos</button>
+                <button class="cat-chip-filter" data-cat="comunidad">🌐 Comunidad</button>
+                <button class="cat-chip-filter" data-cat="tecnologia">💻 Tecnología</button>
+                <button class="cat-chip-filter" data-cat="arte">🎨 Arte</button>
+                <button class="cat-chip-filter" data-cat="musica">🎵 Música</button>
+                <button class="cat-chip-filter" data-cat="estudios">📚 Estudios</button>
+                <button class="cat-chip-filter" data-cat="otros">🔹 Otros</button>
+            </div>
+
+            <!-- Grid de servidores -->
+            <div class="servers-grid" id="serversGrid">
+                <div class="servers-empty">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Cargando servidores...</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ============================================================
+         MODAL DE SUBIDA
+    ============================================================ -->
+    <div class="overlay upload-overlay" id="uploadOverlay">
+        <div class="modal">
+            <button class="modal-x" id="uploadModalClose"><i class="fas fa-times"></i></button>
+            <h3 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:16px;">
+                <i class="fas fa-cloud-upload-alt" style="color:var(--cyan);"></i> Subir servidor
+            </h3>
+            <form class="upload-form" id="uploadForm">
+                <!-- Nombre -->
+                <div class="field-group">
+                    <label class="field-label">Nombre del servidor *</label>
+                    <input type="text" id="serverNameInput" class="field" placeholder="Ej: Nexus Community" required />
+                </div>
+
+                <!-- Descripción -->
+                <div class="field-group">
+                    <label class="field-label">Descripción *</label>
+                    <textarea id="serverDescInput" class="field" rows="3" placeholder="Cuéntanos de qué trata tu servidor..." required></textarea>
+                </div>
+
+                <!-- Categoría -->
+                <div class="field-group">
+                    <label class="field-label">Categoría *</label>
+                    <select id="serverCategoryInput" class="field" required>
+                        <option value="juegos">🎮 Juegos</option>
+                        <option value="comunidad">🌐 Comunidad</option>
+                        <option value="tecnologia">💻 Tecnología</option>
+                        <option value="arte">🎨 Arte</option>
+                        <option value="musica">🎵 Música</option>
+                        <option value="estudios">📚 Estudios</option>
+                        <option value="otros">🔹 Otros</option>
+                    </select>
+                </div>
+
+                <!-- Enlace de invitación -->
+                <div class="field-group">
+                    <label class="field-label">Enlace de invitación *</label>
+                    <input type="url" id="serverInviteInput" class="field" placeholder="https://discord.gg/tu-invitacion" required />
+                </div>
+
+                <!-- Tags -->
+                <div class="field-group">
+                    <label class="field-label">Tags (presiona Enter para agregar)</label>
+                    <div class="tags-input-wrap" id="tagsInputWrap">
+                        <div id="tagsContainer" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+                        <input type="text" id="tagInput" class="tag-input" placeholder="Ej: gaming, español, comunidad..." />
+                    </div>
+                </div>
+
+                <!-- Imagen (subida desde PC) -->
+                <div class="field-group">
+                    <label class="field-label">Imagen del servidor (opcional)</label>
+                    <div class="dropzone" id="imageDropzone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Haz clic o arrastra una imagen</p>
+                        <small>JPG, PNG, WEBP — máximo 2MB</small>
+                        <input type="file" id="serverImageInput" accept="image/*" style="display:none;" />
+                    </div>
+                    <img id="imagePreview" class="preview-img" alt="Vista previa" />
+                </div>
+
+                <button type="submit" class="btn btn-solid btn-block" id="submitServerBtn">
+                    <i class="fas fa-check"></i> Publicar servidor
+                </button>
+                <div class="status-msg" id="uploadStatus" style="margin-top:12px;"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         FOOTER (igual que index)
+    ============================================================ -->
+    <footer class="modern-footer">
+        <div class="wrap">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="logo"><span class="logo-name">157 <span>TEAM</span></span></div>
+                    <p class="text-dim">IA del futuro, disponible hoy. Redefiniendo el control y la interacción tecnológica. Desarrollado con ❤️ por 157 Team.</p>
+                    <div class="social-links">
+                        <a href="https://github.com/dexter-666/IA_proyect-v1-free" target="_blank" class="social-btn"><i class="fab fa-github"></i></a>
+                        <a href="https://discord.com/invite/RBBXNZaNDw" target="_blank" class="social-btn"><i class="fab fa-discord"></i></a>
+                        <a href="mailto:157developersteam@gmail.com" class="social-btn"><i class="fas fa-envelope"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Producto</h4>
+                    <a href="index.html#products">N.E.X.U.S</a>
+                    <a href="index.html#products">JARVIS Free</a>
+                    <a href="index.html#products">ILUM Premium</a>
+                    <a href="noticias.html">Noticias</a>
+                    <a href="index.html#features">Características</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Compañía</h4>
+                    <a href="index.html#team">El equipo</a>
+                    <a href="contributors.html">Contribuidores</a>
+                    <a href="#" onclick="document.getElementById('termsOverlay').classList.add('open');return false;">Términos Legales</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Apoyar</h4>
+                    <a href="#" class="donate-link" onclick="document.getElementById('donateOverlay').classList.add('open');document.body.style.overflow='hidden';return false;"><i class="fas fa-heart"></i> Donar</a>
+                    <a href="https://discord.com/invite/RBBXNZaNDw" target="_blank">Comunidad Discord</a>
+                </div>
+            </div>
+            <div class="f-bottom">
+                <p>© 2026 157 Team — Todos los derechos reservados.</p>
+                <div class="f-bottom-right"><p>Designed by <span>157 Team</span></p></div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============================================================
+         OVERLAY DE DONACIÓN (reutilizado)
+    ============================================================ -->
+    <div class="overlay" id="donateOverlay">
+        <div class="modal" style="max-width:520px;">
+            <button class="modal-x" onclick="closeOverlay('donateOverlay')"><i class="fas fa-times"></i></button>
+            <div style="text-align:center;">
+                <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,rgba(61,220,151,.12),rgba(255,181,71,.12));border:1px solid rgba(61,220,151,.2);display:grid;place-items:center;margin:0 auto 16px;font-size:2rem;animation:donateFloat 3s ease-in-out infinite;">💜</div>
+                <h3 style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--cyan),var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;">Apoya a 157 Team</h3>
+                <p style="color:var(--text-dim);font-size:.88rem;margin-bottom:28px;line-height:1.7;">Tu donación nos ayuda a mantener Nexus Funcional, JARVIS gratis y seguir desarrollando ILUM. Cada contribución importa enormemente. ¡Gracias de corazón!</p>
+                <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px;text-align:left;display:flex;align-items:center;gap:8px;">
+                    <span>PayPal</span>
+                    <span style="flex:1;height:1px;background:var(--border);"></span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+                    <a class="donate-row" href="https://www.paypal.com/paypalme/157teamai" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .25s;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:500;">
+                        <div style="width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.1rem;flex-shrink:0;background:rgba(0,112,240,.1);color:#0070f0;"><i class="fab fa-paypal"></i></div>
+                        <div style="flex:1;text-align:left;"><strong>PayPal Principal</strong><small style="display:block;font-size:.7rem;color:var(--text-faint);margin-top:2px;">paypal.me/157teamai</small></div>
+                        <i class="fas fa-arrow-right d-arrow" style="color:var(--text-faint);font-size:.75rem;transition:transform .2s;"></i>
+                    </a>
+                    <a class="donate-row" href="https://www.paypal.com/paypalme/157teamsupport" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .25s;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:500;">
+                        <div style="width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.1rem;flex-shrink:0;background:rgba(0,112,240,.1);color:#0070f0;"><i class="fab fa-paypal"></i></div>
+                        <div style="flex:1;text-align:left;"><strong>PayPal Soporte</strong><small style="display:block;font-size:.7rem;color:var(--text-faint);margin-top:2px;">paypal.me/157teamsupport</small></div>
+                        <i class="fas fa-arrow-right d-arrow" style="color:var(--text-faint);font-size:.75rem;transition:transform .2s;"></i>
+                    </a>
+                </div>
+                <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px;text-align:left;display:flex;align-items:center;gap:8px;">
+                    <span>Dólar App</span>
+                    <span style="flex:1;height:1px;background:var(--border);"></span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+                    <a class="donate-row" href="https://dollarapp.net/pagar/157team" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .25s;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:500;">
+                        <div style="width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.1rem;flex-shrink:0;background:rgba(61,220,151,.1);color:var(--success);"><i class="fas fa-dollar-sign"></i></div>
+                        <div style="flex:1;text-align:left;"><strong>DólarApp Principal</strong><small style="display:block;font-size:.7rem;color:var(--text-faint);margin-top:2px;">@157team</small></div>
+                        <i class="fas fa-arrow-right d-arrow" style="color:var(--text-faint);font-size:.75rem;transition:transform .2s;"></i>
+                    </a>
+                    <a class="donate-row" href="https://dollarapp.net/pagar/157teamdev" target="_blank" style="display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .25s;text-decoration:none;color:var(--text);font-size:.85rem;font-weight:500;">
+                        <div style="width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.1rem;flex-shrink:0;background:rgba(61,220,151,.1);color:var(--success);"><i class="fas fa-dollar-sign"></i></div>
+                        <div style="flex:1;text-align:left;"><strong>DólarApp Dev</strong><small style="display:block;font-size:.7rem;color:var(--text-faint);margin-top:2px;">@157teamdev</small></div>
+                        <i class="fas fa-arrow-right d-arrow" style="color:var(--text-faint);font-size:.75rem;transition:transform .2s;"></i>
+                    </a>
+                </div>
+                <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:12px;text-align:left;display:flex;align-items:center;gap:8px;">
+                    <span>Tarjeta de Crédito / Débito</span>
+                    <span style="flex:1;height:1px;background:var(--border);"></span>
+                </div>
+                <div style="background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:8px;">
+                    <p style="font-size:.82rem;color:var(--text-dim);line-height:1.6;margin-bottom:10px;">Escríbenos por Discord para coordinar el pago con tarjeta de forma segura y directa.</p>
+                    <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px;">
+                        <div style="background:var(--panel-strong);border:1px solid var(--border);border-radius:10px;padding:10px 12px; display:flex; justify-content:space-between; align-items:center;">
+                            <div>
+                                <label style="font-size:.6rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:4px;">Tarjetas Aceptadas</label>
+                                <span style="font-family:var(--font-mono);font-size:.82rem;color:var(--text);">Visa / Mastercard</span>
+                            </div>
+                            <div style="display:flex;gap:6px;font-size:1.4rem;">
+                                <i class="fab fa-cc-visa" style="color:#1A1F71;"></i>
+                                <i class="fab fa-cc-mastercard" style="color:#EB001B;"></i>
+                            </div>
+                        </div>
+                        <div style="background:var(--panel-strong);border:1px solid var(--border);border-radius:10px;padding:12px;">
+                            <label style="font-size:.6rem;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:8px;">Monedas Locales & Internacionales</label>
+                            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                                <span style="background:rgba(0,255,229,0.1);color:var(--cyan);border:1px solid rgba(0,255,229,0.2);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇺🇸 USD</span>
+                                <span style="background:rgba(255,193,7,0.1);color:var(--amber);border:1px solid rgba(255,193,7,0.2);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇨🇴 COP</span>
+                                <span style="background:rgba(255,93,106,0.1);color:var(--danger);border:1px solid rgba(255,93,106,0.2);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇲🇽 MXN</span>
+                                <span style="background:rgba(123,47,255,0.1);color:#a87bff;border:1px solid rgba(123,47,255,0.2);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇦🇷 ARS</span>
+                                <span style="background:rgba(255,255,255,0.05);color:var(--text);border:1px solid rgba(255,255,255,0.1);padding:4px 8px;border-radius:6px;font-size:0.75rem;font-weight:700;display:flex;align-items:center;gap:4px;transition:all 0.2s;">🇻🇪 VES</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="https://discord.gg/Nahh9XhnvR" target="_blank" class="btn btn-solid btn-block" style="background:#5865F2;color:#fff;box-shadow:0 6px 20px rgba(88,101,242,.3);"><i class="fab fa-discord"></i> Coordinar por Discord</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         TERMS OVERLAY (reutilizado)
+    ============================================================ -->
+    <div class="overlay" id="termsOverlay">
+        <div class="modal" style="max-width:600px;">
+            <button class="modal-x" onclick="document.getElementById('termsOverlay').classList.remove('open')"><i class="fas fa-times"></i></button>
+            <h3 style="font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:14px;">Términos y Condiciones Legales</h3>
+            <div style="font-size:.85rem;color:var(--text-dim);line-height:1.7;max-height:60vh;overflow-y:auto;padding-right:10px;">
+                <p style="margin-bottom:10px;"><strong style="color:var(--text);">1. Uso Aceptable y Prohibición de Piratería</strong></p>
+                <p style="margin-bottom:14px;">El uso de Nexus e ILUM está estrictamente regulado. Queda terminantemente prohibida la copia, distribución no autorizada, ingeniería inversa, modificación o intento de piratería de nuestro software.</p>
+                <p style="margin-bottom:10px;"><strong style="color:var(--danger);">2. Demandas Legales y Penalizaciones</strong></p>
+                <p style="margin-bottom:14px;">Cualquier infracción relacionada con la piratería o distribución ilegal de nuestros productos resultará en acciones legales inmediatas y contundentes.</p>
+                <p style="margin-bottom:10px;"><strong style="color:var(--text);">3. Privacidad y Datos</strong></p>
+                <p>Tus datos son encriptados y no son compartidos con terceros sin tu consentimiento explícito.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         BOTÓN BACK TO TOP (reutilizado)
+    ============================================================ -->
+    <button id="backToTop" style="position:fixed;bottom:24px;left:24px;z-index:999;width:44px;height:44px;border-radius:50%;background:var(--panel);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-dim);font-size:1.1rem;cursor:pointer;transition:all .3s;opacity:0;transform:scale(.8);">↑</button>
+
+    <!-- ============================================================
+         SCRIPTS (sin i18n)
+    ============================================================ -->
+    <script src="js/script.js?v=3"></script>
+
+    <script>
+        // ============================================================
+        // SERVIDORES - LÓGICA COMPLETA
+        // ============================================================
+
+        const $ = id => document.getElementById(id);
+        const esc = t => { const d = document.createElement('div'); d.textContent = t == null ? '' : String(t); return d
+                .innerHTML; };
+
+        // --- Estado ---
+        let currentUser = null;
+        let servers = [];
+        let currentCategory = 'all';
+        let currentSearch = '';
+        let currentTagFilter = '';
+
+        // --- Referencias DOM ---
+        const grid = $('serversGrid');
+        const searchInput = $('serverSearchInput');
+        const categoryFilters = document.querySelectorAll('.cat-chip-filter');
+        const popularTagsContainer = $('popularTagsContainer');
+
+        // --- Funciones de Firebase (se usarán después de que window.fb esté listo) ---
+
+        // Obtener servidores
+        async function getServers() {
+            if (!window.fb || !window.fb.getServers) {
+                // Fallback: si no existe la función, intentar leer de Firestore directamente
+                try {
+                    const { getDocs, collection, query, orderBy } = window.fb;
+                    const q = query(collection(window.fb.db, "servers"), orderBy("createdAt", "desc"));
+                    const snap = await getDocs(q);
+                    const list = [];
+                    snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+                    return { success: true, data: list };
+                } catch (e) {
+                    return { success: false, error: e.message };
+                }
+            }
+            return await window.fb.getServers();
+        }
+
+        // Agregar servidor
+        async function addServer(data) {
+            if (!window.fb || !window.fb.addServer) {
+                try {
+                    const { addDoc, collection } = window.fb;
+                    const docRef = await addDoc(collection(window.fb.db, "servers"), data);
+                    return { success: true, id: docRef.id };
+                } catch (e) {
+                    return { success: false, error: e.message };
+                }
+            }
+            return await window.fb.addServer(data);
+        }
+
+        // Actualizar like/dislike
+        async function updateServer(serverId, field, userId, operation) {
+            if (!window.fb || !window.fb.updateServer) {
+                try {
+                    const { doc, updateDoc, arrayUnion, arrayRemove } = window.fb;
+                    const ref = doc(window.fb.db, "servers", serverId);
+                    if (operation === 'arrayUnion') {
+                        await updateDoc(ref, { [field]: arrayUnion(userId) });
+                    } else {
+                        await updateDoc(ref, { [field]: arrayRemove(userId) });
+                    }
+                    return { success: true };
+                } catch (e) {
+                    return { success: false, error: e.message };
+                }
+            }
+            return await window.fb.updateServer(serverId, field, userId, operation);
+        }
+
+        // Eliminar servidor (solo autor)
+        async function deleteServer(serverId, userId) {
+            if (!window.fb || !window.fb.deleteServer) {
+                try {
+                    const { doc, getDoc, deleteDoc } = window.fb;
+                    const snap = await getDoc(doc(window.fb.db, "servers", serverId));
+                    if (!snap.exists()) return { success: false, error: "No existe" };
+                    if (snap.data().authorId !== userId) return { success: false, error: "No autorizado" };
+                    await deleteDoc(doc(window.fb.db, "servers", serverId));
+                    return { success: true };
+                } catch (e) {
+                    return { success: false, error: e.message };
+                }
+            }
+            return await window.fb.deleteServer(serverId, userId);
+        }
+
+        // --- Renderizado ---
+
+        function renderServers() {
+            let filtered = servers;
+
+            // Filtro por categoría
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(s => s.category === currentCategory);
+            }
+
+            // Filtro por búsqueda
+            if (currentSearch.trim()) {
+                const q = currentSearch.trim().toLowerCase();
+                filtered = filtered.filter(s =>
+                    s.name.toLowerCase().includes(q) ||
+                    s.description.toLowerCase().includes(q) ||
+                    (s.tags && s.tags.some(t => t.toLowerCase().includes(q)))
+                );
+            }
+
+            // Filtro por tag (desde popular tags)
+            if (currentTagFilter) {
+                filtered = filtered.filter(s => s.tags && s.tags.some(t => t === currentTagFilter));
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="servers-empty">
+                        <i class="fas fa-inbox"></i>
+                        <p>No hay servidores que coincidan con tu búsqueda</p>
+                        <p style="font-size:0.8rem;margin-top:4px;">¿Quieres ser el primero en subir el tuyo?</p>
+                        <button class="btn btn-ghost btn-sm" onclick="openUploadModal()" style="margin-top:12px;">
+                            <i class="fas fa-plus"></i> Subir servidor
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(s => {
+                const isLiked = currentUser && (s.likes || []).includes(currentUser.uid);
+                const isDisliked = currentUser && (s.dislikes || []).includes(currentUser.uid);
+                const isAuthor = currentUser && s.authorId === currentUser.uid;
+                const imageHtml = s.image ?
+                    `<img src="${esc(s.image)}" alt="${esc(s.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=placeholder><i class=fas fa-server></i><span>Sin imagen</span></div>'">` :
+                    `<div class="placeholder"><i class="fas fa-server"></i><span>Sin imagen</span></div>`;
+
+                const tagsHtml = (s.tags || []).map(t => `<span class="server-tag">${esc(t)}</span>`).join('');
+
+                const inviteLink = s.inviteLink && s.inviteLink.startsWith('http') ? s.inviteLink : '#';
+                const inviteDisabled = !s.inviteLink || !s.inviteLink.startsWith('http');
+
+                return `
+                    <div class="server-card">
+                        <div class="server-thumb">${imageHtml}</div>
+                        <div class="server-body">
+                            <div class="server-title">
+                                ${esc(s.name)}
+                                ${isAuthor ? '<span class="badge-verified">TUYO</span>' : ''}
+                            </div>
+                            <div class="server-meta">
+                                <span><i class="fas fa-user"></i> ${esc(s.authorName || 'Anónimo')}</span>
+                                <span><i class="fas fa-calendar-alt"></i> ${new Date(s.createdAt).toLocaleDateString()}</span>
+                                <span><i class="fas fa-tag"></i> ${esc(s.category || 'otros')}</span>
+                            </div>
+                            <div class="server-desc">${esc(s.description)}</div>
+                            <div class="server-tags">${tagsHtml}</div>
+                            <div class="server-actions">
+                                <div class="server-reactions">
+                                    <button class="reaction-btn ${isLiked ? 'liked' : ''}" data-id="${s.id}" data-type="like">
+                                        <i class="fas fa-thumbs-up"></i> ${(s.likes || []).length}
+                                    </button>
+                                    <button class="reaction-btn ${isDisliked ? 'disliked' : ''}" data-id="${s.id}" data-type="dislike">
+                                        <i class="fas fa-thumbs-down"></i> ${(s.dislikes || []).length}
+                                    </button>
+                                    ${isAuthor ? `
+                                        <button class="reaction-btn" data-id="${s.id}" data-type="delete" style="color:var(--danger);">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    ` : ''}
+                                </div>
+                                <a href="${inviteLink}" target="_blank" class="server-invite-btn ${inviteDisabled ? 'disabled' : ''}" ${inviteDisabled ? 'tabindex="-1"' : ''}>
+                                    <i class="fab fa-discord"></i> Invitar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Event listeners para reacciones
+            grid.querySelectorAll('.reaction-btn[data-type="like"], .reaction-btn[data-type="dislike"]').forEach(btn => {
+                btn.onclick = () => handleReaction(btn.dataset.id, btn.dataset.type);
+            });
+            grid.querySelectorAll('.reaction-btn[data-type="delete"]').forEach(btn => {
+                btn.onclick = () => handleDelete(btn.dataset.id);
+            });
+        }
+
+        // --- Manejadores de reacciones y eliminación ---
+
+        async function handleReaction(serverId, type) {
+            if (!currentUser) {
+                toast('Inicia sesión para reaccionar', 'error');
+                return;
+            }
+            const server = servers.find(s => s.id === serverId);
+            if (!server) return;
+
+            const field = type === 'like' ? 'likes' : 'dislikes';
+            const otherField = type === 'like' ? 'dislikes' : 'likes';
+            const arr = server[field] || [];
+            const otherArr = server[otherField] || [];
+
+            let operation;
+            if (arr.includes(currentUser.uid)) {
+                operation = 'arrayRemove';
+            } else {
+                // Si ya tiene reacción opuesta, eliminarla primero
+                if (otherArr.includes(currentUser.uid)) {
+                    await updateServer(serverId, otherField, currentUser.uid, 'arrayRemove');
+                    server[otherField] = server[otherField]?.filter(id => id !== currentUser.uid) || [];
+                }
+                operation = 'arrayUnion';
+            }
+
+            const result = await updateServer(serverId, field, currentUser.uid, operation);
+            if (result.success) {
+                // Actualizar localmente
+                if (operation === 'arrayUnion') {
+                    if (!server[field]) server[field] = [];
+                    server[field].push(currentUser.uid);
+                } else {
+                    server[field] = server[field]?.filter(id => id !== currentUser.uid) || [];
+                }
+                renderServers();
+            } else {
+                toast('Error al actualizar: ' + result.error, 'error');
+            }
+        }
+
+        async function handleDelete(serverId) {
+            if (!currentUser) return;
+            if (!confirm('¿Seguro que quieres eliminar este servidor?')) return;
+            const result = await deleteServer(serverId, currentUser.uid);
+            if (result.success) {
+                servers = servers.filter(s => s.id !== serverId);
+                renderServers();
+                toast('Servidor eliminado');
+                updatePopularTags();
+            } else {
+                toast('Error: ' + result.error, 'error');
+            }
+        }
+
+        // --- Tags populares ---
+
+        function updatePopularTags() {
+            const tagCount = {};
+            servers.forEach(s => {
+                (s.tags || []).forEach(t => {
+                    tagCount[t] = (tagCount[t] || 0) + 1;
+                });
+            });
+            const sorted = Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, 8);
+            if (sorted.length === 0) {
+                popularTagsContainer.innerHTML = `<span class="label"><i class="fas fa-hashtag"></i> Tags populares</span><span style="color:var(--text-faint);font-size:0.8rem;">Sin tags aún</span>`;
+                return;
+            }
+            let html = `<span class="label"><i class="fas fa-hashtag"></i> Tags populares</span>`;
+            sorted.forEach(([tag, count]) => {
+                const active = currentTagFilter === tag ? 'active' : '';
+                html += `<span class="tag-pop ${active}" data-tag="${esc(tag)}">${esc(tag)} (${count})</span>`;
+            });
+            popularTagsContainer.innerHTML = html;
+
+            popularTagsContainer.querySelectorAll('.tag-pop').forEach(el => {
+                el.onclick = () => {
+                    const tag = el.dataset.tag;
+                    if (currentTagFilter === tag) {
+                        currentTagFilter = '';
+                        el.classList.remove('active');
+                    } else {
+                        currentTagFilter = tag;
+                        popularTagsContainer.querySelectorAll('.tag-pop').forEach(e => e.classList.remove('active'));
+                        el.classList.add('active');
+                    }
+                    renderServers();
+                };
+            });
+        }
+
+        // --- Carga inicial ---
+
+        async function loadServers() {
+            const result = await getServers();
+            if (!result.success) {
+                grid.innerHTML = `<div class="servers-empty"><i class="fas fa-exclamation-triangle"></i><p>Error al cargar: ${result.error}</p></div>`;
+                return;
+            }
+            servers = result.data || [];
+            renderServers();
+            updatePopularTags();
+        }
+
+        // --- Autenticación ---
+
+        function initAuth() {
+            if (window.fb && window.fb.onAuthChange) {
+                window.fb.onAuthChange((user) => {
+                    currentUser = user;
+                    renderServers(); // refrescar para mostrar botones de autor
+                });
+            } else {
+                // Fallback: intentar recuperar de localStorage
+                const stored = JSON.parse(localStorage.getItem('jv_user') || 'null');
+                if (stored) currentUser = stored;
+                // Si no hay auth, igual cargamos los servidores
+                loadServers();
+            }
+        }
+
+        // --- Modal de subida ---
+
+        function openUploadModal() {
+            if (!currentUser) {
+                toast('Inicia sesión para subir un servidor', 'error');
+                return;
+            }
+            $('uploadOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            resetUploadForm();
+        }
+
+        function resetUploadForm() {
+            $('serverNameInput').value = '';
+            $('serverDescInput').value = '';
+            $('serverCategoryInput').value = 'juegos';
+            $('serverInviteInput').value = '';
+            $('tagsContainer').innerHTML = '';
+            $('tagInput').value = '';
+            $('imagePreview').style.display = 'none';
+            $('imagePreview').src = '';
+            $('serverImageInput').value = '';
+            $('uploadStatus').textContent = '';
+            $('uploadStatus').className = 'status-msg';
+            pendingImageData = null;
+        }
+
+        // --- Variables para imagen ---
+        let pendingImageData = null;
+
+        // --- Eventos del formulario ---
+
+        // Dropzone imagen
+        const dropzone = $('imageDropzone');
+        const fileInput = $('serverImageInput');
+        dropzone.addEventListener('click', () => fileInput.click());
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault();
+            dropzone.style.borderColor = 'var(--cyan)'; });
+        dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = ''; });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = '';
+            if (e.dataTransfer.files.length) handleImageFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length) handleImageFile(e.target.files[0]);
+        });
+
+        function handleImageFile(file) {
+            if (!file) return;
+            if (file.size > 2 * 1024 * 1024) { toast('La imagen es demasiado grande (máx 2MB)', 'error'); return; }
+            if (!file.type.startsWith('image/')) { toast('Solo se permiten imágenes', 'error'); return; }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width,
+                        h = img.height;
+                    if (w > 800 || h > 800) {
+                        const ratio = Math.min(800 / w, 800 / h);
+                        w = Math.round(w * ratio);
+                        h = Math.round(h * ratio);
+                    }
+                    canvas.width = w;
+                    canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    pendingImageData = canvas.toDataURL('image/jpeg', 0.85);
+                    const preview = $('imagePreview');
+                    preview.src = pendingImageData;
+                    preview.style.display = 'block';
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Tags: añadir con Enter
+        const tagInput = $('tagInput');
+        const tagsContainer = $('tagsContainer');
+        tagInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const val = tagInput.value.trim();
+                if (!val) return;
+                // Evitar duplicados
+                const existing = tagsContainer.querySelectorAll('.tag-pill');
+                for (let el of existing) {
+                    if (el.dataset.tag === val) return;
+                }
+                addTagPill(val);
+                tagInput.value = '';
+            }
+        });
+
+        function addTagPill(tag) {
+            const pill = document.createElement('span');
+            pill.className = 'tag-pill';
+            pill.dataset.tag = tag;
+            pill.innerHTML = `${esc(tag)} <span class="del-tag"><i class="fas fa-times"></i></span>`;
+            pill.querySelector('.del-tag').addEventListener('click', () => pill.remove());
+            tagsContainer.appendChild(pill);
+        }
+
+        // Envío del formulario
+        $('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentUser) { toast('Inicia sesión para publicar', 'error'); return; }
+
+            const name = $('serverNameInput').value.trim();
+            const description = $('serverDescInput').value.trim();
+            const category = $('serverCategoryInput').value;
+            const inviteLink = $('serverInviteInput').value.trim();
+            const tags = Array.from(tagsContainer.querySelectorAll('.tag-pill')).map(el => el.dataset.tag);
+
+            if (!name || !description || !inviteLink) {
+                $('uploadStatus').textContent = 'Por favor completa todos los campos obligatorios.';
+                $('uploadStatus').className = 'status-msg error';
+                return;
+            }
+            if (!inviteLink.startsWith('http')) {
+                $('uploadStatus').textContent = 'El enlace de invitación debe ser una URL válida (https://...).';
+                $('uploadStatus').className = 'status-msg error';
+                return;
+            }
+
+            const data = {
+                name,
+                description,
+                category,
+                inviteLink,
+                tags,
+                authorId: currentUser.uid,
+                authorName: currentUser.username || 'Anónimo',
+                createdAt: new Date().toISOString(),
+                likes: [],
+                dislikes: [],
+                image: pendingImageData || ''
+            };
+
+            const btn = $('submitServerBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
+            $('uploadStatus').textContent = '';
+            $('uploadStatus').className = 'status-msg';
+
+            const result = await addServer(data);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Publicar servidor';
+
+            if (result.success) {
+                toast('¡Servidor publicado correctamente!');
+                $('uploadOverlay').classList.remove('open');
+                document.body.style.overflow = '';
+                await loadServers();
+            } else {
+                $('uploadStatus').textContent = 'Error: ' + result.error;
+                $('uploadStatus').className = 'status-msg error';
+            }
+        });
+
+        // Cerrar modal
+        $('uploadModalClose').onclick = () => {
+            $('uploadOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+        };
+        $('uploadOverlay').addEventListener('click', (e) => {
+            if (e.target === $('uploadOverlay')) {
+                $('uploadOverlay').classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // --- Buscador y filtros ---
+
+        searchInput.addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            renderServers();
+        });
+
+        categoryFilters.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryFilters.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCategory = btn.dataset.cat;
+                renderServers();
+            });
+        });
+
+        // --- Botón de subida (abrir modal) ---
+        $('openUploadBtn').addEventListener('click', openUploadModal);
+
+        // --- Inicialización ---
+
+        // Esperar a que Firebase esté listo
+        function boot() {
+            if (window.fb && window.fb.db) {
+                initAuth();
+                // Si ya hay usuario, cargar servidores; si no, igual cargarlos
+                loadServers();
+            } else {
+                // Si no está listo, esperar
+                setTimeout(boot, 300);
+            }
+        }
+
+        if (window.fbReady) boot();
+        else {
+            window.addEventListener('fb-ready', boot, { once: true });
+            // Fallback: si no llega, cargar de todas formas después de un tiempo
+            setTimeout(() => {
+                if (!window.fb) {
+                    console.warn('Firebase no cargado, usando datos de muestra');
+                    // Datos de muestra para demostración
+                    servers = [];
+                    renderServers();
+                    updatePopularTags();
+                }
+            }, 5000);
+        }
+
+        // --- Helpers reutilizados ---
+        function toast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast ${type === 'error' ? 'err' : 'ok'}`;
+            t.innerHTML = `<i class="fas fa-${type === 'error' ? 'circle-exclamation' : 'circle-check'}"></i> ${esc(msg)}`;
+            document.body.appendChild(t);
+            setTimeout(() => {
+                t.style.opacity = '0';
+                t.style.transform = 'translateX(40px)';
+                t.style.transition = 'all .3s';
+                setTimeout(() => t.remove(), 350);
+            }, 3000);
+        }
+
+        function closeOverlay(id) {
+            const el = document.getElementById(id);
+            if (el) { el.classList.remove('open');
+                document.body.style.overflow = ''; }
+        }
+
+        // --- Anti-tools (F12, click derecho) ---
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F12' ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i')) ||
+                (e.ctrlKey && (e.key === 'U' || e.key === 'u')) ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.key === 'j'))) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // --- Tema ---
+        (function applyTheme() {
+            const dark = localStorage.getItem('jv_dark') !== 'false';
+            document.body.classList.toggle('light', !dark);
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = dark ? 'fas fa-moon' : 'fas fa-sun';
+        })();
+
+        document.getElementById('themeBtn').onclick = () => {
+            const dark = localStorage.getItem('jv_dark') !== 'false';
+            localStorage.setItem('jv_dark', !dark);
+            document.body.classList.toggle('light', dark);
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = dark ? 'fas fa-moon' : 'fas fa-sun';
+        };
+
+        // --- Back to top ---
+        const backBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            backBtn.style.opacity = window.scrollY > 500 ? '1' : '0';
+            backBtn.style.transform = window.scrollY > 500 ? 'scale(1)' : 'scale(.8)';
+        });
+        backBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        console.log('%c🛡️ Servers · Protección activa', 'color:#4fd8ff;font-size:14px;font-weight:bold;');
+    </script>
+</body>
+</html>
