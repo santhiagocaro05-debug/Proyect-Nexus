@@ -1015,14 +1015,24 @@ async function applySavedProductOrder() {
     }
 
     async function addComment(text) {
-        if (!currentUser) { openAuthModal(); return false; }
-        if (!text.trim()) return false;
-        if (!window.fb || !window.fb.addComment) { toast('❌ Firebase no disponible', 'error'); return false; }
-        const result = await window.fb.addComment(text.trim(), currentUser.uid, currentUser.username);
-        if (result.success) { await loadComments();
-            toast('¡Comentario publicado!'); return true; } else { toast('❌ Error: ' + result.error,
-            'error'); return false; }
+    if (!currentUser) { openAuthModal(); return false; }
+    if (!text.trim()) return false;
+    if (!window.fb || !window.fb.addComment) { toast('❌ Firebase no disponible', 'error'); return false; }
+    const result = await window.fb.addComment(text.trim(), currentUser.uid, currentUser.username);
+    if (result.success) {
+        await loadComments();
+        toast('¡Comentario publicado!');
+        // ✅ AGREGAR XP POR COMENTARIO
+        if (window.fb.addUserXP && window.fb.getUserActivityStats) {
+            const stats = await window.fb.getUserActivityStats(currentUser.uid);
+            await window.fb.addUserXP(currentUser.uid, window.fb.XP_REWARDS.comment, stats.stats || {});
+        }
+        return true;
+    } else { 
+        toast('❌ Error: ' + result.error, 'error'); 
+        return false; 
     }
+}
 
     // ============================================================
     // ✅ FORO - FIRESTORE (¡YA NO USA JSONBIN!)
@@ -1391,6 +1401,9 @@ function renderProductsShowMoreButton(totalCount) {
                         }
                         if (window.fb.incrementDownloadCount) {
                             window.fb.incrementDownloadCount(currentProd.id);
+                        }
+                        if (window.fb.registerUserDownload) {
+                            window.fb.registerUserDownload(currentUser.uid);
                         }
                     }
                 };
@@ -3960,6 +3973,12 @@ $('mReviewSubmitBtn').onclick = async function() {
 
             result = await window.fb.addProductReview(currentProd.id, currentRatingSelected, text, currentUser.uid, currentUser.username, userAvatar);
             window.fb.addActivityNotification(currentUser.uid, currentUser.username, 'review', currentProd.name, currentProd.id);
+
+            // ✅ AGREGAR XP POR RESEÑA (NUEVO)
+            if (window.fb.addUserXP && window.fb.getUserActivityStats) {
+                const stats = await window.fb.getUserActivityStats(currentUser.uid);
+                await window.fb.addUserXP(currentUser.uid, window.fb.XP_REWARDS.review, stats.stats || {});
+            }
         }
         
         if (result.success) {
