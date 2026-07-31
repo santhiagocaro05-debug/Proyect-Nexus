@@ -5353,6 +5353,43 @@ img {
        ::before en vez de ::after para el check, o agrega un <span>
        aparte en el HTML en vez de pseudo-elemento. */
 }
+.uname-typewriter {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid var(--cyan);
+    animation: unameTypewriter 2.4s steps(20) infinite alternate, unameCaretBlink .8s step-end infinite;
+}
+@keyframes unameTypewriter { 0% { width: 0; } 50%, 100% { width: 100%; } }
+@keyframes unameCaretBlink { 50% { border-color: transparent; } }
+
+.uname-wave {
+    display: inline-block;
+}
+.uname-wave span { display: inline-block; animation: unameWaveBounce 1.4s ease-in-out infinite; }
+
+.uname-pulse {
+    display: inline-block;
+    animation: unamePulseScale 1.6s ease-in-out infinite;
+    color: var(--cyan);
+}
+@keyframes unamePulseScale { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.06); opacity: .8; } }
+
+.uname-nexus-royal {
+    background: linear-gradient(120deg, #ffe9b8, #ffb347, #ff5d6a, #b98cff);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: unameRoyalShift 5s ease infinite;
+    text-shadow: 0 0 12px rgba(255,179,71,.35);
+}
+@keyframes unameRoyalShift { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+
+.uname-nexus-void {
+    color: #0a0e18;
+    text-shadow: 0 0 4px #b98cff, 0 0 10px #4fd8ff, 0 0 18px rgba(0,0,0,.6);
+    animation: unameVoidFlicker 3s ease-in-out infinite;
+}
+@keyframes unameVoidFlicker { 0%,100% { opacity: 1; } 45% { opacity: .7; } 50% { opacity: 1; } 55% { opacity: .8; } }
 .liquid-dock{
     position:fixed;
     left:50%;
@@ -5545,3 +5582,9 @@ body.light .liquid-dock{
 .liquid-dock .icon-btn#devPanelBtn:active {
     transform: scale(0.92);
 }
+.op-verified-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--cyan); font-size: 1.05rem; cursor: default;
+    filter: drop-shadow(0 0 4px rgba(79,216,255,.4));
+}
+.op-verified-badge.dev { color: var(--plus-gold-2); filter: drop-shadow(0 0 4px rgba(255,179,71,.4)); }
