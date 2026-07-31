@@ -1305,19 +1305,6 @@ export async function reviewNexusPlusRequest(requestId, approve, adminUid) {
   }
 }
 // ============================================================
-// firebase-config-additions.js
-// ------------------------------------------------------------
-// PEGA TODO ESTE BLOQUE AL FINAL DE firebase-config.js
-// (antes de la línea "export { doc, getDoc, updateDoc, ..." o después,
-//  da igual, es JS con exports nombrados sueltos).
-//
-// No requiere imports nuevos: usa doc, getDoc, updateDoc, addDoc,
-// deleteDoc, collection, query, where, getDocs, onSnapshot,
-// arrayUnion, arrayRemove, increment — todo eso YA está importado
-// arriba en tu firebase-config.js actual.
-// ============================================================
-
-// ============================================================
 // XP / NIVELES / INSIGNIAS
 // ============================================================
 
@@ -1334,7 +1321,7 @@ export const BADGE_DEFS = [
   { id: 'level_5',        name: 'Operador Nivel 5',      icon: 'fa-bolt',               desc: 'Alcanza el nivel 5',                   type: 'level',        value: 5 },
   { id: 'level_10',       name: 'Operador Nivel 10',     icon: 'fa-fire',               desc: 'Alcanza el nivel 10',                  type: 'level',        value: 10 },
   { id: 'level_20',       name: 'Leyenda Nexus',         icon: 'fa-crown',              desc: 'Alcanza el nivel 20',                  type: 'level',        value: 20 },
-  { id: 'plus_member',    name: 'Miembro Nexus+',        icon: 'fa-gem',                desc: 'Conviértete en Nexus+',                type: 'plus',         value: 1 },
+  { id: 'plus_member',    name: 'Miembro Nexus+',        icon: 'fa-gem',                desc: 'Conviértete en Nexus+ (nivel 500)',    type: 'level',        value: 500 },
 ];
 
 export const XP_REWARDS = {
@@ -1358,8 +1345,7 @@ export function levelFromXp(xp) {
   return level;
 }
 
-// Suma XP a un usuario, recalcula nivel y desbloquea insignias nuevas.
-// stats = { comments, downloads, reviews, profilePosts, products } (contadores actuales)
+
 export async function addUserXP(uid, amount, stats = {}) {
   try {
     const ref = doc(db, "users", uid);
@@ -1372,8 +1358,12 @@ export async function addUserXP(uid, amount, stats = {}) {
     const newXp = oldXp + amount;
     const newLevel = levelFromXp(newXp);
 
+    // ✅ NUEVO: Si llega al nivel 500, se le concede Nexus+ automáticamente
+    const isCurrentlyPlus = !!(data.nexusPlus || data.hasNexusPlus);
+    const shouldGrantPlus = newLevel >= 500;
+    const willBePlus = isCurrentlyPlus || shouldGrantPlus;
+
     const unlocked = new Set(data.unlockedBadges || []);
-    const isPlus = !!(data.nexusPlus || data.hasNexusPlus);
     const newlyUnlocked = [];
 
     BADGE_DEFS.forEach(b => {
@@ -1381,19 +1371,39 @@ export async function addUserXP(uid, amount, stats = {}) {
       let ok = false;
       if (b.type === 'xp') ok = newXp >= b.value;
       else if (b.type === 'level') ok = newLevel >= b.value;
-      else if (b.type === 'plus') ok = isPlus;
+      else if (b.type === 'plus') ok = willBePlus; // ✅ Aquí se evalúa si es Plus
       else if (stats[b.type] !== undefined) ok = stats[b.type] >= b.value;
       if (ok) { unlocked.add(b.id); newlyUnlocked.push(b); }
     });
 
-    await updateDoc(ref, {
+    const updateData = {
       xp: newXp,
       level: newLevel,
       unlockedBadges: Array.from(unlocked),
       updatedAt: new Date().toISOString()
-    });
+    };
 
-    return { success: true, xp: newXp, level: newLevel, leveledUp: newLevel > oldLevel, newlyUnlocked };
+    // ✅ Si gana Nexus+ por nivel y no lo tenía, lo activamos en Firestore
+    if (shouldGrantPlus && !isCurrentlyPlus) {
+      updateData.nexusPlus = true;
+      updateData.hasNexusPlus = true; // Para compatibilidad con getIsPlus()
+    }
+
+    await updateDoc(ref, updateData);
+
+    // ✅ Mostrar mensaje especial si se activó Nexus+
+    if (shouldGrantPlus && !isCurrentlyPlus) {
+      toast('👑 ¡Has alcanzado el nivel 500! Has desbloqueado NEXUS+ de por vida.');
+    }
+
+    return { 
+      success: true, 
+      xp: newXp, 
+      level: newLevel, 
+      leveledUp: newLevel > oldLevel, 
+      newlyUnlocked,
+      nexusPlusGranted: shouldGrantPlus && !isCurrentlyPlus 
+    };
   } catch (error) {
     return { success: false, error: error.message };
   }
