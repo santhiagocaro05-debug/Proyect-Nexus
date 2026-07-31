@@ -2217,6 +2217,11 @@ function showSaveOrderButton() {
 
         })();
 
+        authBtn.innerHTML = `<i class="fas fa-user"></i>`;
+        authBtn.title = currentUser.username;  // nombre en tooltip
+        authBtn.className = 'btn btn-ghost btn-sm';
+        authBtn.onclick = openLogoutModal;
+
 
         pnb.onclick = () => { location.href = 'perfil.html'; };
         authText.textContent = currentUser.username;
