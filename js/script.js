@@ -3770,7 +3770,7 @@ window.loadProductReviews = function(productId) {
     });
 };
 
-function renderReviews(reviews, productId) {
+async function renderReviews(reviews, productId) {
     const list = $('mReviewsList');
     const avgContainer = $('mReviewsAvg');
     
@@ -3782,6 +3782,22 @@ function renderReviews(reviews, productId) {
         avgContainer.innerHTML = 'Nuevo';
         updateGlobalProductRating(productId, null);
         return;
+    }
+
+    // ✅ NUEVO: traer efectos de nombre / color / Nexus+ de cada autor de reseña
+    let nameEffectMap = {}, effectColorMap = {}, nexusPlusMap = {};
+    if (window.fb && window.fb.getAllUsers) {
+        const usersResult = await window.fb.getAllUsers();
+        const users = usersResult.success ? usersResult.data : [];
+        users.forEach(u => {
+            const isPlus = !!(u.nexusPlus || u.hasNexusPlus); // acepta los dos nombres de campo
+            nexusPlusMap[u.id] = isPlus;
+            const fx = u.nameEffect || 'none';
+            if ((fx === 'plusgold' || fx.startsWith('nexus-')) && !isPlus) nameEffectMap[u.id] = 'none';
+            else if (fx === 'devtype' && !u.isDeveloper) nameEffectMap[u.id] = 'none';
+            else nameEffectMap[u.id] = fx;
+            effectColorMap[u.id] = u.effectColor || '';
+        });
     }
 
     let totalStars = 0;
@@ -3807,6 +3823,12 @@ function renderReviews(reviews, productId) {
         totalStars += r.rating;
         const isMine = currentUser && r.userId === currentUser.uid;
         const avatarStr = r.avatar ? `<img src="${r.avatar}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : `<i class="fas fa-user"></i>`;
+
+        // ✅ NUEVO: efecto de nombre + gema Nexus+
+        const nameFx = nameEffectMap[r.userId] || 'none';
+        const userFxColor = effectColorMap[r.userId] || '';
+        const isNexusPlus = nexusPlusMap[r.userId];
+        const nPlusHTML = isNexusPlus ? `<span style="color:var(--nexus-gold); font-size:0.75rem; margin-left:4px;" title="Miembro Nexus+"><i class="fas fa-gem"></i></span>` : '';
         
         let starsHtml = '';
         for(let i=1; i<=5; i++) {
@@ -3817,11 +3839,13 @@ function renderReviews(reviews, productId) {
             <div style="background:var(--panel-strong);border-radius:12px;padding:14px;border:1px solid var(--border);">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
                     <div style="display:flex;align-items:center;gap:10px;">
-                        <div style="width:28px;height:28px;border-radius:50%;background:var(--panel);display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:.7rem;">
+                        <div style="width:28px;height:28px;border-radius:50%;background:var(--panel);display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:.7rem;overflow:hidden;">
                             ${avatarStr}
                         </div>
                         <div>
-                            <div style="font-weight:600;font-size:.85rem;">${esc(r.username)}</div>
+                            <div style="font-weight:600;font-size:.85rem;">
+                                <span class="uname uname-${nameFx}" onclick="location.href='perfil.html?u=${r.userId}'" style="cursor:pointer;${userFxColor ? ` --uname-color: ${userFxColor};` : ''}">${esc(r.username)}</span>${nPlusHTML}
+                            </div>
                             <div style="font-size:.7rem;color:var(--text-dim);">${new Date(r.createdAt).toLocaleDateString()}</div>
                         </div>
                     </div>
