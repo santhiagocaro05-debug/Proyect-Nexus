@@ -457,14 +457,16 @@
 
             <div class="op-bio" id="opBio">Sin descripción aún</div>
 
-            <!-- Invitación a Nexus+ (solo visible en tu propio perfil si aún no eres suscriptor) -->
-            <div class="op-plus-banner" id="opPlusBanner" onclick="openNexusPlusModal()">
+            <div class="op-plus-banner" id="opPlusBanner">
                 <div class="op-plus-banner-ico"><i class="fas fa-gem"></i></div>
-                <div class="op-plus-banner-txt">
-                    <strong>Hazte Nexus+</strong>
+                <div class="op-plus-banner-txt" style="flex:1;">
+                    <strong>Hazte Nexus+ (Acceso Anticipado)</strong>
                     <span>Insignia Verificado+, efectos exclusivos y soporte prioritario</span>
+                    <div style="display:flex; gap: 8px; margin-top: 10px;">
+                        <input type="email" id="nexusPlusEarlyEmailProfile" class="field" placeholder="Tu correo electrónico..." style="flex:1; margin:0; padding: 6px 10px; font-size: 0.8rem;">
+                        <button class="btn btn-solid btn-sm" style="background: var(--plus-grad); border: none; color: #fff;" onclick="window.requestNexusPlusEarlyAccessProfile()">Solicitar</button>
+                    </div>
                 </div>
-                <i class="fas fa-arrow-right op-plus-banner-arrow"></i>
             </div>
 
             <div class="op-statline">
