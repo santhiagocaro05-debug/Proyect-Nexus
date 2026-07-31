@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -1760,11 +1760,23 @@
     </div>
 </div>
 
-<!-- Chat FAB -->
-<button id="chatFab" class="chat-fab" style="display:none;" onclick="toggleChatPanel()">
-    <i class="fas fa-comment-dots"></i> <!-- o fa-comments -->
-    <span id="chatUnread" class="chat-unread" style="display:none;">0</span>
-</button>
+<!-- Reemplaza el <button id="chatFab"> por este dock -->
+<nav id="liquidDock" class="liquid-dock">
+    <button class="dock-btn" id="dockHomeBtn" title="Inicio">
+        <i class="fas fa-house"></i>
+    </button>
+    <button class="dock-btn" id="dockCreateBtn" title="Crear publicación">
+        <i class="fas fa-pen"></i>
+    </button>
+    <button class="dock-btn" id="dockChatBtn" title="Mensajes">
+        <i class="fas fa-comment-dots"></i>
+        <span id="dockChatDot" class="dock-dot" style="display:none;"></span>
+    </button>
+    <div class="dock-sep"></div>
+    <button class="dock-btn dock-profile" id="dockProfileBtn" title="Mi perfil">
+        <span id="dockProfileContent">?</span>
+    </button>
+</nav>
 
 <!-- Chat Panel -->
 <div id="chatPanel" class="chat-panel">
