@@ -698,7 +698,7 @@ document.getElementById('devRequestOverlay')?.addEventListener('click', function
 // ============================================================
 
 window.requestNexusPlusEarlyAccess = async function() {
-    if (!currentUser) {
+    if (!authUser) {
         toast('Inicia sesión para pedir acceso', 'error');
         return;
     }
@@ -712,7 +712,8 @@ window.requestNexusPlusEarlyAccess = async function() {
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     
     try {
-        const result = await window.fb.requestNexusPlusAccess(currentUser.uid, email, currentUser.username);
+        const username = profileData ? profileData.username : 'Usuario';
+        const result = await window.fb.requestNexusPlusAccess(authUser.uid, email, username);
         if (result.success) {
             toast('Solicitud enviada correctamente', 'success');
             document.getElementById('nexusPlusEarlyEmail').value = '';
