@@ -431,8 +431,11 @@
             <div class="op-topbar-status"><span class="dot"></span> SISTEMA_PERFIL.ONLINE</div>
         </div>
 
-        <!-- FICHA PRINCIPAL -->
+        <!-- ============================================================
+             FICHA PRINCIPAL
+        ============================================================ -->
         <div class="op-card" id="opCard">
+            <!-- Banner -->
             <div class="op-banner" id="opBanner">
                 <button class="op-banner-edit" id="opBannerEditBtn" style="display:none;">
                     <i class="fas fa-camera"></i> Cambiar portada
@@ -440,6 +443,7 @@
                 <input type="file" id="opBannerInput" accept="image/*" style="display:none;">
             </div>
 
+            <!-- Identidad -->
             <div class="op-identity">
                 <div class="op-avatar-wrap">
                     <div class="op-avatar" id="opAvatar">?</div>
@@ -449,10 +453,14 @@
                 <div class="op-namebox">
                     <div class="op-name-row">
                         <div class="op-name"><span class="uname uname-none" id="opNameSpan">—</span></div>
+                        <span class="op-verified-badge" id="opVerifiedBadge" style="display:none;" title="Cuenta verificada por Proyect Nexus">
+                            <i class="fas fa-badge-check"></i>
+                        </span>
                         <button class="op-plus-pin" id="opPlusPin" onclick="openNexusPlusModal()" title="Miembro Nexus+">
                             <i class="fas fa-gem"></i> NEXUS+
-                        </button>
+                            </button>
                     </div>
+                        
                     <div class="op-meta-line">
                         <span id="opUidShort">OP-000000</span>
                         <span>·</span>
@@ -463,8 +471,10 @@
                 </div>
             </div>
 
+            <!-- Bio -->
             <div class="op-bio" id="opBio">Sin descripción aún</div>
 
+            <!-- XP Block -->
             <div class="op-xp-block" id="opXpBlock">
                <div class="op-xp-top">
                     <span class="op-xp-level">Nivel <b id="opXpLevelNum">1</b></span>
@@ -483,6 +493,7 @@
                 <i class="fas fa-arrow-right op-plus-banner-arrow"></i>
             </div>
 
+            <!-- Estadísticas -->
             <div class="op-statline">
                 <div class="op-stat"><div class="op-stat-ico"><i class="fas fa-pen-nib"></i></div><div class="op-stat-n" id="opStatPosts">0</div><div class="op-stat-l">Publicaciones</div></div>
                 <div class="op-stat"><div class="op-stat-ico"><i class="fas fa-comment"></i></div><div class="op-stat-n" id="opStatComments">0</div><div class="op-stat-l">Comentarios</div></div>
@@ -491,7 +502,9 @@
             </div>
         </div>
 
-        <!-- TABS -->
+        <!-- ============================================================
+             TABS
+        ============================================================ -->
         <div class="op-tabs" id="opTabs">
             <button class="op-tab active" data-tab="general"><i class="fas fa-id-badge"></i> General</button>
             <button class="op-tab" data-tab="redes"><i class="fas fa-link"></i> Redes</button>
@@ -500,7 +513,9 @@
             <button class="op-tab" data-tab="ajustes" id="opTabAjustesBtn" style="display:none;"><i class="fas fa-sliders-h"></i> Ajustes</button>
         </div>
 
-        <!-- PANEL: GENERAL -->
+        <!-- ============================================================
+             PANEL: GENERAL
+        ============================================================ -->
         <div class="op-panel active" id="opPanelGeneral">
             <div class="panel" style="padding:24px;">
                 <div id="opBadgesRow" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;"></div>
@@ -522,7 +537,11 @@
                 <div id="opGeneralEdit" style="display:none;">
                     <div class="op-field-group">
                         <label class="op-field-label">Descripción</label>
-                        <textarea id="opBioInput" class="field" rows="3" placeholder="Cuéntanos algo sobre ti..." style="resize:vertical;"></textarea>
+                        <textarea id="opBioInput" class="field" rows="5" maxlength="300" placeholder="Cuéntanos algo sobre ti... (puedes usar **negrita** y *cursiva*)" style="resize:vertical;"></textarea>
+                        <small id="opBioCount" style="color:var(--text-faint);font-size:.7rem;">0 / 300</small>
+                        <div style="display:flex;justify-content:flex-end;font-size:.7rem;color:var(--text-faint);margin-top:4px;">
+                            <span id="opBioCount">0 / 300</span>
+                        </div>
                     </div>
                     <div class="op-field-group">
                         <label class="op-field-label">Color de acento</label>
@@ -540,23 +559,47 @@
             </div>
         </div>
 
-        <!-- PANEL: REDES -->
+        <!-- ============================================================
+             PANEL: REDES (ACTUALIZADO CON TODAS LAS REDES SOCIALES)
+        ============================================================ -->
         <div class="op-panel" id="opPanelRedes">
             <div class="panel" style="padding:24px;">
+                <!-- Vista pública (se muestra a todos) -->
                 <div id="opRedesView" style="display:flex;gap:14px;flex-wrap:wrap;"></div>
 
+                <!-- Edición (solo para el dueño del perfil) -->
                 <div id="opRedesEdit" style="display:none;">
                     <div class="op-field-group">
                         <label class="op-field-label"><i class="fab fa-discord" style="color:#5865F2;"></i> Discord</label>
                         <input type="text" id="opDiscordInput" class="field" placeholder="tu_usuario">
                     </div>
                     <div class="op-field-group">
-                        <label class="op-field-label"><i class="fab fa-twitter" style="color:#1DA1F2;"></i> Twitter</label>
+                        <label class="op-field-label"><i class="fab fa-twitter" style="color:#1DA1F2;"></i> Twitter / X</label>
                         <input type="text" id="opTwitterInput" class="field" placeholder="@usuario">
                     </div>
                     <div class="op-field-group">
                         <label class="op-field-label"><i class="fab fa-instagram" style="color:#E1306C;"></i> Instagram</label>
                         <input type="text" id="opInstagramInput" class="field" placeholder="@usuario">
+                    </div>
+                    <div class="op-field-group">
+                        <label class="op-field-label"><i class="fab fa-youtube" style="color:#FF0000;"></i> YouTube</label>
+                        <input type="text" id="opYoutubeInput" class="field" placeholder="@canal o URL completa">
+                    </div>
+                    <div class="op-field-group">
+                        <label class="op-field-label"><i class="fab fa-tiktok" style="color:#e0e0e0;"></i> TikTok</label>
+                        <input type="text" id="opTiktokInput" class="field" placeholder="@usuario">
+                    </div>
+                    <div class="op-field-group">
+                        <label class="op-field-label"><i class="fab fa-github" style="color:#c9c9c9;"></i> GitHub</label>
+                        <input type="text" id="opGithubInput" class="field" placeholder="usuario">
+                    </div>
+                    <div class="op-field-group">
+                        <label class="op-field-label"><i class="fab fa-twitch" style="color:#9146FF;"></i> Twitch</label>
+                        <input type="text" id="opTwitchInput" class="field" placeholder="usuario">
+                    </div>
+                    <div class="op-field-group">
+                        <label class="op-field-label"><i class="fas fa-globe" style="color:var(--cyan);"></i> Sitio web</label>
+                        <input type="text" id="opWebsiteInput" class="field" placeholder="https://tusitio.com">
                     </div>
                     <button onclick="saveOpRedes()" class="btn btn-solid" style="margin-top:6px;"><i class="fas fa-save"></i> Guardar redes</button>
                 </div>
@@ -597,6 +640,9 @@
         <!-- PANEL: AJUSTES (avatar/banner ya están arriba; aquí van los efectos de nombre) -->
         <div class="op-panel" id="opPanelAjustes">
             <div class="panel" style="padding:24px;">
+                <label class="op-field-label" style="margin-bottom:14px;display:block;">Tema de portada</label>
+                <div id="opThemeSwatches" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:26px;"></div>
+                
                 <label class="op-field-label" style="margin-bottom:14px;display:block;">Efecto de nombre de usuario</label>
                 <div id="opEffectSwatches" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;"></div>
                 <div id="opColorPicker"></div>
