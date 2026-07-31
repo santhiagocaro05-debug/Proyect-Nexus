@@ -1537,6 +1537,9 @@ function renderProductsShowMoreButton(totalCount) {
         renderAdminPosts(posts);
         renderAdminUsers(users);
         loadAdminDevRequests();
+        if (window.loadAdminNexusRequests) {
+            window.loadAdminNexusRequests();
+        }
     } catch (error) {
         console.error('Error al cargar datos admin:', error);
         toast('Error al cargar datos: ' + error.message, 'error');
