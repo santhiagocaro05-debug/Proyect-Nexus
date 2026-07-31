@@ -706,6 +706,15 @@
                         <i class="fas fa-chevron-right arr"></i>
                     </a>
 
+                    <div class="plus-section-label" style="margin-top: 24px;"><i class="fas fa-rocket" style="color:var(--plus-gold-2);"></i> Acceso Anticipado</div>
+                    <div style="background: rgba(255,179,71,0.05); border: 1px solid rgba(255,179,71,0.15); border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                        <p style="font-size: .85rem; color: var(--text-dim); margin-bottom: 12px; line-height: 1.5;">Pide acceso anticipado a Nexus+ ingresando tu correo. Los admins revisarán tu solicitud.</p>
+                        <div style="display:flex; gap: 8px;">
+                            <input type="email" id="nexusPlusEarlyEmail" class="field" placeholder="Tu correo electrónico..." style="flex:1; margin:0;">
+                            <button id="nexusPlusEarlyBtn" class="btn btn-solid" style="background: var(--plus-grad); border: none; color: #fff;" onclick="window.requestNexusPlusEarlyAccess()">Solicitar</button>
+                        </div>
+                    </div>
+
                     <div class="plus-note">
                         <i class="fas fa-circle-info"></i>
                         <span>La activación es manual: un operador confirma tu pago y activa la insignia Nexus+ en tu ficha en menos de 24h.</span>
