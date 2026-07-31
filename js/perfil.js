@@ -697,28 +697,6 @@ document.getElementById('devRequestOverlay')?.addEventListener('click', function
 //    si quieres blindarlo también del lado del servidor).
 // ============================================================
 
-window.requestNexusPlusEarlyAccessProfile = async function() {
-    if (!currentUser) {
-        toast('Inicia sesión para pedir acceso', 'error');
-        return;
-    }
-    const email = document.getElementById('nexusPlusEarlyEmailProfile').value.trim();
-    if (!email || !email.includes('@')) {
-        toast('Por favor ingresa un correo válido', 'error');
-        return;
-    }
-    
-    // Usamos el mismo botón o mostramos un toast de estado
-    toast('Enviando solicitud...');
-    const result = await window.fb.requestNexusPlusEarlyAccess(currentUser.uid, currentUser.username, email);
-    if (result.success) {
-        toast('¡Solicitud de Acceso Anticipado enviada!', 'success');
-        document.getElementById('nexusPlusEarlyEmailProfile').value = '';
-    } else {
-        toast('Error: ' + result.error, 'error');
-    }
-};
-
 window.requestNexusPlusEarlyAccess = async function() {
     if (!currentUser) {
         toast('Inicia sesión para pedir acceso', 'error');
