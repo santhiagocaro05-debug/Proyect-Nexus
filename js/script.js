@@ -813,6 +813,7 @@ async function applySavedProductOrder() {
         const userAvatarMap = {};
         const rankMap = {};
         const nameEffectMap = {};
+        const effectColorMap = {};
         const nexusPlusMap = {};
         users.forEach(u => {
             userAvatarMap[u.id] = u.avatar || '';
@@ -824,6 +825,7 @@ async function applySavedProductOrder() {
             if (fx === 'plusgold' && !u.nexusPlus) nameEffectMap[u.id] = 'none';
             else if (fx === 'devtype' && !u.isDeveloper) nameEffectMap[u.id] = 'none';
             else nameEffectMap[u.id] = fx;
+            effectColorMap[u.id] = u.effectColor || '';
         });
 
         if (!comments.length) {
@@ -836,6 +838,7 @@ async function applySavedProductOrder() {
             const rank = rankMap[c.authorId] || 'member';
             const rb = getCommentBadge(rank);
             const nameFx = nameEffectMap[c.authorId] || 'none';
+            const userFxColor = effectColorMap[c.authorId] || '';
             const isNexusPlus = c.authorNexusPlus || nexusPlusMap[c.authorId];
             const isOwner = currentUser && (c.authorId === currentUser.uid);
             const ul = currentUser && (c.likes || []).includes(currentUser.uid);
@@ -852,7 +855,7 @@ async function applySavedProductOrder() {
                         <div class="c-avatar" onclick="location.href='perfil.html?u=${c.authorId}'" style="cursor:pointer;overflow:hidden;background:var(--cyan-dim);display:grid;place-items:center;">
   ${avatarHTML}
 </div>
-<span class="c-author uname uname-${nameFx}" onclick="location.href='perfil.html?u=${c.authorId}'" style="cursor:pointer">${esc(c.author)}${nPlusHTML}</span>
+<span class="c-author uname uname-${nameFx}" onclick="location.href='perfil.html?u=${c.authorId}'" style="cursor:pointer;${userFxColor ? ` --uname-color: ${userFxColor};` : ''}">${esc(c.author)}${nPlusHTML}</span>
                         ${rb}
                         ${isOwner ? '<span style="font-size:.62rem;background:var(--cyan-dim);color:var(--cyan);padding:2px 8px;border-radius:6px;font-weight:700">Tú</span>' : ''}
                         <span class="c-date">${new Date(c.date).toLocaleString()}</span>

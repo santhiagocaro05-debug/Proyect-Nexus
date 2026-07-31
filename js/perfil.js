@@ -38,7 +38,13 @@ const NAME_EFFECTS = [
     { id: 'plusgold', label: '<i class="fas fa-gem"></i> Gold Plus', plusOnly: true },
     { id: 'nexus-cosmic', label: '<i class="fas fa-meteor"></i> Cósmico', plusOnly: true },
     { id: 'nexus-fire', label: '<i class="fas fa-fire"></i> Fuego', plusOnly: true },
-    { id: 'nexus-diamond', label: '<i class="fas fa-gem"></i> Diamante', plusOnly: true }
+    { id: 'nexus-diamond', label: '<i class="fas fa-gem"></i> Diamante', plusOnly: true },
+    { id: 'nexus-plasma', label: '<i class="fas fa-water"></i> Plasma', plusOnly: true },
+    { id: 'nexus-electric', label: '<i class="fas fa-bolt"></i> Eléctrico', plusOnly: true },
+    { id: 'nexus-crystal', label: '<i class="fas fa-cube"></i> Cristal', plusOnly: true },
+    { id: 'nexus-aurora', label: '<i class="fas fa-star-and-crescent"></i> Aurora', plusOnly: true },
+    { id: 'nexus-glitch', label: '<i class="fas fa-bug"></i> Glitch', plusOnly: true },
+    { id: 'nexus-stardust', label: '<i class="fas fa-sparkles"></i> Stardust', plusOnly: true }
 ];
 
 const RANK_DISPLAY = {
@@ -163,6 +169,11 @@ function renderIdentity() {
     const nameSpan = $('opNameSpan');
     nameSpan.textContent = profileData.username || 'Usuario';
     nameSpan.className = `uname uname-${profileData.nameEffect || 'none'}`;
+    if (profileData.effectColor) {
+        nameSpan.style.setProperty('--uname-color', profileData.effectColor);
+    } else {
+        nameSpan.style.removeProperty('--uname-color');
+    }
 
     // Pin Nexus+ junto al nombre
     $('opPlusPin').style.display = (profileData.nexusPlus || profileData.hasNexusPlus) ? 'inline-flex' : 'none';
@@ -476,11 +487,18 @@ function renderEffectSwatches() {
     }
     const effectiveCurrent = stillHasCurrent ? current : 'none';
 
-    container.innerHTML = available.map(fx => `
+    container.innerHTML = available.map(fx => {
+        let styleAttr = '';
+        if (profileData.effectColor) {
+            styleAttr = `style="--uname-color: ${profileData.effectColor}; font-size:1rem;"`;
+        } else {
+            styleAttr = `style="font-size:1rem;"`;
+        }
+        return `
         <div class="effect-swatch ${fx.id === effectiveCurrent ? 'selected' : ''}" data-fx="${fx.id}">
-            <span class="uname uname-${fx.id}" style="font-size:1rem;">${esc(profileData.username || 'Nombre')}</span>
+            <span class="uname uname-${fx.id}" ${styleAttr}>${esc(profileData.username || 'Nombre')}</span>
         </div>
-    `).join('');
+    `}).join('');
 
     container.querySelectorAll('.effect-swatch').forEach(el => {
         el.onclick = async () => {
@@ -497,6 +515,62 @@ function renderEffectSwatches() {
             }
         };
     });
+
+    renderColorPicker();
+}
+
+function renderColorPicker() {
+    const cpContainer = $('opColorPicker');
+    if (!cpContainer) return;
+    
+    if (!profileData.nexusPlus && !profileData.hasNexusPlus) {
+        cpContainer.innerHTML = '';
+        return;
+    }
+
+    const COLORS = [
+        '#4fd8ff', '#ff5d6a', '#ffc107', '#3ddc97', 
+        '#c084fc', '#ff6b9d', '#ffb347', '#00e5ff', 
+        '#e040fb', '#76ff03', '#ff1744', '#ffffff'
+    ];
+
+    const currentFxColor = profileData.effectColor || '';
+
+    let html = `
+        <div class="effect-color-section">
+            <div class="section-title"><i class="fas fa-palette"></i> Color base (Exclusivo Nexus+)</div>
+            <div class="effect-color-palette">
+                <button class="color-dot-reset ${!currentFxColor ? 'selected' : ''}" title="Por defecto" onclick="selectEffectColor('')">
+                    <i class="fas fa-ban"></i>
+                </button>
+    `;
+
+    COLORS.forEach(c => {
+        const isSelected = currentFxColor.toLowerCase() === c.toLowerCase();
+        html += `<div class="color-dot ${isSelected ? 'selected' : ''}" style="background-color: ${c}" onclick="selectEffectColor('${c}')"></div>`;
+    });
+
+    html += `
+                <div class="custom-color-wrap">
+                    <input type="color" id="fxCustomColor" class="custom-color-input ${currentFxColor && !COLORS.includes(currentFxColor.toLowerCase()) ? 'selected' : ''}" value="${currentFxColor || '#4fd8ff'}" onchange="selectEffectColor(this.value)">
+                </div>
+            </div>
+        </div>
+    `;
+
+    cpContainer.innerHTML = html;
+}
+
+window.selectEffectColor = async function(color) {
+    const result = await window.fb.saveUserProfile(viewUid, { effectColor: color });
+    if (result.success) {
+        profileData.effectColor = color;
+        renderEffectSwatches(); // Re-renderiza las cajas con el color
+        renderIdentity(); // Actualiza el banner principal
+        toast(color ? 'Color base actualizado' : 'Color por defecto restaurado');
+    } else {
+        toast('Error: ' + result.error, 'error');
+    }
 }
 
 
