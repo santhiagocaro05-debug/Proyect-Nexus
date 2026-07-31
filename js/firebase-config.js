@@ -1554,6 +1554,188 @@ export function listenProfilePostComments(postId, callback) {
     callback(comments);
   });
 }
+
+
+
+
+// ============================================================
+// NOTICIAS - FUNCIONES COMPLETAS
+// ============================================================
+
+// Agregar noticia
+export async function addNews(data) {
+  try {
+    const docRef = await addDoc(collection(db, "news"), {
+      ...data,
+      createdAt: new Date().toISOString(),
+      reactions: {}, // { emoji: [userIds] }
+      commentCount: 0,
+      updatedAt: new Date().toISOString()
+    });
+    return { success: true, id: docRef.id };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+// Obtener noticias
+export async function getNews() {
+  try {
+    const q = query(collection(db, "news"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    const news = [];
+    snap.forEach(d => news.push({ id: d.id, ...d.data() }));
+    return { success: true, data: news };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+// Eliminar noticia (solo admin o autor)
+export async function deleteNews(id, userId) {
+  try {
+    const snap = await getDoc(doc(db, "news", id));
+    if (!snap.exists()) return { success: false, error: "No existe" };
+    if (snap.data().authorId !== userId && !(await isUserAdmin(userId))) {
+      return { success: false, error: "No autorizado" };
+    }
+    await deleteDoc(doc(db, "news", id));
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+// Agregar comentario a una noticia
+export async function addNewsComment(newsId, userId, username, text, avatar) {
+  try {
+    const docRef = await addDoc(collection(db, "newsComments"), {
+      newsId,
+      userId,
+      username: username || 'Anónimo',
+      avatar: avatar || '',
+      text: text.trim().substring(0, 500),
+      createdAt: new Date().toISOString(),
+      likes: [],
+      dislikes: [],
+      replies: []
+    });
+    // Incrementar contador de comentarios en la noticia
+    const newsRef = doc(db, "news", newsId);
+    await updateDoc(newsRef, { commentCount: increment(1) });
+    return { success: true, id: docRef.id };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+// Obtener comentarios de una noticia
+export async function getNewsComments(newsId) {
+  try {
+    const q = query(
+      collection(db, "newsComments"),
+      where("newsId", "==", newsId),
+      orderBy("createdAt", "asc")
+    );
+    const snap = await getDocs(q);
+    const comments = [];
+    snap.forEach(d => comments.push({ id: d.id, ...d.data() }));
+    return { success: true, data: comments };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+// Escuchar comentarios de una noticia en tiempo real
+export function listenNewsComments(newsId, callback) {
+  const q = query(
+    collection(db, "newsComments"),
+    where("newsId", "==", newsId),
+    orderBy("createdAt", "asc")
+  );
+  return onSnapshot(q, (snapshot) => {
+    const comments = [];
+    snapshot.forEach(d => comments.push({ id: d.id, ...d.data() }));
+    callback(comments);
+  });
+}
+
+// Agregar respuesta a un comentario de noticia
+export async function addNewsReply(commentId, userId, username, text, avatar) {
+  try {
+    const commentRef = doc(db, "newsComments", commentId);
+    const snap = await getDoc(commentRef);
+    if (!snap.exists()) return { success: false, error: "Comentario no encontrado" };
+    const data = snap.data();
+    const replies = data.replies || [];
+    replies.push({
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 4),
+      userId,
+      username: username || 'Anónimo',
+      avatar: avatar || '',
+      text: text.trim().substring(0, 300),
+      createdAt: new Date().toISOString()
+    });
+    await updateDoc(commentRef, { replies });
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+// Alternar reacción (emoji) en una noticia
+export async function toggleNewsReaction(newsId, userId, emoji) {
+  try {
+    const ref = doc(db, "news", newsId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return { success: false, error: "Noticia no encontrada" };
+    const data = snap.data();
+    const reactions = data.reactions || {};
+    
+    // Remover usuario de cualquier reacción previa
+    for (const e in reactions) {
+      if (reactions[e].includes(userId)) {
+        reactions[e] = reactions[e].filter(id => id !== userId);
+        if (reactions[e].length === 0) delete reactions[e];
+      }
+    }
+    // Agregar nueva reacción si no es emoji vacío
+    if (emoji) {
+      if (!reactions[emoji]) reactions[emoji] = [];
+      if (!reactions[emoji].includes(userId)) reactions[emoji].push(userId);
+    }
+    await updateDoc(ref, { reactions });
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
+
+// Alternar like/dislike en un comentario de noticia
+export async function likeNewsComment(commentId, userId, field) {
+  try {
+    const ref = doc(db, "newsComments", commentId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return { success: false, error: "Comentario no encontrado" };
+    const data = snap.data();
+    const likes = data.likes || [];
+    const dislikes = data.dislikes || [];
+    const isLike = field === 'likes';
+    const arr = isLike ? likes : dislikes;
+    const otherArr = isLike ? dislikes : likes;
+    const update = {};
+    if (arr.includes(userId)) {
+      update[field] = arr.filter(id => id !== userId);
+    } else {
+      update[field] = [...arr, userId];
+      update[isLike ? 'dislikes' : 'likes'] = otherArr.filter(id => id !== userId);
+    }
+    await updateDoc(ref, update);
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: e.message };
+  }
+}
 // ============================================================
 // EXPORTAR FUNCIONES ÚTILES (Firestore helpers)
 // ============================================================
