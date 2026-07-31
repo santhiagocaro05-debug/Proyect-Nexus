@@ -1538,7 +1538,7 @@ function renderProductsShowMoreButton(totalCount) {
         renderAdminUsers(users);
         loadAdminDevRequests();
         if (window.loadAdminNexusRequests) {
-            window.loadAdminNexusRequests();
+            await window.loadAdminNexusRequests();
         }
     } catch (error) {
         console.error('Error al cargar datos admin:', error);
@@ -4865,14 +4865,23 @@ document.addEventListener('DOMContentLoaded', () => {
 let nexusRequestsBadgeUnsub = null;
 
 window.loadAdminNexusRequests = async function() {
-    if (!window.fb || !window.fb.listenNexusPlusRequests) return;
-    if (nexusRequestsBadgeUnsub) {
-        nexusRequestsBadgeUnsub();
+    try {
+        if (!window.fb || !window.fb.listenNexusPlusRequests) {
+            document.getElementById('adminNexusRequestsList').innerHTML = '<div style="color:var(--danger);padding:20px;text-align:center;">Error: listenNexusPlusRequests no está definido. Refresca la caché.</div>';
+            console.error("listenNexusPlusRequests is undefined. window.fb:", window.fb);
+            return;
+        }
+        if (nexusRequestsBadgeUnsub) {
+            nexusRequestsBadgeUnsub();
+        }
+        
+        nexusRequestsBadgeUnsub = window.fb.listenNexusPlusRequests((requests) => {
+            renderAdminNexusRequests(requests);
+        });
+    } catch (error) {
+        console.error("Error in loadAdminNexusRequests:", error);
+        document.getElementById('adminNexusRequestsList').innerHTML = `<div style="color:var(--danger);padding:20px;text-align:center;">Excepción: ${error.message}</div>`;
     }
-    
-    nexusRequestsBadgeUnsub = window.fb.listenNexusPlusRequests((requests) => {
-        renderAdminNexusRequests(requests);
-    });
 };
 
 function renderAdminNexusRequests(requests) {
