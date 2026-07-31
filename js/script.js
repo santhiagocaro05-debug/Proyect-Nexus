@@ -813,8 +813,10 @@ async function applySavedProductOrder() {
         const userAvatarMap = {};
         const rankMap = {};
         const nameEffectMap = {};
+        const nexusPlusMap = {};
         users.forEach(u => {
             userAvatarMap[u.id] = u.avatar || '';
+            nexusPlusMap[u.id] = !!u.nexusPlus || !!u.hasNexusPlus;
             if (u.isAdmin) rankMap[u.id] = 'admin';
             else if (u.rank) rankMap[u.id] = u.rank;
             else rankMap[u.id] = 'member';
@@ -834,6 +836,7 @@ async function applySavedProductOrder() {
             const rank = rankMap[c.authorId] || 'member';
             const rb = getCommentBadge(rank);
             const nameFx = nameEffectMap[c.authorId] || 'none';
+            const isNexusPlus = c.authorNexusPlus || nexusPlusMap[c.authorId];
             const isOwner = currentUser && (c.authorId === currentUser.uid);
             const ul = currentUser && (c.likes || []).includes(currentUser.uid);
             const ud = currentUser && (c.dislikes || []).includes(currentUser.uid);
@@ -841,13 +844,15 @@ async function applySavedProductOrder() {
             const avatarHTML = avatarUrl ?
                 `<img src="${avatarUrl}" style="width:34px;height:34px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.1)">` :
                 (c.author[0] || '?').toUpperCase();
+            
+            const nPlusHTML = isNexusPlus ? `<span style="color:var(--nexus-gold); font-size:0.75rem; margin-left:4px;" title="Miembro Nexus+"><i class="fas fa-gem"></i></span>` : '';
 
             return `<div class="comment-item" id="ci-${c.id}">
                       <div class="c-head">
                         <div class="c-avatar" onclick="location.href='perfil.html?u=${c.authorId}'" style="cursor:pointer;overflow:hidden;background:var(--cyan-dim);display:grid;place-items:center;">
   ${avatarHTML}
 </div>
-<span class="c-author uname uname-${nameFx}" onclick="location.href='perfil.html?u=${c.authorId}'" style="cursor:pointer">${esc(c.author)}</span>
+<span class="c-author uname uname-${nameFx}" onclick="location.href='perfil.html?u=${c.authorId}'" style="cursor:pointer">${esc(c.author)}${nPlusHTML}</span>
                         ${rb}
                         ${isOwner ? '<span style="font-size:.62rem;background:var(--cyan-dim);color:var(--cyan);padding:2px 8px;border-radius:6px;font-weight:700">Tú</span>' : ''}
                         <span class="c-date">${new Date(c.date).toLocaleString()}</span>
@@ -4413,9 +4418,11 @@ function renderChatMessages(messages) {
         const senderName = isSent ? 'Tú' : msg.senderName || 'Usuario';
         const time = new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
         
+        const nexusBadge = msg.senderNexusPlus ? `<span style="color:var(--nexus-gold); font-size:0.75rem; margin-left:4px;" title="Miembro Nexus+"><i class="fas fa-gem"></i></span>` : '';
+        
         return `
             <div class="chat-msg ${isSent ? 'sent' : 'received'}">
-                ${!isSent ? `<div class="msg-sender">${esc(senderName)}</div>` : ''}
+                ${!isSent ? `<div class="msg-sender">${esc(senderName)}${nexusBadge}</div>` : ''}
                 ${esc(msg.text)}
                 <span class="msg-time">${time}</span>
             </div>
@@ -4441,7 +4448,9 @@ window.sendChatMsg = async function() {
         chatResult.chatId,
         currentUser.uid,
         currentUser.username,
-        text
+        text,
+        null,
+        currentUser.hasNexusPlus || false
     );
     
     if (result.success) {
