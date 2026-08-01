@@ -5613,3 +5613,107 @@ body.light .liquid-dock{
     color: var(--danger);
     border: 1px solid rgba(255,93,106,.3);
 }
+
+/* ===== Panel "Actualizaciones de productos" — rediseño aislado (pn-*) =====
+   Usa clases propias (no .prod-update-tag / .chat-list-item) para no heredar
+   el position:absolute de las cards del catálogo ni afectar el chat. */
+#productNotifPanel { max-width: 368px; }
+
+#productNotifPanel #productNotifList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+}
+
+.pn-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 14px;
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+.pn-item:hover {
+    background: var(--bg-3);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+}
+
+.pn-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .95rem;
+    border: 1px solid;
+}
+
+.pn-body { flex: 1; min-width: 0; }
+
+.pn-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.pn-title {
+    font-weight: 700;
+    font-size: .85rem;
+    font-family: var(--font-display);
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pn-time {
+    flex-shrink: 0;
+    font-size: .64rem;
+    color: var(--text-faint);
+    white-space: nowrap;
+}
+
+.pn-sub {
+    font-size: .74rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+.pn-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 7px;
+    font-size: .6rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+.pn-badge--updated {
+    background: rgba(61,220,151,.15);
+    color: var(--success);
+    border: 1px solid rgba(61,220,151,.3);
+}
+.pn-badge--outdated {
+    background: rgba(255,93,106,.15);
+    color: var(--danger);
+    border: 1px solid rgba(255,93,106,.3);
+}
+.pn-badge--unset {
+    background: var(--bg-3);
+    color: var(--text-faint);
+    border: 1px solid var(--border);
+}
