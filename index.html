@@ -1578,6 +1578,16 @@
                             <div class="cat-chip" data-val="scripts">📜 Scripts</div>
                         </div>
                         
+                        <!-- ✅ NUEVO SELECTOR: Estado de actualización (Admin) -->
+                        <div style="margin-bottom:8px;font-size:.72rem;font-weight:700;color:var(--text-faint);letter-spacing:.08em;text-transform:uppercase;">
+                            🔄 Estado de actualización
+                        </div>
+                        <select id="npUpdateStatus" class="field" style="margin-bottom:12px;">
+                            <option value="">Sin marcar</option>
+                            <option value="updated">✅ Actualizado</option>
+                            <option value="outdated">⚠️ Desactualizado</option>
+                        </select>
+                        
                         <div class="form-grid">
                             <input type="text" id="npEmoji" class="field" placeholder="Emoji (ej: 🤖 o ⭐)">
                             <input type="text" id="npId" class="field" placeholder="ID único (ej: mi_producto)">
@@ -1699,6 +1709,16 @@
                     <div class="cat-chip" data-val="asistentes">🤖 Asistentes</div>
                     <div class="cat-chip" data-val="scripts">📜 Scripts</div>
                 </div>
+
+                <!-- ✅ NUEVO SELECTOR: Estado de actualización (Developer) -->
+                <div style="margin-bottom:8px;font-size:.72rem;font-weight:700;color:var(--text-faint);letter-spacing:.08em;text-transform:uppercase;">
+                    🔄 Estado de actualización
+                </div>
+                <select id="dpUpdateStatus" class="field" style="margin-bottom:12px;">
+                    <option value="">Sin marcar</option>
+                    <option value="updated">✅ Actualizado</option>
+                    <option value="outdated">⚠️ Desactualizado</option>
+                </select>
 
                 <div class="form-grid">
                     <input type="text" id="dpEmoji" class="field" placeholder="Emoji (ej: 🤖 o ⭐)">
