@@ -5588,3 +5588,28 @@ body.light .liquid-dock{
     filter: drop-shadow(0 0 4px rgba(79,216,255,.4));
 }
 .op-verified-badge.dev { color: var(--plus-gold-2); filter: drop-shadow(0 0 4px rgba(255,179,71,.4)); }
+.prod-update-tag {
+    position: absolute;
+    top: 40px;
+    left: 10px;
+    font-size: .62rem;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    backdrop-filter: blur(6px);
+}
+.prod-update-tag.updated {
+    background: rgba(61,220,151,.15);
+    color: var(--success);
+    border: 1px solid rgba(61,220,151,.3);
+}
+.prod-update-tag.outdated {
+    background: rgba(255,93,106,.15);
+    color: var(--danger);
+    border: 1px solid rgba(255,93,106,.3);
+}
