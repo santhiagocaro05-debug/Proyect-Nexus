@@ -951,7 +951,20 @@
     </footer>
 
     
-    <button id="backToTop" style="position:fixed;bottom:24px;left:24px;z-index:999;width:44px;height:44px;border-radius:50%;background:var(--panel);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-dim);font-size:1.1rem;cursor:pointer;transition:all .3s;opacity:0;transform:scale(.8);">↑</button>
+    <style>
+#backToTop{opacity:0;transform:translateY(14px) scale(.8);pointer-events:none;transition:opacity .35s cubic-bezier(.34,1.56,.64,1),transform .35s cubic-bezier(.34,1.56,.64,1),border-color .25s ease,box-shadow .25s ease,color .25s ease;display:flex;align-items:center;justify-content:center;overflow:visible}
+#backToTop.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+#backToTop .btt-arrow{display:inline-block;animation:bttHint 1.8s ease-in-out infinite}
+@keyframes bttHint{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+#backToTop:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:0 8px 24px rgba(79,216,255,.25);transform:translateY(-2px) scale(1.06)}
+#backToTop:active{transform:translateY(-2px) scale(.92)}
+#backToTop.launching::before{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid var(--cyan);animation:bttRing .6s cubic-bezier(0,0,.2,1) forwards}
+@keyframes bttRing{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.2);opacity:0}}
+#backToTop.launching .btt-arrow{animation:bttLaunch .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes bttLaunch{0%{transform:translateY(0);opacity:1}40%{transform:translateY(-16px);opacity:0}41%{transform:translateY(14px);opacity:0}100%{transform:translateY(0);opacity:1}}
+@media (prefers-reduced-motion:reduce){#backToTop,#backToTop .btt-arrow,#backToTop.launching::before,#backToTop.launching .btt-arrow{animation:none!important}}
+</style>
+    <button id="backToTop" style="position:fixed;bottom:24px;left:24px;z-index:999;width:44px;height:44px;border-radius:50%;background:var(--panel);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-dim);font-size:1.1rem;cursor:pointer;"><span class="btt-arrow">↑</span></button>
     
 <div class="music-player glass" id="musicPlayer">
     <div class="mp-header" id="mpHeader">
@@ -992,6 +1005,31 @@
     </div>
     <audio id="mpAudio" preload="metadata"></audio>
 </div>
+
+    <!-- ============================================================
+         MODAL: AGREGAR PISTA POR URL (reproductor)
+         ============================================================ -->
+    <div class="overlay" id="mpUrlOverlay">
+        <div class="modal" style="max-width:420px;">
+            <button class="modal-x" onclick="closeOverlay('mpUrlOverlay')"><i class="fas fa-times"></i></button>
+            <div style="text-align:center;margin-bottom:20px;">
+                <div style="width:54px;height:54px;border-radius:15px;background:var(--cyan-dim);color:var(--cyan);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto 12px;"><i class="fas fa-link"></i></div>
+                <h3 style="font-family:var(--font-display);font-size:1.15rem;font-weight:700;margin-bottom:6px;">Agregar pista por URL</h3>
+                <p style="color:var(--text-dim);font-size:.82rem;">Pega el link directo del archivo de audio.</p>
+            </div>
+            <div class="op-field-group" style="margin-bottom:14px;">
+                <label class="op-field-label">URL del audio</label>
+                <input type="url" id="mpUrlInput" class="field" placeholder="https://.../cancion.mp3">
+            </div>
+            <div class="op-field-group" style="margin-bottom:18px;">
+                <label class="op-field-label">Nombre de la pista</label>
+                <input type="text" id="mpUrlNameInput" class="field" placeholder="Pista externa">
+            </div>
+            <div class="status-msg" id="mpUrlStatus" style="margin-bottom:10px;"></div>
+            <button onclick="submitMpUrlTrack()" class="btn btn-solid btn-block"><i class="fas fa-plus"></i> Agregar a la playlist</button>
+        </div>
+    </div>
+
     <div class="cursor-glow" id="cursorGlow"></div>
 
     
@@ -1103,6 +1141,51 @@
                 </div>
             </div>
             <a href="https://discord.gg/Nahh9XhnvR" target="_blank" class="btn btn-solid btn-block" style="background:#5865F2;color:#fff;box-shadow:0 6px 20px rgba(88,101,242,.3);"><i class="fab fa-discord"></i> Abrir Discord</a>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         MODAL: RECLAMAR NEXUS PRO GRATIS (Nexus+)
+         ============================================================ -->
+    <div class="overlay" id="nexusProClaimOverlay">
+        <div class="modal" style="max-width:480px;">
+            <button class="modal-x" onclick="closeOverlay('nexusProClaimOverlay')"><i class="fas fa-times"></i></button>
+            <div style="text-align:center;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:20px;">
+                <div style="width:54px;height:54px;border-radius:15px;background:linear-gradient(135deg,rgba(255,233,184,.16),rgba(185,140,255,.14));color:var(--plus-gold-2,#ffb347);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 12px;"><i class="fas fa-gem"></i></div>
+                <h3 style="font-family:var(--font-display);font-size:1.2rem;font-weight:700;margin-bottom:6px;">Reclama <span id="claimProductName">Nexus Pro</span> gratis</h3>
+                <p style="color:var(--text-dim);font-size:.83rem;">Beneficio exclusivo para miembros Nexus+. Sigue estos pasos:</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:22px;">
+                <div style="display:flex;align-items:flex-start;gap:13px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:var(--plus-grad,linear-gradient(135deg,#ffe9b8,#ffb347,#b98cff));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#2a1200;flex-shrink:0;box-shadow:0 4px 12px rgba(255,179,71,.25);">1</div>
+                    <div><h4 style="font-size:.88rem;font-weight:700;margin-bottom:3px;">Únete al servidor</h4><p style="font-size:.8rem;color:var(--text-dim);line-height:1.55;">Entra a nuestro Discord con el botón de abajo (o el enlace <a id="claimJoinServerBtn" href="https://discord.com/invite/RBBXNZaNDw" target="_blank" style="color:var(--cyan);">discord.gg/Nahh9XhnvR</a>).</p></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:13px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:var(--plus-grad,linear-gradient(135deg,#ffe9b8,#ffb347,#b98cff));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#2a1200;flex-shrink:0;box-shadow:0 4px 12px rgba(255,179,71,.25);">2</div>
+                    <div><h4 style="font-size:.88rem;font-weight:700;margin-bottom:3px;">Abre un ticket</h4><p style="font-size:.8rem;color:var(--text-dim);line-height:1.55;">En el canal de <strong style="color:var(--text);">#tickets</strong> abre uno nuevo.</p></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:13px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:var(--plus-grad,linear-gradient(135deg,#ffe9b8,#ffb347,#b98cff));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#2a1200;flex-shrink:0;box-shadow:0 4px 12px rgba(255,179,71,.25);">3</div>
+                    <div><h4 style="font-size:.88rem;font-weight:700;margin-bottom:3px;">Muestra tu captura de Nexus+</h4><p style="font-size:.8rem;color:var(--text-dim);line-height:1.55;">Sube una captura de tu ficha de operador donde se vea la insignia <strong style="color:var(--plus-gold-2,#ffb347);">NEXUS+</strong> activa.</p></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:13px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:var(--plus-grad,linear-gradient(135deg,#ffe9b8,#ffb347,#b98cff));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#2a1200;flex-shrink:0;box-shadow:0 4px 12px rgba(255,179,71,.25);">4</div>
+                    <div><h4 style="font-size:.88rem;font-weight:700;margin-bottom:3px;">Recibe tu rol</h4><p style="font-size:.8rem;color:var(--text-dim);line-height:1.55;">Un operador te asignará el rol <strong style="color:var(--text);">Nexus+</strong> o <strong style="color:var(--text);">Insider</strong> en el servidor.</p></div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:13px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:var(--plus-grad,linear-gradient(135deg,#ffe9b8,#ffb347,#b98cff));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#2a1200;flex-shrink:0;box-shadow:0 4px 12px rgba(255,179,71,.25);">5</div>
+                    <div>
+                        <h4 style="font-size:.88rem;font-weight:700;margin-bottom:3px;">Ejecuta el comando</h4>
+                        <p style="font-size:.8rem;color:var(--text-dim);line-height:1.55;margin-bottom:6px;">Escribe <code style="background:var(--panel-strong);border:1px solid var(--border);padding:2px 7px;border-radius:6px;color:var(--cyan);">/legales</code> en el servidor y acepta los términos.</p>
+                        <button onclick="copyLegalesCommand()" class="btn btn-ghost btn-sm" style="padding:6px 12px;font-size:.72rem;"><i class="fas fa-copy"></i> Copiar /legales</button>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:flex-start;gap:13px;">
+                    <div style="width:28px;height:28px;border-radius:50%;background:var(--plus-grad,linear-gradient(135deg,#ffe9b8,#ffb347,#b98cff));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#2a1200;flex-shrink:0;box-shadow:0 4px 12px rgba(255,179,71,.25);">6</div>
+                    <div><h4 style="font-size:.88rem;font-weight:700;margin-bottom:3px;">¡Disfruta de Nexus Pro!</h4><p style="font-size:.8rem;color:var(--text-dim);line-height:1.55;">Recibirás el enlace de descarga directamente en tu ticket.</p></div>
+                </div>
+            </div>
+            <a href="https://discord.com/invite/RBBXNZaNDw" target="_blank" class="btn btn-solid btn-block" style="background:var(--plus-grad,linear-gradient(135deg,#ffe9b8,#ffb347,#b98cff));border:none;color:#2a1200;box-shadow:0 6px 20px rgba(255,179,71,.3);"><i class="fab fa-discord"></i> Abrir Discord y reclamar</a>
         </div>
     </div>
 
