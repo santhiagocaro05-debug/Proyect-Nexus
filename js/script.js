@@ -3603,7 +3603,6 @@ window.createNewProduct = async function() {
     const name = $('npName').value.trim();
     
     const selectedChips = Array.from(document.querySelectorAll('.cat-chip.selected')).map(c => c.dataset.val);
-    const updateStatus = document.getElementById('dpUpdateStatus').value;
     const cat = selectedChips.length > 0 ? selectedChips.join(',') : 'free';
     
     const price = $('npPrice').value.trim();
