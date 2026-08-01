@@ -46,6 +46,7 @@ function __nexusMain() {
         ],
         dl: 'https://github.com/dexter-666/IA_proyect-v1-free/releases/download/v3.0/Jarvis-FreeV3.zip',
         free: true,
+        updateStatus: 'updated',
         richHTML: `<p style="margin-bottom:20px;font-size:.9rem;line-height:1.6;color:var(--text-dim)">Un poderoso asistente virtual avanzado para escritorio inspirado en la IA de Marvel.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:20px;text-align:left"><div><h4 style="color:var(--text);font-size:.95rem;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:4px;font-family:var(--font-display)"><i class="fas fa-crown" style="color:#4fd8ff;margin-right:8px"></i>Características</h4><ul style="list-style:none;padding-left:0;font-size:.82rem;color:var(--text-dim);line-height:1.6;display:flex;flex-direction:column;gap:6px"><li><strong>• Interfaz Holográfica:</strong> Orbe reactivo con animaciones dinámicas.</li><li><strong>• Comandos de Voz:</strong> Tecla global Insert para activar.</li><li><strong>• Control del Entorno:</strong> Volumen, brillo, energía.</li><li><strong>• Programación Autónoma:</strong> Auto-escritura de scripts.</li><li><strong>• Multimedia:</strong> YouTube, Spotify.</li></ul></div><div><h4 style="color:var(--text);font-size:.95rem;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:4px;font-family:var(--font-display)"><i class="fas fa-microchip" style="margin-right:8px"></i>Tecnologías</h4><p style="font-size:.82rem;color:var(--text-dim);line-height:1.5">Python 3.12, PyQt6, LLMs (Gemini y OpenRouter), Win32 Kernel.</p></div></div>`
     }, {
         id: 'nexus_d',
@@ -68,6 +69,7 @@ function __nexusMain() {
         ],
         dl: 'https://github.com/santhiagocaro05-debug/NEXUS-INSTALLER/releases/download/installer/Nexus-core-Setup-1.0.0-V3.exe',
         free: true,
+        updateStatus: 'updated',
         richHTML: `<p style="margin-bottom:20px;font-size:.9rem;line-height:1.6;color:var(--text-dim)">Asistente de IA que controla todo tu PC al completo, se conecta a cualquier dispositivo inteligente. Lenguajes: Python, C++ y C#.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:20px;text-align:left"><div><h4 style="color:var(--text);font-size:.95rem;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:4px;font-family:var(--font-display)"><i class="fas fa-crown" style="color:#3ddc97;margin-right:8px"></i>Características</h4><ul style="list-style:none;padding-left:0;font-size:.82rem;color:var(--text-dim);line-height:1.6;display:flex;flex-direction:column;gap:6px"><li><strong>• Control Total del PC:</strong> Gestiona archivos, procesos y configuraciones.</li><li><strong>• Dispositivos Inteligentes:</strong> Conéctate a IoT, luces y más.</li><li><strong>• Multi-Idioma:</strong> Desarrollado en Python, C++ y C#.</li><li><strong>• Interfaz Moderna:</strong> Diseño limpio y fluido.</li></ul></div><div><h4 style="color:var(--text);font-size:.95rem;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:4px;font-family:var(--font-display)"><i class="fas fa-microchip" style="margin-right:8px"></i>Tecnologías</h4><p style="font-size:.82rem;color:var(--text-dim);line-height:1.5">Python 3.12, C++17, C# .NET 8, APIs REST, WebSockets, IoT Core.</p></div></div>`
     }, {
         id: 'nexus_ds',
@@ -90,6 +92,7 @@ function __nexusMain() {
         ],
         dl: 'https://discord.com/invite/RBBXNZaNDw',
         free: false,
+        updateStatus: 'updated',
         richHTML: `<p style="margin-bottom:20px;font-size:.9rem;line-height:1.6;color:var(--text-dim)">Versión avanzada con conexión a dispositivos inteligentes, redes neuronales y control total de tu PC.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:20px;text-align:left"><div><h4 style="color:var(--text);font-size:.95rem;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:4px;font-family:var(--font-display)"><i class="fas fa-crown" style="color:#c084fc;margin-right:8px"></i>Características</h4><ul style="list-style:none;padding-left:0;font-size:.82rem;color:var(--text-dim);line-height:1.6;display:flex;flex-direction:column;gap:6px"><li><strong>• Redes Neuronales:</strong> IA avanzada con aprendizaje continuo.</li><li><strong>• Control Total:</strong> Gestiona PC y dispositivos inteligentes.</li><li><strong>• Análisis Predictivo:</strong> Anticipa tus necesidades.</li><li><strong>• Soporte Prioritario:</strong> Atención 24/7 vía Discord.</li><li><strong>• Módulos Personalizables:</strong> Amplía funcionalidades.</li></ul></div><div><h4 style="color:var(--text);font-size:.95rem;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:4px;font-family:var(--font-display)"><i class="fas fa-microchip" style="margin-right:8px"></i>Stack</h4><p style="font-size:.82rem;color:var(--text-dim);line-height:1.5">Python 3.12, TensorFlow, PyTorch, C++17, C# .NET 8, MQTT, WebSockets.</p></div></div>`
     }, {
         id: 'INY1',
@@ -110,6 +113,7 @@ function __nexusMain() {
         feats: ['Característica 1', 'Característica 2'],
         dl: 'https://github.com/SyntaxErrorSx/APPS-VIPS/releases/download/c0nverter/INJECTOR.zip',
         free: true,
+        updateStatus: 'updated',
         richHTML: `<p style="margin-bottom:20px;font-size:.9rem;line-height:1.6;color:var(--text-dim)">
         <strong style="color:var(--text);">Inyector 157</strong> es una herramienta gratuita diseñada para la gestión avanzada de procesos y la inyección de DLLs en sistemas Windows. Ideal para desarrolladores y entusiastas.
     </p>
@@ -167,6 +171,7 @@ function __nexusMain() {
         feats: ['Inyección avanzada de DLLs', 'Gestión completa de procesos','Modo Stealth','Interfaz moderna',],
         dl: 'https://github.com/SyntaxErrorSx/APPS-VIPS/releases/download/v5/157.Injector.Pro-.exe',
         free: true,
+        updateStatus: 'updated',
         richHTML: `<p style="margin-bottom:20px;font-size:.9rem;line-height:1.6;color:var(--text-dim)">
         <strong style="color:var(--text);">Inyector Pro</strong> es la versión avanzada del inyector de 157 Team. Diseñado para profesionales y entusiastas que necesitan una herramienta potente y confiable para la gestión de procesos y la inyección de DLLs en sistemas Windows.
     </p>
@@ -258,6 +263,7 @@ function __nexusMain() {
     ],
     dl: 'https://github.com/santhiagocaro05-debug/NEXUS-INSTALLER/releases/download/installer2/YimMenuForce.dll',
     free: true,
+    updateStatus: 'outdated',
     richHTML: `<p style="margin-bottom:20px;font-size:.9rem;line-height:1.6;color:var(--text-dim)">
         <strong style="color:#8b5cf6;">YimMenu Enhanced</strong> es la versión mejorada del famoso menú para GTA V. Diseñado con un elegante tema morado y características exclusivas que lo convierten en la mejor opción para jugadores que buscan seguridad y rendimiento.
     </p>
@@ -351,6 +357,7 @@ function __nexusMain() {
     ],
     dl: 'https://github.com/tu-repo/yimmenu-legacy/releases',
     free: true,
+    updateStatus: 'outdated',
     richHTML: `<p style="margin-bottom:20px;font-size:.9rem;line-height:1.6;color:var(--text-dim)">
         <strong style="color:#8b5cf6;">YimMenu Legacy</strong> es un menú de modificación para GTA V de código abierto, diseñado para ser fácil de usar, estable y altamente configurable.
     </p>
@@ -397,6 +404,7 @@ function __nexusMain() {
     ],
     dl: 'https://github.com/santhiagocaro05-debug/NEXUS-INSTALLER/releases/download/installer/NEXUS_Browser.exe',
     free: true,
+    updateStatus: 'updated',
     richHTML: `<p style="margin-bottom:20px;font-size:.9rem;line-height:1.6;color:var(--text-dim)">
         <strong style="color:#3ddc97;">Nexus Browser</strong> es un navegador web moderno, ligero y enfocado en la privacidad del usuario. Diseñado por 157 Team para ofrecer una experiencia de navegación rápida y segura sin sacrificar el rendimiento.
     </p>
@@ -3557,7 +3565,7 @@ window.editProductAdmin = function(productId) {
     $('npFeats').value = (p.feats || []).join('\n');
     $('npDl').value = p.dl || '';
     $('npColor').value = p.color || '';
-    $('npUpdateStatus').value = p.updateStatus || '';
+    if ($('npUpdateStatus')) $('npUpdateStatus').value = p.updateStatus || '';
     
     document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('selected'));
     if (p.cat) {
@@ -3581,7 +3589,7 @@ window.editProductAdmin = function(productId) {
 
 window.cancelEditProduct = function() {
     $('npEditId').value = '';
-    $('npUpdateStatus').value = '';
+    if ($('npUpdateStatus')) $('npUpdateStatus').value = '';
     $('npFormTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Nuevo producto';
     $('npSubmitBtnText').textContent = 'Crear producto';
     $('npCancelEditBtn').style.display = 'none';
@@ -3599,7 +3607,7 @@ window.createNewProduct = async function() {
     if (!currentUser || !currentUser.isAdmin) { toast('Sin permisos', 'error'); return; }
     
     const editId = $('npEditId').value;
-    const updateStatus = $('npUpdateStatus').value;
+    const updateStatus = $('npUpdateStatus') ? $('npUpdateStatus').value : '';
     const name = $('npName').value.trim();
     
     const selectedChips = Array.from(document.querySelectorAll('.cat-chip.selected')).map(c => c.dataset.val);
@@ -3611,7 +3619,7 @@ window.createNewProduct = async function() {
     const customColor = $('npColor').value.trim();
     const shortDesc = $('npShortDesc').value.trim();
     const desc = $('npDesc').value.trim();
-    const feats = $('npFeats').value.split('').map(f => f.trim()).filter(Boolean);
+    const feats = $('npFeats').value.split('\n').map(f => f.trim()).filter(Boolean);
     const dl = $('npDl').value.trim();
 
     if (!name || !price || !shortDesc) { toast('Completa nombre, precio y descripción corta', 'error'); return; }
@@ -3703,6 +3711,8 @@ window.saveDevProduct = async function() {
   const feats = document.getElementById('dpFeats').value.split('\n').map(f => f.trim()).filter(Boolean);
   const downloadLink = document.getElementById('dpDl').value.trim();      // ✅ PARA GRATIS
   const buyLink = document.getElementById('dpBuyLink').value.trim();      // ✅ PARA PAGA
+  const dpUpdateStatusEl = document.getElementById('dpUpdateStatus');
+  const updateStatus = dpUpdateStatusEl ? dpUpdateStatusEl.value : '';
 
   // Categorías seleccionadas
   const selectedChips = Array.from(document.querySelectorAll('#dpCatChips .cat-chip.selected')).map(c => c.dataset.val);
@@ -3773,7 +3783,7 @@ window.cancelEditDevProduct = function() {
   document.getElementById('dpFeats').value = '';
   document.getElementById('dpDl').value = '';
   document.getElementById('dpColor').value = '';
-  document.getElementById('dpUpdateStatus').value = '';
+  if (document.getElementById('dpUpdateStatus')) document.getElementById('dpUpdateStatus').value = '';
 
   document.querySelectorAll('#dpCatChips .cat-chip').forEach(c => c.classList.remove('selected'));
   pendingDevProductImage = null;
@@ -3829,7 +3839,7 @@ window.editDevProduct = async function(productId) {
   document.getElementById('dpFeats').value = (p.feats || []).join('\n');
   document.getElementById('dpDl').value = p.dl || '';
   document.getElementById('dpColor').value = p.color || '';
-  document.getElementById('dpUpdateStatus').value = p.updateStatus || '';
+  if (document.getElementById('dpUpdateStatus')) document.getElementById('dpUpdateStatus').value = p.updateStatus || '';
 
   document.querySelectorAll('#dpCatChips .cat-chip').forEach(c => c.classList.remove('selected'));
   if (p.cat) {
